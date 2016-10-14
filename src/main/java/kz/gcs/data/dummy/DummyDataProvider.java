@@ -103,6 +103,13 @@ public class DummyDataProvider implements DataProvider {
 
         Collection<Movie> result = new ArrayList<Movie>();
 
+        for (int i=0; i<100; i++){
+            Movie movie=new Movie();
+            movie.setId(new Long(i));
+            movie.setTitle(DummyDataGenerator.randomTitle(i));
+            result.add(movie);
+        }
+
         return result;
     }
 
@@ -213,16 +220,12 @@ public class DummyDataProvider implements DataProvider {
                     transaction.setTitle(movie.getTitle());
 
                     // Country
-                    Object[] array = countryToCities.keySet().toArray();
-                    int i = (int) (Math.random() * (array.length - 1));
-                    String country = array[i].toString();
-                    transaction.setCountry(country);
+                    transaction.setCountry(DummyDataGenerator.randomWord(3,true));
 
                     transaction.setTime(cal.getTime());
 
                     // City
-                    Collection<String> cities = countryToCities.get(country);
-                    transaction.setCity(cities.iterator().next());
+                    transaction.setCity(DummyDataGenerator.randomWord(5,true));
 
                     // Theater
                     String theater = theaters
