@@ -9,18 +9,20 @@ import kz.gcs.views.settings.SettingsView;
 
 
 public enum MenuViewType {
-    MAP(MapView.VIEW_NAME, MapView.class, FontAwesome.MAP),
-    SETTINGS(SettingsView.VIEW_NAME, SettingsView.class, FontAwesome.WRENCH),
-    GEOLOCATION(GeoLocationView.VIEW_NAME, GeoLocationView.class, FontAwesome.MAP_MARKER);
+    MAP(MapView.VIEW_NAME, MapView.class, FontAwesome.MAP, true),
+    SETTINGS(SettingsView.VIEW_NAME, SettingsView.class, FontAwesome.WRENCH, true),
+    GEOLOCATION(GeoLocationView.VIEW_NAME, GeoLocationView.class, FontAwesome.MAP_MARKER, true);
 
     private final String viewName;
     private final Class<? extends View> viewClass;
     private final Resource icon;
+    private final boolean stateful;
 
-    MenuViewType(String viewName, Class<? extends View> viewClass, Resource icon) {
+    MenuViewType(String viewName, Class<? extends View> viewClass, Resource icon, boolean stateful) {
         this.viewName = viewName;
         this.icon = icon;
         this.viewClass = viewClass;
+        this.stateful = stateful;
     }
 
     public String getViewName() {
@@ -33,6 +35,10 @@ public enum MenuViewType {
 
     public Resource getIcon() {
         return icon;
+    }
+
+    public boolean isStateful() {
+        return stateful;
     }
 
     public static MenuViewType getByViewName(final String viewName) {

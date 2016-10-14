@@ -1,22 +1,18 @@
 package kz.gcs.views;
 
-import com.vaadin.navigator.Navigator;
-import com.vaadin.navigator.View;
-import com.vaadin.navigator.ViewChangeListener;
-import com.vaadin.spring.annotation.SpringView;
+import kz.gcs.DashboardNavigator;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.HorizontalLayout;
 
-import javax.annotation.PostConstruct;
+/*
+ * Dashboard MainView is a simple HorizontalLayout that wraps the menu on the
+ * left and creates a simple container for the navigator on the right.
+ */
+@SuppressWarnings("serial")
+public class MainView extends HorizontalLayout {
 
-@SpringView(name = MainView.VIEW_NAME)
-public class MainView extends HorizontalLayout implements View {
-
-    public static final String VIEW_NAME = "mainView";
-
-    @PostConstruct
-    void init() {
+    public MainView() {
         setSizeFull();
         addStyleName("mainview");
 
@@ -28,12 +24,6 @@ public class MainView extends HorizontalLayout implements View {
         addComponent(content);
         setExpandRatio(content, 1.0f);
 
-        //getUI().getNavigator().destroy();
-        getUI().setNavigator(new Navigator(getUI(), content));
-    }
-
-    @Override
-    public void enter(ViewChangeListener.ViewChangeEvent viewChangeEvent) {
-
+        new DashboardNavigator(content);
     }
 }

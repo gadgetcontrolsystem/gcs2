@@ -1,19 +1,51 @@
 package kz.gcs.views;
 
+import java.util.Collection;
+
 import com.google.common.eventbus.Subscribe;
-import com.vaadin.navigator.View;
-import com.vaadin.navigator.ViewChangeListener;
+import kz.gcs.MyUI;
+import kz.gcs.component.ProfilePreferencesWindow;
+import kz.gcs.domain.Transaction;
+import kz.gcs.domain.User;
+import kz.gcs.event.DashboardEvent.NotificationsCountUpdatedEvent;
+import kz.gcs.event.DashboardEvent.PostViewChangeEvent;
+import kz.gcs.event.DashboardEvent.ProfileUpdatedEvent;
+import kz.gcs.event.DashboardEvent.ReportsCountUpdatedEvent;
+import kz.gcs.event.DashboardEvent.TransactionReportEvent;
+import kz.gcs.event.DashboardEvent.UserLoggedOutEvent;
+import kz.gcs.event.DashboardEventBus;
+import com.vaadin.event.dd.DragAndDropEvent;
+import com.vaadin.event.dd.DropHandler;
+import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.ThemeResource;
+import com.vaadin.server.VaadinSession;
 import com.vaadin.shared.ui.label.ContentMode;
-import com.vaadin.spring.annotation.SpringView;
-import com.vaadin.ui.*;
+import com.vaadin.ui.AbstractSelect.AcceptItem;
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.CssLayout;
+import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.DragAndDropWrapper;
+import com.vaadin.ui.DragAndDropWrapper.DragStartMode;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.MenuBar;
+import com.vaadin.ui.MenuBar.Command;
+import com.vaadin.ui.MenuBar.MenuItem;
+import com.vaadin.ui.Table;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.themes.ValoTheme;
 
-@SpringView(name = MenuView.VIEW_NAME)
-public class MenuView extends CustomComponent implements View {
-
-    public static final String VIEW_NAME = "menuView";
+/**
+ * A responsive menu component providing user information and the controls for
+ * primary navigation between the views.
+ */
+@SuppressWarnings({ "serial", "unchecked" })
+public final class MenuView extends CustomComponent {
 
     public static final String ID = "dashboard-menu";
     public static final String REPORTS_BADGE_ID = "dashboard-menu-reports-badge";
@@ -21,13 +53,16 @@ public class MenuView extends CustomComponent implements View {
     private static final String STYLE_VISIBLE = "valo-menu-visible";
     private Label notificationsBadge;
     private Label reportsBadge;
-    private MenuBar.MenuItem settingsItem;
-
+    private MenuItem settingsItem;
 
     public MenuView() {
         setPrimaryStyleName("valo-menu");
         setId(ID);
         setSizeUndefined();
+
+        // There's only one DashboardMenu per UI so this doesn't need to be
+        // unregistered from the UI-scoped DashboardEventBus.
+        DashboardEventBus.register(this);
 
         setCompositionRoot(buildContent());
     }
@@ -59,37 +94,44 @@ public class MenuView extends CustomComponent implements View {
         return logoWrapper;
     }
 
+    private User getCurrentUser() {
+        return (User) VaadinSession.getCurrent().getAttribute(
+                User.class.getName());
+    }
+
     private Component buildUserMenu() {
         final MenuBar settings = new MenuBar();
         settings.addStyleName("user-menu");
+        final User user = getCurrentUser();
         settingsItem = settings.addItem("", new ThemeResource(
                 "img/profile-pic-300px.jpg"), null);
-        settingsItem.addItem("Edit Profile", new MenuBar.Command() {
+        updateUserName(null);
+        settingsItem.addItem("Edit Profile", new Command() {
             @Override
-            public void menuSelected(final MenuBar.MenuItem selectedItem) {
-                Notification.show("Edit Profile");
+            public void menuSelected(final MenuItem selectedItem) {
+                ProfilePreferencesWindow.open(user, false);
             }
         });
-        settingsItem.addItem("Preferences", new MenuBar.Command() {
+        settingsItem.addItem("Preferences", new Command() {
             @Override
-            public void menuSelected(final MenuBar.MenuItem selectedItem) {
-
+            public void menuSelected(final MenuItem selectedItem) {
+                ProfilePreferencesWindow.open(user, true);
             }
         });
         settingsItem.addSeparator();
-        settingsItem.addItem("Sign Out", new MenuBar.Command() {
+        settingsItem.addItem("Sign Out", new Command() {
             @Override
-            public void menuSelected(final MenuBar.MenuItem selectedItem) {
-
+            public void menuSelected(final MenuItem selectedItem) {
+                DashboardEventBus.post(new UserLoggedOutEvent());
             }
         });
         return settings;
     }
 
     private Component buildToggleButton() {
-        Button valoMenuToggleButton = new Button("Menu", new Button.ClickListener() {
+        Button valoMenuToggleButton = new Button("Menu", new ClickListener() {
             @Override
-            public void buttonClick(final Button.ClickEvent event) {
+            public void buttonClick(final ClickEvent event) {
                 if (getCompositionRoot().getStyleName().contains(STYLE_VISIBLE)) {
                     getCompositionRoot().removeStyleName(STYLE_VISIBLE);
                 } else {
@@ -111,20 +153,20 @@ public class MenuView extends CustomComponent implements View {
         for (final MenuViewType view : MenuViewType.values()) {
             Component menuItemComponent = new ValoMenuItemButton(view);
 
+            if (view == MenuViewType.MAP) {
+                notificationsBadge = new Label();
+                notificationsBadge.setId(REPORTS_BADGE_ID);
+                menuItemComponent = buildBadgeWrapper(menuItemComponent,
+                        notificationsBadge);
+            }
+
             if (view == MenuViewType.GEOLOCATION) {
                 notificationsBadge = new Label();
                 notificationsBadge.setId(NOTIFICATIONS_BADGE_ID);
                 menuItemComponent = buildBadgeWrapper(menuItemComponent,
                         notificationsBadge);
             }
-
             if (view == MenuViewType.SETTINGS) {
-                notificationsBadge = new Label();
-                notificationsBadge.setId(NOTIFICATIONS_BADGE_ID);
-                menuItemComponent = buildBadgeWrapper(menuItemComponent,
-                        notificationsBadge);
-            }
-            if (view == MenuViewType.MAP) {
                 reportsBadge = new Label();
                 reportsBadge.setId(REPORTS_BADGE_ID);
                 menuItemComponent = buildBadgeWrapper(menuItemComponent,
@@ -149,6 +191,39 @@ public class MenuView extends CustomComponent implements View {
         return dashboardWrapper;
     }
 
+    @Override
+    public void attach() {
+        super.attach();
+        updateNotificationsCount(null);
+    }
+
+    @Subscribe
+    public void postViewChange(final PostViewChangeEvent event) {
+        // After a successful view change the menu can be hidden in mobile view.
+        getCompositionRoot().removeStyleName(STYLE_VISIBLE);
+    }
+
+    @Subscribe
+    public void updateNotificationsCount(
+            final NotificationsCountUpdatedEvent event) {
+        int unreadNotificationsCount = MyUI.getDataProvider()
+                .getUnreadNotificationsCount();
+        notificationsBadge.setValue(String.valueOf(unreadNotificationsCount));
+        notificationsBadge.setVisible(unreadNotificationsCount > 0);
+    }
+
+    @Subscribe
+    public void updateReportsCount(final ReportsCountUpdatedEvent event) {
+        reportsBadge.setValue(String.valueOf(event.getCount()));
+        reportsBadge.setVisible(event.getCount() > 0);
+    }
+
+    @Subscribe
+    public void updateUserName(final ProfileUpdatedEvent event) {
+        User user = getCurrentUser();
+        settingsItem.setText(user.getFirstName() + " " + user.getLastName());
+    }
+
     public final class ValoMenuItemButton extends Button {
 
         private static final String STYLE_SELECTED = "selected";
@@ -161,7 +236,7 @@ public class MenuView extends CustomComponent implements View {
             setIcon(view.getIcon());
             setCaption(view.getViewName().substring(0, 1).toUpperCase()
                     + view.getViewName().substring(1));
-            //DashboardEventBus.register(this);
+            DashboardEventBus.register(this);
             addClickListener(new ClickListener() {
                 @Override
                 public void buttonClick(final ClickEvent event) {
@@ -179,22 +254,5 @@ public class MenuView extends CustomComponent implements View {
                 addStyleName(STYLE_SELECTED);
             }
         }
-    }
-
-    public static final class PostViewChangeEvent {
-        private final MenuViewType view;
-
-        public PostViewChangeEvent(final MenuViewType view) {
-            this.view = view;
-        }
-
-        public MenuViewType getView() {
-            return view;
-        }
-    }
-
-    @Override
-    public void enter(ViewChangeListener.ViewChangeEvent viewChangeEvent) {
-
     }
 }

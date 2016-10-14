@@ -1,19 +1,28 @@
 package kz.gcs;
 
+import com.google.common.eventbus.Subscribe;
 import com.vaadin.annotations.Theme;
-import com.vaadin.navigator.Navigator;
+import com.vaadin.annotations.Title;
+import com.vaadin.annotations.Widgetset;
+import com.vaadin.server.Page;
+import com.vaadin.server.Responsive;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.spring.annotation.EnableVaadin;
-import com.vaadin.spring.annotation.SpringUI;
-import com.vaadin.spring.navigator.SpringViewProvider;
-import com.vaadin.spring.server.SpringVaadinServlet;
+import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.UI;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.context.ContextLoaderListener;
+import com.vaadin.ui.Window;
+import com.vaadin.ui.themes.ValoTheme;
+import kz.gcs.data.DataProvider;
+import kz.gcs.data.dummy.DummyDataProvider;
+import kz.gcs.domain.User;
+import kz.gcs.event.DashboardEvent.BrowserResizeEvent;
+import kz.gcs.event.DashboardEvent.CloseOpenWindowsEvent;
+import kz.gcs.event.DashboardEvent.UserLoggedOutEvent;
+import kz.gcs.event.DashboardEvent.UserLoginRequestedEvent;
+import kz.gcs.event.DashboardEventBus;
+import kz.gcs.views.LoginView;
+import kz.gcs.views.MainView;
 
-import javax.servlet.annotation.WebListener;
-import javax.servlet.annotation.WebServlet;
+import java.util.Locale;
 
 /**
  * This UI is the application entry point. A UI may either represent a browser window 
@@ -23,49 +32,93 @@ import javax.servlet.annotation.WebServlet;
  * overridden to add component to the user interface and initialize non-component functionality.
  */
 @Theme("dashboard")
-@SpringUI
+@Widgetset("kz.gcs.DashboardWidgetSet")
+@Title("QuickTickets Dashboard")
 public class MyUI extends UI {
 
-    private static boolean loggedIn;
-
-    @Autowired
-    private SpringViewProvider viewProvider;
-
-    @WebServlet(value = "/*", asyncSupported = true)
-    public static class Servlet extends SpringVaadinServlet {
-    }
-
-    @WebListener
-    public static class MyContextLoaderListener extends ContextLoaderListener {
-    }
-
-    public MyUI() {
-    }
-
-    @Configuration
-    @EnableVaadin
-    public static class MyConfiguration {
-
-    }
+    /*
+     * This field stores an access to the dummy backend layer. In real
+     * applications you most likely gain access to your beans trough lookup or
+     * injection; and not in the UI but somewhere closer to where they're
+     * actually accessed.
+     */
+    private final DataProvider dataProvider = new DummyDataProvider();
+    private final DashboardEventBus dashboardEventbus = new DashboardEventBus();
 
     @Override
-    protected void init(VaadinRequest request) {
+    protected void init(final VaadinRequest request) {
+        setLocale(Locale.US);
 
-        setLoggedIn(false);
+        DashboardEventBus.register(this);
+        Responsive.makeResponsive(this);
+        addStyleName(ValoTheme.UI_WITH_MENU);
 
-        /*Navigator navigator = new Navigator(this, this);
-        navigator.addProvider(viewProvider);*/
+        updateContent();
 
-        getNavigator().navigateTo("");
-
+        // Some views need to be aware of browser resize events so a
+        // BrowserResizeEvent gets fired to the event bus on every occasion.
+        Page.getCurrent().addBrowserWindowResizeListener(
+                new Page.BrowserWindowResizeListener() {
+                    @Override
+                    public void browserWindowResized(
+                            final Page.BrowserWindowResizeEvent event) {
+                        DashboardEventBus.post(new BrowserResizeEvent());
+                    }
+                });
     }
 
-    public static void setLoggedIn(boolean loggedIn) {
-        MyUI.loggedIn = loggedIn;
+    /**
+     * Updates the correct content for this UI based on the current user status.
+     * If the user is logged in with appropriate privileges, main view is shown.
+     * Otherwise login view is shown.
+     */
+    private void updateContent() {
+        User user = (User) VaadinSession.getCurrent().getAttribute(
+                User.class.getName());
+        if (user != null && "admin".equals(user.getRole())) {
+            // Authenticated user
+            setContent(new MainView());
+            removeStyleName("loginview");
+            getNavigator().navigateTo(getNavigator().getState());
+        } else {
+            setContent(new LoginView());
+            addStyleName("loginview");
+        }
     }
 
-    public boolean isLoggedIn() {
-        return loggedIn;
+    @Subscribe
+    public void userLoginRequested(final UserLoginRequestedEvent event) {
+        User user = getDataProvider().authenticate(event.getUserName(),
+                event.getPassword());
+        VaadinSession.getCurrent().setAttribute(User.class.getName(), user);
+        updateContent();
+    }
+
+    @Subscribe
+    public void userLoggedOut(final UserLoggedOutEvent event) {
+        // When the user logs out, current VaadinSession gets closed and the
+        // page gets reloaded on the login screen. Do notice the this doesn't
+        // invalidate the current HttpSession.
+        VaadinSession.getCurrent().close();
+        Page.getCurrent().reload();
+    }
+
+    @Subscribe
+    public void closeOpenWindows(final CloseOpenWindowsEvent event) {
+        for (Window window : getWindows()) {
+            window.close();
+        }
+    }
+
+    /**
+     * @return An instance for accessing the (dummy) services layer.
+     */
+    public static DataProvider getDataProvider() {
+        return ((MyUI) getCurrent()).dataProvider;
+    }
+
+    public static DashboardEventBus getDashboardEventbus() {
+        return ((MyUI) getCurrent()).dashboardEventbus;
     }
 
 }
