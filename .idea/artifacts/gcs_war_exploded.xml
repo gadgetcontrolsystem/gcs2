@@ -24,6 +24,8 @@
           <element id="library" level="project" name="Maven: commons-io:commons-io:2.4" />
           <element id="library" level="project" name="Maven: org.apache.commons:commons-lang3:3.1" />
           <element id="library" level="project" name="Maven: org.vaadin.addons:googleanalyticstracker:2.1.0" />
+          <element id="library" level="project" name="Maven: junit:junit:4.11" />
+          <element id="library" level="project" name="Maven: org.hamcrest:hamcrest-core:1.3" />
           <element id="library" level="project" name="Maven: org.peimari:maddon:1.15" />
           <element id="library" level="project" name="Maven: org.vaadin.addon:confirmdialog:2.1.1" />
           <element id="library" level="project" name="Maven: org.commonjava.googlecode.markdown4j:markdown4j:2.2-cj-1.0" />
@@ -32,6 +34,9 @@
           <element id="library" level="project" name="Maven: org.slf4j:slf4j-api:1.6.4" />
           <element id="library" level="project" name="Maven: com.google.guava:guava:18.0" />
           <element id="library" level="project" name="Maven: com.google.code.gson:gson:2.7" />
+          <element id="library" level="project" name="Maven: com.vaadin.tapio:googlemaps:1.3.4" />
+          <element id="library" level="project" name="Maven: com.github.branflake2267:gwt-maps-api:3.10.0-alpha-7" />
+          <element id="library" level="project" name="Maven: com.google.gwt.google-apis:gwt-ajaxloader:1.1.0" />
         </element>
       </element>
       <element id="directory" name="META-INF">

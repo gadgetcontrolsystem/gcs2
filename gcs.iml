@@ -35,7 +35,7 @@
       </configuration>
     </facet>
   </component>
-  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_6" inherit-compiler-output="false">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_7" inherit-compiler-output="false">
     <output url="file://$MODULE_DIR$/target/classes" />
     <output-test url="file://$MODULE_DIR$/target/test-classes" />
     <content url="file://$MODULE_DIR$">
@@ -138,8 +138,8 @@
     <orderEntry type="library" scope="TEST" name="Maven: io.netty:netty:3.5.2.Final" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.seleniumhq.selenium:selenium-leg-rc:2.46.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: com.codeborne:phantomjsdriver:1.2.1" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.11" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: org.hamcrest:hamcrest-core:1.3" level="project" />
+    <orderEntry type="library" name="Maven: junit:junit:4.11" level="project" />
+    <orderEntry type="library" name="Maven: org.hamcrest:hamcrest-core:1.3" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.easymock:easymock:3.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.objenesis:objenesis:1.2" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.javassist:javassist:3.18.1-GA" level="project" />
@@ -153,5 +153,8 @@
     <orderEntry type="library" name="Maven: com.google.guava:guava:18.0" level="project" />
     <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.7" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: javax.servlet:javax.servlet-api:3.0.1" level="project" />
+    <orderEntry type="library" name="Maven: com.vaadin.tapio:googlemaps:1.3.4" level="project" />
+    <orderEntry type="library" name="Maven: com.github.branflake2267:gwt-maps-api:3.10.0-alpha-7" level="project" />
+    <orderEntry type="library" name="Maven: com.google.gwt.google-apis:gwt-ajaxloader:1.1.0" level="project" />
   </component>
 </module>
