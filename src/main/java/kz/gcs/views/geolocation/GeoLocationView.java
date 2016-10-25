@@ -30,7 +30,8 @@ import java.util.*;
 
 public class GeoLocationView extends VerticalLayout implements View {
 
-    public static final String VIEW_NAME = "geoLocationView";
+    public static final String VIEW_NAME = "геолокация";
+    private static final long serialVersionUID = -4391726112270545081L;
 
     private final Table table;
     private Button createReport;
@@ -38,12 +39,13 @@ public class GeoLocationView extends VerticalLayout implements View {
             "MM/dd/yyyy hh:mm:ss a");
     private static final DecimalFormat DECIMALFORMAT = new DecimalFormat("#.##");
     private static final String[] DEFAULT_COLLAPSIBLE = { "country", "city",
-            "theater", "room", "title", "seats" };
+            "theater", "lat", "lon", "seats" };
 
     public GeoLocationView() {
         setSizeFull();
         addStyleName("transactions");
         DashboardEventBus.register(this);
+        System.out.println("GCS register");
 
         addComponent(buildToolbar());
 
@@ -66,7 +68,7 @@ public class GeoLocationView extends VerticalLayout implements View {
         header.setSpacing(true);
         Responsive.makeResponsive(header);
 
-        Label title = new Label("Latest Transactions");
+        Label title = new Label("Список Местоположений");
         title.setSizeUndefined();
         title.addStyleName(ValoTheme.LABEL_H1);
         title.addStyleName(ValoTheme.LABEL_NO_MARGIN);
@@ -83,9 +85,9 @@ public class GeoLocationView extends VerticalLayout implements View {
     }
 
     private Button buildCreateReport() {
-        final Button createReport = new Button("Create Report");
+        final Button createReport = new Button("Показать на карте");
         createReport
-                .setDescription("Create a new report from the selected transactions");
+                .setDescription("Отобразить выбранные местоположения на карте");
         createReport.addClickListener(new Button.ClickListener() {
             @Override
             public void buttonClick(final Button.ClickEvent event) {
@@ -135,7 +137,7 @@ public class GeoLocationView extends VerticalLayout implements View {
             }
         });
 
-        filter.setInputPrompt("Filter");
+        filter.setInputPrompt("Поиск");
         filter.setIcon(FontAwesome.SEARCH);
         filter.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
         filter.addShortcutListener(new ShortcutListener("Clear",
@@ -188,10 +190,10 @@ public class GeoLocationView extends VerticalLayout implements View {
         table.setColumnAlignment("seats", Table.Align.RIGHT);
         table.setColumnAlignment("price", Table.Align.RIGHT);
 
-        table.setVisibleColumns("time", "country", "city", "theater", "room",
-                "title", "seats", "price");
-        table.setColumnHeaders("Time", "Country", "City", "Theater", "Room",
-                "Title", "Seats", "Price");
+        table.setVisibleColumns("time", "country", "city", "theater", "lat",
+                "lon", "seats", "price");
+        table.setColumnHeaders("Time", "Country", "City", "Theater", "Latitude",
+                "Longitude", "Seats", "Price");
 
         table.setFooterVisible(true);
         table.setColumnFooter("time", "Total");
@@ -260,10 +262,13 @@ public class GeoLocationView extends VerticalLayout implements View {
     }
 
     void createNewReportFromSelection() {
+        System.out.println("before navigate");
         UI.getCurrent().getNavigator()
                 .navigateTo(MenuViewType.MAP.getViewName());
+        System.out.println("before post");
         DashboardEventBus.post(new DashboardEvent.TransactionReportEvent(
                 (Collection<Transaction>) table.getValue()));
+        System.out.println("after post");
     }
 
     @Override
@@ -327,10 +332,10 @@ public class GeoLocationView extends VerticalLayout implements View {
                         result = o1.getCity().compareTo(o2.getCity());
                     } else if ("theater".equals(sortContainerPropertyId)) {
                         result = o1.getTheater().compareTo(o2.getTheater());
-                    } else if ("room".equals(sortContainerPropertyId)) {
-                        result = o1.getRoom().compareTo(o2.getRoom());
-                    } else if ("title".equals(sortContainerPropertyId)) {
-                        result = o1.getTitle().compareTo(o2.getTitle());
+                    } else if ("lat".equals(sortContainerPropertyId)) {
+                        result = o1.getLat().compareTo(o2.getLat());
+                    } else if ("lon".equals(sortContainerPropertyId)) {
+                        result = o1.getLon().compareTo(o2.getLon());
                     } else if ("seats".equals(sortContainerPropertyId)) {
                         result = new Integer(o1.getSeats()).compareTo(o2
                                 .getSeats());

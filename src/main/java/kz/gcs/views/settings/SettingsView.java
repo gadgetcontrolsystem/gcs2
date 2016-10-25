@@ -6,7 +6,7 @@ import com.vaadin.ui.VerticalLayout;
 
 public class SettingsView extends VerticalLayout implements View {
 
-    public static final String VIEW_NAME = "settingsView";
+    public static final String VIEW_NAME = "настройки";
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent viewChangeEvent) {

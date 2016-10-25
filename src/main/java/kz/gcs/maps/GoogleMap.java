@@ -22,6 +22,8 @@ import java.util.*;
  */
 public class GoogleMap extends AbstractComponentContainer {
 
+    private static final long serialVersionUID = -2705758804085338725L;
+
     /**
      * Base map types supported by Google Maps.
      */

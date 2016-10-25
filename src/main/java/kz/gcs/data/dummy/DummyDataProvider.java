@@ -1,55 +1,28 @@
 package kz.gcs.data.dummy;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.MultimapBuilder;
-import com.google.gson.JsonArray;
+import com.google.common.collect.*;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import kz.gcs.data.DataProvider;
-import kz.gcs.domain.DashboardNotification;
-import kz.gcs.domain.Movie;
-import kz.gcs.domain.MovieRevenue;
-import kz.gcs.domain.Transaction;
-import kz.gcs.domain.User;
-import com.vaadin.server.VaadinRequest;
-import com.vaadin.util.CurrentInstance;
+import kz.gcs.domain.*;
+import kz.gcs.maps.client.LatLon;
+
+import java.io.*;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.util.*;
 
 /**
  * A dummy implementation for the backend API.
  */
-public class DummyDataProvider implements DataProvider {
+public class DummyDataProvider implements DataProvider, Serializable{
 
     // TODO: Get API key from http://developer.rottentomatoes.com
     private static final String ROTTEN_TOMATOES_API_KEY = null;
+    private static final long serialVersionUID = -2435788440141620247L;
 
     /* List of countries and cities for them */
     private static Multimap<String, String> countryToCities;
@@ -225,7 +198,7 @@ public class DummyDataProvider implements DataProvider {
                     transaction.setTime(cal.getTime());
 
                     // City
-                    transaction.setCity(DummyDataGenerator.randomWord(5,true));
+                    //transaction.setCity(DummyDataGenerator.randomWord(5,true));
 
                     // Theater
                     String theater = theaters
@@ -233,17 +206,27 @@ public class DummyDataProvider implements DataProvider {
                     transaction.setTheater(theater);
 
                     // Room
-                    String room = rooms.get((int) (rand.nextDouble() * (rooms
+                    /*String room = rooms.get((int) (rand.nextDouble() * (rooms
                             .size() - 1)));
-                    transaction.setRoom(room);
+                    transaction.setRoom(room);*/
+                    // Latitude
+                    //transaction.setLat(DummyDataGenerator.randomCoordinate());
+                    String city = DummyDataGenerator.randomCity();
+                    transaction.setCity(city);
+                    LatLon location = DummyDataGenerator.randomCoordinate(city);
+                    transaction.setLat(location.getLat());
+                    transaction.setLon(location.getLon());
+
 
                     // Title
-                    int randomIndex = (int) (Math.abs(rand.nextGaussian()) * (movies
+                    /*int randomIndex = (int) (Math.abs(rand.nextGaussian()) * (movies
                             .size() / 2.0 - 1));
                     while (randomIndex >= movies.size()) {
                         randomIndex = (int) (Math.abs(rand.nextGaussian()) * (movies
                                 .size() / 2.0 - 1));
-                    }
+                    }*/
+                    // Longitude
+                    //transaction.setLon(DummyDataGenerator.randomCoordinate());
 
                     // Seats
                     int seats = (int) (1 + rand.nextDouble() * 3);

@@ -11,12 +11,13 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.themes.ValoTheme;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-@SuppressWarnings("serial")
-public final class MovieDetailsWindow extends Window {
+public final class MovieDetailsWindow extends Window implements Serializable{
 
+    private static final long serialVersionUID = 3017957866089137143L;
     private final Label synopsis = new Label();
 
     private MovieDetailsWindow(final Movie movie, final Date startTime,

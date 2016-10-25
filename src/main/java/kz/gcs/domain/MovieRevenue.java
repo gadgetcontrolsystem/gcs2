@@ -1,9 +1,11 @@
 package kz.gcs.domain;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public final class MovieRevenue {
+public final class MovieRevenue implements Serializable{
 
+    private static final long serialVersionUID = -7649487661329004175L;
     private Date timestamp;
     private String title;
     private Double revenue;

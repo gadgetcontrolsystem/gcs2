@@ -1,8 +1,8 @@
 package kz.gcs.views.maps;
 
+import com.google.common.eventbus.Subscribe;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
-import com.vaadin.server.VaadinRequest;
 import com.vaadin.tapio.googlemaps.GoogleMap;
 import com.vaadin.tapio.googlemaps.client.GoogleMapControl;
 import com.vaadin.tapio.googlemaps.client.LatLon;
@@ -13,15 +13,18 @@ import com.vaadin.tapio.googlemaps.client.overlays.GoogleMapMarker;
 import com.vaadin.tapio.googlemaps.client.overlays.GoogleMapPolygon;
 import com.vaadin.tapio.googlemaps.client.overlays.GoogleMapPolyline;
 import com.vaadin.ui.*;
+import kz.gcs.domain.Transaction;
+import kz.gcs.event.DashboardEvent;
+import kz.gcs.event.DashboardEventBus;
 import kz.gcs.views.maps.events.OpenInfoWindowOnMarkerClickListener;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 
 
 public class MapView extends VerticalLayout implements View {
 
-    public static final String VIEW_NAME = "mapView";
+    public static final String VIEW_NAME = "карта";
+    private static final long serialVersionUID = -379716808231511716L;
 
     private GoogleMap googleMap;
     private GoogleMapMarker kakolaMarker = new GoogleMapMarker(
@@ -346,6 +349,21 @@ public class MapView extends VerticalLayout implements View {
                     }
                 });
         buttonLayoutRow2.addComponent(trafficLayerButton);
+        //Notification.show("asd");
+        DashboardEventBus.register(this);
+    }
+
+    @Subscribe
+    public void createTransactionReport(final DashboardEvent.TransactionReportEvent event) {
+        //Transaction transaction = event.getTransactions().iterator().next();
+        //googleMap.setCenter(new LatLon(transaction.getLat(), transaction.getLon()));
+        //System.out.println("Lat: "+transaction.getLat() + ". Lon: "+transaction.getLon());
+        //Notification.show("Lat: "+transaction.getLat() + ". Lon: "+transaction.getLon());
+        for (Transaction temp :event.getTransactions()) {
+            googleMap.addMarker(new GoogleMapMarker(temp.getCity(), new LatLon(temp.getLat(), temp.getLon()), false));
+        }
+        DashboardEventBus.post(new DashboardEvent.ReportsCountUpdatedEvent(
+                getComponentCount() - 1));
     }
 
     @Override

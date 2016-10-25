@@ -1,8 +1,10 @@
 package kz.gcs.domain;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public final class Movie {
+public final class Movie implements Serializable{
+    private static final long serialVersionUID = 9151604405493763818L;
     private long id;
     private String title;
     private String synopsis;

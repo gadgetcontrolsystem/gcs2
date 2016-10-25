@@ -10,6 +10,7 @@ public class LatLon implements Serializable {
 
     private double lat = 0.0;
     private double lon = 0.0;
+    private String name;
 
     public LatLon() {
     }
@@ -17,6 +18,12 @@ public class LatLon implements Serializable {
     public LatLon(double lat, double lon) {
         this.lat = lat;
         this.lon = lon;
+    }
+
+    public LatLon(double lat, double lon, String name) {
+        this.lat = lat;
+        this.lon = lon;
+        this.name = name;
     }
 
     public double getLat() {
@@ -33,6 +40,14 @@ public class LatLon implements Serializable {
 
     public void setLon(double lon) {
         this.lon = lon;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override

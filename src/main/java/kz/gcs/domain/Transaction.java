@@ -1,8 +1,10 @@
 package kz.gcs.domain;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public final class Transaction {
+public final class Transaction implements Serializable{
+    private static final long serialVersionUID = 4070830229335439060L;
     private Date time;
     private String country;
     private String city;
@@ -12,6 +14,8 @@ public final class Transaction {
     private double price;
     private long movieId;
     private String title;
+    private Double lat;
+    private Double lon;
 
     public long getMovieId() {
         return movieId;
@@ -85,4 +89,19 @@ public final class Transaction {
         this.price = price;
     }
 
+    public Double getLat() {
+        return lat;
+    }
+
+    public void setLat(Double lat) {
+        this.lat = lat;
+    }
+
+    public Double getLon() {
+        return lon;
+    }
+
+    public void setLon(Double lon) {
+        this.lon = lon;
+    }
 }

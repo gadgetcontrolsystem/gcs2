@@ -1,7 +1,6 @@
 package kz.gcs.maps.client;
 
 import com.vaadin.shared.AbstractComponentState;
-import kz.gcs.maps.client.GoogleMapControl;
 import kz.gcs.maps.client.layers.GoogleMapKmlLayer;
 import kz.gcs.maps.client.overlays.GoogleMapInfoWindow;
 import kz.gcs.maps.client.overlays.GoogleMapMarker;
