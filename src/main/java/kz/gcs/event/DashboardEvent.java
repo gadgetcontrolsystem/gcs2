@@ -1,6 +1,6 @@
 package kz.gcs.event;
 
-import kz.gcs.domain.Transaction;
+import kz.gcs.domain.Location;
 import kz.gcs.views.MenuViewType;
 
 import java.util.Collection;
@@ -53,14 +53,14 @@ public abstract class DashboardEvent {
     }
 
     public static final class TransactionReportEvent {
-        private final Collection<Transaction> transactions;
+        private final Collection<Location> locations;
 
-        public TransactionReportEvent(final Collection<Transaction> transactions) {
-            this.transactions = transactions;
+        public TransactionReportEvent(final Collection<Location> locations) {
+            this.locations = locations;
         }
 
-        public Collection<Transaction> getTransactions() {
-            return transactions;
+        public Collection<Location> getLocations() {
+            return locations;
         }
     }
 

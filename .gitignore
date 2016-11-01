@@ -1,3 +1,4 @@
-/.idea/
-/target/
-/src/main/webapp/VAADIN/
+.idea/
+target/
+src/main/webapp/VAADIN/
+*.iml

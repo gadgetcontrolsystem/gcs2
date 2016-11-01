@@ -3,7 +3,7 @@ package kz.gcs.domain;
 import java.io.Serializable;
 import java.util.Date;
 
-public final class Locations implements Serializable{
+public final class Location implements Serializable{
     private static final long serialVersionUID = 4070830229335439060L;
 
     private Long id;

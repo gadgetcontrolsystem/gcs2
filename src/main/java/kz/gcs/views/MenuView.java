@@ -5,7 +5,6 @@ import java.util.Collection;
 import com.google.common.eventbus.Subscribe;
 import kz.gcs.MyUI;
 import kz.gcs.component.ProfilePreferencesWindow;
-import kz.gcs.domain.Transaction;
 import kz.gcs.domain.User;
 import kz.gcs.event.DashboardEvent.NotificationsCountUpdatedEvent;
 import kz.gcs.event.DashboardEvent.PostViewChangeEvent;
