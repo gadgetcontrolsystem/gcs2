@@ -1,6 +1,9 @@
 package kz.gcs.domain;
 
-public final class User {
+import java.io.Serializable;
+
+public final class User implements Serializable {
+    private static final long serialVersionUID = -5193998028932591313L;
     private String role;
     private String firstName;
     private String lastName;

@@ -1,7 +1,10 @@
 package kz.gcs.domain;
 
 
-public final class DashboardNotification {
+import java.io.Serializable;
+
+public final class DashboardNotification implements Serializable{
+    private static final long serialVersionUID = 678146587112399272L;
     private long id;
     private String content;
     private boolean read;

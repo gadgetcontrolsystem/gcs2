@@ -11,7 +11,7 @@ import kz.gcs.views.settings.SettingsView;
 public enum MenuViewType {
     MAP(MapView.VIEW_NAME, MapView.class, FontAwesome.MAP, true),
     SETTINGS(SettingsView.VIEW_NAME, SettingsView.class, FontAwesome.WRENCH, true),
-    GEOLOCATION(GeoLocationView.VIEW_NAME, GeoLocationView.class, FontAwesome.MAP_MARKER, true);
+    GEOLOCATION(GeoLocationView.VIEW_NAME, GeoLocationView.class, FontAwesome.MAP_MARKER, false);
 
     private final String viewName;
     private final Class<? extends View> viewClass;

@@ -1,29 +1,42 @@
 package kz.gcs.data.dummy;
 
 import kz.gcs.domain.DashboardNotification;
+import kz.gcs.maps.client.LatLon;
 
-import java.util.Arrays;
-import java.util.Collection;
+import java.io.Serializable;
+import java.util.*;
 
-public abstract class DummyDataGenerator {
+public abstract class DummyDataGenerator implements Serializable{
+
+    private static final long serialVersionUID = 679449350509204698L;
+
+    static Map<String, LatLon> locations =new HashMap<String, LatLon>() {
+        private static final long serialVersionUID = -5258940643725058078L;
+
+        {
+            put("Алматы", new LatLon(43.238949, 76.889709));
+            put("Астана", new LatLon(51.144695, 71.478844));
+            put("Караганда", new LatLon(49.8047, 73.1094));
+            put("Чимкент", new LatLon(42.3417, 69.5901));
+        }
+    };
+
+    static LatLon randomCoordinate(String city) {
+        return DummyDataGenerator.locations.get(city);
+    }
+
+    static String randomCity() {
+        String[] cities = {"Алматы", "Астана", "Караганда", "Чимкент"};
+        return cities[(int) (Math.random() * cities.length)];
+    }
 
     static String randomFirstName() {
-        String[] names = { "Dave", "Mike", "Katherine", "Jonas", "Linus",
-                "Bob", "Anne", "Minna", "Elisa", "George", "Mathias", "Pekka",
-                "Fredrik", "Kate", "Teppo", "Kim", "Samatha", "Sam", "Linda",
-                "Jo", "Sarah", "Ray", "Michael", "Steve" };
+        String[] names = { "Абзал", "Кайдар", "Бауыржан", "Хархабат"};
         return names[(int) (Math.random() * names.length)];
     }
 
     static String randomLastName() {
-        String[] names = { "Smith", "Lehtinen", "Chandler", "Hewlett",
-                "Packard", "Jobs", "Buffet", "Reagan", "Carthy", "Wu",
-                "Johnson", "Williams", "Jones", "Brown", "Davis", "Moore",
-                "Wilson", "Taylor", "Anderson", "Jackson", "White", "Harris",
-                "Martin", "King", "Lee", "Walker", "Wright", "Clark",
-                "Robinson", "Garcia", "Thomas", "Hall", "Lopez", "Scott",
-                "Adams", "Barker", "Morris", "Cook", "Rogers", "Rivera",
-                "Gray", "Price", "Perry", "Powell", "Russell", "Diaz" };
+        String[] names = { "Айтенов", "Жунусов", "Бейсекеев", "Темирбаев"};
         return names[(int) (Math.random() * names.length)];
     }
 

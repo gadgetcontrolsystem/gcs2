@@ -3,12 +3,15 @@ package kz.gcs.data.dummy;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -27,24 +30,27 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import kz.gcs.data.DataProvider;
-import kz.gcs.data.service.NameService;
 import kz.gcs.domain.DashboardNotification;
 import kz.gcs.domain.Movie;
 import kz.gcs.domain.MovieRevenue;
 import kz.gcs.domain.Transaction;
 import kz.gcs.domain.User;
+import com.vaadin.server.VaadinRequest;
+import com.vaadin.util.CurrentInstance;
 
 /**
  * A dummy implementation for the backend API.
  */
-public class DummyDataProvider implements DataProvider {
+public class DummyDataProvider implements DataProvider, Serializable{
 
     // TODO: Get API key from http://developer.rottentomatoes.com
     private static final String ROTTEN_TOMATOES_API_KEY = null;
+    private static final long serialVersionUID = -2435788440141620247L;
 
     /* List of countries and cities for them */
     private static Multimap<String, String> countryToCities;
@@ -99,6 +105,13 @@ public class DummyDataProvider implements DataProvider {
     private static Collection<Movie> loadMoviesData() {
 
         Collection<Movie> result = new ArrayList<Movie>();
+
+        for (int i=0; i<100; i++){
+            Movie movie=new Movie();
+            movie.setId(new Long(i));
+            movie.setTitle(DummyDataGenerator.randomTitle(i));
+            result.add(movie);
+        }
 
         return result;
     }
@@ -210,16 +223,12 @@ public class DummyDataProvider implements DataProvider {
                     transaction.setTitle(movie.getTitle());
 
                     // Country
-                    Object[] array = countryToCities.keySet().toArray();
-                    int i = (int) (Math.random() * (array.length - 1));
-                    String country = array[i].toString();
-                    transaction.setCountry(country);
+                    transaction.setCountry(DummyDataGenerator.randomWord(3,true));
 
                     transaction.setTime(cal.getTime());
 
                     // City
-                    Collection<String> cities = countryToCities.get(country);
-                    transaction.setCity(cities.iterator().next());
+                    //transaction.setCity(DummyDataGenerator.randomWord(5,true));
 
                     // Theater
                     String theater = theaters
@@ -227,17 +236,27 @@ public class DummyDataProvider implements DataProvider {
                     transaction.setTheater(theater);
 
                     // Room
-                    String room = rooms.get((int) (rand.nextDouble() * (rooms
+                    /*String room = rooms.get((int) (rand.nextDouble() * (rooms
                             .size() - 1)));
-                    transaction.setRoom(room);
+                    transaction.setRoom(room);*/
+                    // Latitude
+                    //transaction.setLat(DummyDataGenerator.randomCoordinate());
+                    String city = DummyDataGenerator.randomCity();
+                    transaction.setCity(city);
+                    LatLon location = DummyDataGenerator.randomCoordinate(city);
+                    transaction.setLat(location.getLat());
+                    transaction.setLon(location.getLon());
+
 
                     // Title
-                    int randomIndex = (int) (Math.abs(rand.nextGaussian()) * (movies
+                    /*int randomIndex = (int) (Math.abs(rand.nextGaussian()) * (movies
                             .size() / 2.0 - 1));
                     while (randomIndex >= movies.size()) {
                         randomIndex = (int) (Math.abs(rand.nextGaussian()) * (movies
                                 .size() / 2.0 - 1));
-                    }
+                    }*/
+                    // Longitude
+                    //transaction.setLon(DummyDataGenerator.randomCoordinate());
 
                     // Seats
                     int seats = (int) (1 + rand.nextDouble() * 3);
@@ -266,7 +285,6 @@ public class DummyDataProvider implements DataProvider {
         }
         return null;
     }
-
 
     @Override
     public User authenticate(String userName, String password) {

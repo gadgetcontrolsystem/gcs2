@@ -1,6 +1,6 @@
 <component name="ArtifactManager">
   <artifact type="exploded-war" name="gcs:war exploded">
-    <output-path>$PROJECT_DIR$/target/quicktickets-dashboard-1.0.3-SNAPSHOT</output-path>
+    <output-path>$PROJECT_DIR$/target/gcs-2</output-path>
     <root id="root">
       <element id="directory" name="WEB-INF">
         <element id="directory" name="classes">
@@ -24,6 +24,8 @@
           <element id="library" level="project" name="Maven: commons-io:commons-io:2.4" />
           <element id="library" level="project" name="Maven: org.apache.commons:commons-lang3:3.1" />
           <element id="library" level="project" name="Maven: org.vaadin.addons:googleanalyticstracker:2.1.0" />
+          <element id="library" level="project" name="Maven: junit:junit:4.11" />
+          <element id="library" level="project" name="Maven: org.hamcrest:hamcrest-core:1.3" />
           <element id="library" level="project" name="Maven: org.peimari:maddon:1.15" />
           <element id="library" level="project" name="Maven: org.vaadin.addon:confirmdialog:2.1.1" />
           <element id="library" level="project" name="Maven: org.commonjava.googlecode.markdown4j:markdown4j:2.2-cj-1.0" />
@@ -32,10 +34,40 @@
           <element id="library" level="project" name="Maven: org.slf4j:slf4j-api:1.6.4" />
           <element id="library" level="project" name="Maven: com.google.guava:guava:18.0" />
           <element id="library" level="project" name="Maven: com.google.code.gson:gson:2.7" />
+          <element id="library" level="project" name="Maven: com.vaadin.tapio:googlemaps:1.3.4" />
+          <element id="library" level="project" name="Maven: com.github.branflake2267:gwt-maps-api:3.10.0-alpha-7" />
+          <element id="library" level="project" name="Maven: com.google.gwt.google-apis:gwt-ajaxloader:1.1.0" />
+          <element id="library" level="project" name="Maven: org.mybatis:mybatis:3.4.1" />
+          <element id="library" level="project" name="Maven: org.mybatis:mybatis-spring:1.3.0" />
+          <element id="library" level="project" name="Maven: org.postgresql:postgresql:9.4-1200-jdbc41" />
+          <element id="library" level="project" name="Maven: com.github.dblock.waffle:waffle-jna:1.7" />
+          <element id="library" level="project" name="Maven: net.java.dev.jna:jna:4.1.0" />
+          <element id="library" level="project" name="Maven: net.java.dev.jna:jna-platform:4.1.0" />
+          <element id="library" level="project" name="Maven: org.slf4j:slf4j-simple:1.7.7" />
+          <element id="library" level="project" name="Maven: org.springframework:spring-core:4.3.3.RELEASE" />
+          <element id="library" level="project" name="Maven: org.springframework:spring-web:4.3.3.RELEASE" />
+          <element id="library" level="project" name="Maven: org.springframework:spring-aop:4.3.3.RELEASE" />
+          <element id="library" level="project" name="Maven: org.springframework:spring-beans:4.3.3.RELEASE" />
+          <element id="library" level="project" name="Maven: org.springframework:spring-context:4.3.3.RELEASE" />
+          <element id="library" level="project" name="Maven: org.springframework:spring-expression:4.3.3.RELEASE" />
+          <element id="library" level="project" name="Maven: org.springframework:spring-jdbc:4.3.3.RELEASE" />
+          <element id="library" level="project" name="Maven: org.springframework:spring-tx:4.3.3.RELEASE" />
+          <element id="library" level="project" name="Maven: c3p0:c3p0:0.9.1.2" />
+          <element id="library" level="project" name="Maven: org.springframework.integration:spring-integration-mail:4.1.0.RELEASE" />
+          <element id="library" level="project" name="Maven: org.springframework:spring-context-support:4.1.2.RELEASE" />
+          <element id="library" level="project" name="Maven: org.springframework.integration:spring-integration-core:4.1.0.RELEASE" />
+          <element id="library" level="project" name="Maven: org.projectreactor:reactor-core:1.1.4.RELEASE" />
+          <element id="library" level="project" name="Maven: com.goldmansachs:gs-collections:5.1.0" />
+          <element id="library" level="project" name="Maven: com.goldmansachs:gs-collections-api:5.1.0" />
+          <element id="library" level="project" name="Maven: com.lmax:disruptor:3.2.1" />
+          <element id="library" level="project" name="Maven: io.gatling:jsr166e:1.0" />
+          <element id="library" level="project" name="Maven: org.springframework:spring-messaging:4.1.2.RELEASE" />
+          <element id="library" level="project" name="Maven: org.springframework.retry:spring-retry:1.1.1.RELEASE" />
+          <element id="library" level="project" name="Maven: ru.xpoft.vaadin:spring-vaadin-integration:3.2" />
         </element>
       </element>
       <element id="directory" name="META-INF">
-        <element id="file-copy" path="$PROJECT_DIR$/target/quicktickets-dashboard-1.0.3-SNAPSHOT/META-INF/MANIFEST.MF" />
+        <element id="file-copy" path="$PROJECT_DIR$/target/gcs-2/META-INF/MANIFEST.MF" />
       </element>
       <element id="javaee-facet-resources" facet="gcs/web/Web" />
       <element id="directory" name="VAADIN">

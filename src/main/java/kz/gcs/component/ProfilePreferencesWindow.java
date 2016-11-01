@@ -17,10 +17,13 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.themes.ValoTheme;
 
-@SuppressWarnings("serial")
-public class ProfilePreferencesWindow extends Window {
+import java.io.Serializable;
+
+
+public class ProfilePreferencesWindow extends Window implements Serializable{
 
     public static final String ID = "profilepreferenceswindow";
+    private static final long serialVersionUID = -1753338186626916476L;
 
     private final BeanFieldGroup<User> fieldGroup;
     /*
