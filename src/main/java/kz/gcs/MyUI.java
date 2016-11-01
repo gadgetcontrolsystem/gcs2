@@ -33,7 +33,7 @@ import java.util.Locale;
  */
 @Theme("dashboard")
 @Widgetset("kz.gcs.DashboardWidgetSet")
-@Title("QuickTickets Dashboard")
+@Title("ТОО GCS")
 public class MyUI extends UI {
 
     /*

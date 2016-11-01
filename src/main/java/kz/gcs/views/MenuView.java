@@ -85,7 +85,7 @@ public final class MenuView extends CustomComponent {
     }
 
     private Component buildTitle() {
-        Label logo = new Label("QuickTickets <strong>Dashboard</strong>",
+        Label logo = new Label("ТОО <strong>GCS</strong>",
                 ContentMode.HTML);
         logo.setSizeUndefined();
         HorizontalLayout logoWrapper = new HorizontalLayout(logo);
@@ -106,20 +106,20 @@ public final class MenuView extends CustomComponent {
         settingsItem = settings.addItem("", new ThemeResource(
                 "img/profile-pic-300px.jpg"), null);
         updateUserName(null);
-        settingsItem.addItem("Edit Profile", new Command() {
+        settingsItem.addItem("Настройки пользователя", new Command() {
             @Override
             public void menuSelected(final MenuItem selectedItem) {
                 ProfilePreferencesWindow.open(user, false);
             }
         });
-        settingsItem.addItem("Preferences", new Command() {
+        settingsItem.addItem("Настройки карты", new Command() {
             @Override
             public void menuSelected(final MenuItem selectedItem) {
                 ProfilePreferencesWindow.open(user, true);
             }
         });
         settingsItem.addSeparator();
-        settingsItem.addItem("Sign Out", new Command() {
+        settingsItem.addItem("Выйти из системы", new Command() {
             @Override
             public void menuSelected(final MenuItem selectedItem) {
                 DashboardEventBus.post(new UserLoggedOutEvent());
@@ -155,7 +155,7 @@ public final class MenuView extends CustomComponent {
 
             if (view == MenuViewType.MAP) {
                 notificationsBadge = new Label();
-                notificationsBadge.setId(REPORTS_BADGE_ID);
+                notificationsBadge.setId(NOTIFICATIONS_BADGE_ID);
                 menuItemComponent = buildBadgeWrapper(menuItemComponent,
                         notificationsBadge);
             }

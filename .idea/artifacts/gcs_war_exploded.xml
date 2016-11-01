@@ -1,6 +1,6 @@
 <component name="ArtifactManager">
   <artifact type="exploded-war" name="gcs:war exploded">
-    <output-path>$PROJECT_DIR$/target/gcs-1.0.3-SNAPSHOT</output-path>
+    <output-path>$PROJECT_DIR$/target/gcs-2</output-path>
     <root id="root">
       <element id="directory" name="WEB-INF">
         <element id="directory" name="classes">
@@ -40,7 +40,7 @@
         </element>
       </element>
       <element id="directory" name="META-INF">
-        <element id="file-copy" path="$PROJECT_DIR$/target/gcs-1.0.3-SNAPSHOT/META-INF/MANIFEST.MF" />
+        <element id="file-copy" path="$PROJECT_DIR$/target/gcs-2/META-INF/MANIFEST.MF" />
       </element>
       <element id="javaee-facet-resources" facet="gcs/web/Web" />
       <element id="directory" name="VAADIN">
