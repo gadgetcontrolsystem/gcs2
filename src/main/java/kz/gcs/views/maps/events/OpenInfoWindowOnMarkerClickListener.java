@@ -1,9 +1,9 @@
 package kz.gcs.views.maps.events;
 
-import com.vaadin.tapio.googlemaps.GoogleMap;
-import com.vaadin.tapio.googlemaps.client.events.MarkerClickListener;
-import com.vaadin.tapio.googlemaps.client.overlays.GoogleMapInfoWindow;
-import com.vaadin.tapio.googlemaps.client.overlays.GoogleMapMarker;
+import kz.gcs.maps.GoogleMap;
+import kz.gcs.maps.client.events.MarkerClickListener;
+import kz.gcs.maps.client.overlays.GoogleMapInfoWindow;
+import kz.gcs.maps.client.overlays.GoogleMapMarker;
 
 /**
  * Listener that opens info window when a marker is clicked.

@@ -2,9 +2,10 @@
 <!DOCTYPE module PUBLIC "-//Google Inc.//DTD Google Web Toolkit 1.7.0//EN" "http://google-web-toolkit.googlecode.com/svn/tags/1.7.0/distro-source/core/src/gwt-module.dtd">
 <module>
 	<inherits name="com.vaadin.DefaultWidgetSet" />
-	<inherits name="com.vaadin.tapio.googlemaps.Widgetset" />
+	<!--inherits name="com.vaadin.tapio.googlemaps.Widgetset" /-->
+	<inherits name="kz.gcs.maps.Widgetset" />
 	<inherits name='com.google.gwt.maps.Maps'/>
-	<!--<stylesheet src="googlemaps/styles.css"/>-->
+	<!--<stylesheet src="maps/styles.css"/>-->
 	
 	
 	<!--  -->

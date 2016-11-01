@@ -134,7 +134,7 @@ public class GoogleMap extends AbstractComponentContainer {
     public GoogleMap(String apiKey, String clientId, String language) {
         infoWindowContentLayout
             .addStyleName(
-                "googlemaps-infowindow-components-layout should-be-invisible");
+                "maps-infowindow-components-layout should-be-invisible");
 
         if (apiKey != null && !apiKey.isEmpty()) {
             getState().apiKey = apiKey;
