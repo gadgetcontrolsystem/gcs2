@@ -1,5 +1,6 @@
 package kz.gcs.data;
 
+import kz.gcs.data.service.NameService;
 import kz.gcs.domain.*;
 
 import java.util.Collection;
@@ -69,4 +70,6 @@ public interface DataProvider {
      *         dates.
      */
     Collection<Transaction> getTransactionsBetween(Date startDate, Date endDate);
+
+    void setService(NameService nameService);
 }

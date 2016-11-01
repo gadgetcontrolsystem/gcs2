@@ -3,15 +3,12 @@ package kz.gcs.data.dummy;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -30,18 +27,16 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import kz.gcs.data.DataProvider;
+import kz.gcs.data.service.NameService;
 import kz.gcs.domain.DashboardNotification;
 import kz.gcs.domain.Movie;
 import kz.gcs.domain.MovieRevenue;
 import kz.gcs.domain.Transaction;
 import kz.gcs.domain.User;
-import com.vaadin.server.VaadinRequest;
-import com.vaadin.util.CurrentInstance;
 
 /**
  * A dummy implementation for the backend API.
@@ -62,6 +57,8 @@ public class DummyDataProvider implements DataProvider {
 
     private final Collection<DashboardNotification> notifications = DummyDataGenerator
             .randomNotifications();
+    private NameService nameService;
+
 
     /**
      * Initialize the data for this application.
@@ -270,10 +267,14 @@ public class DummyDataProvider implements DataProvider {
         return null;
     }
 
+
     @Override
     public User authenticate(String userName, String password) {
         User user = new User();
-        user.setFirstName(DummyDataGenerator.randomFirstName());
+
+
+
+        user.setFirstName(nameService.getName());
         user.setLastName(DummyDataGenerator.randomLastName());
         user.setRole("admin");
         String email = user.getFirstName().toLowerCase() + "."
@@ -415,6 +416,12 @@ public class DummyDataProvider implements DataProvider {
                                 && !input.getTime().after(endDate);
                     }
                 });
+    }
+
+    @Override
+    public void setService(NameService nameService) {
+
+        this.nameService = nameService;
     }
 
 }
