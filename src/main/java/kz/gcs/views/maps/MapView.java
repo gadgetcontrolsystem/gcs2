@@ -54,8 +54,8 @@ public class MapView extends VerticalLayout implements View {
 
         VerticalLayout mapContent = new VerticalLayout();
         mapContent.setSizeFull();
-        tabs.addTab(mapContent, "The map map");
-        tabs.addTab(new Label("An another tab"), "The other tab");
+        tabs.addTab(mapContent, "Карты Google");
+        tabs.addTab(new Label("Эта страница еще в разработке"), "Карты Yandex");
 
         googleMap = new GoogleMap(this.apiKey, null, "Russian");
         // uncomment to enable Chinese API.
@@ -79,11 +79,11 @@ public class MapView extends VerticalLayout implements View {
         mapContent.addComponent(googleMap);
         mapContent.setExpandRatio(googleMap, 1.0f);
 
-        Panel console = new Panel();
+        /*Panel console = new Panel();
         console.setHeight("100px");
         final CssLayout consoleLayout = new CssLayout();
         console.setContent(consoleLayout);
-        mapContent.addComponent(console);
+        mapContent.addComponent(console);*/
 
         HorizontalLayout buttonLayoutRow1 = new HorizontalLayout();
         buttonLayoutRow1.setHeight("26px");
@@ -98,7 +98,7 @@ public class MapView extends VerticalLayout implements View {
 
         googleMap.addMarkerClickListener(infoWindowOpener);
 
-        googleMap.addMarkerClickListener(new MarkerClickListener() {
+        /*googleMap.addMarkerClickListener(new MarkerClickListener() {
             @Override
             public void markerClicked(GoogleMapMarker clickedMarker) {
                 Label consoleEntry = new Label("Marker \""
@@ -152,7 +152,7 @@ public class MapView extends VerticalLayout implements View {
                         + window.getContent() + "\" closed");
                 consoleLayout.addComponent(consoleEntry, 0);
             }
-        });
+        });*/
 
         Button moveCenterButton = new Button(
                 "Move over Astana (51.1605, 71.4704), zoom 12",
