@@ -19,6 +19,9 @@ import kz.gcs.event.DashboardEventBus;
 import kz.gcs.views.maps.events.OpenInfoWindowOnMarkerClickListener;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 
 public class MapView extends VerticalLayout implements View {
@@ -355,9 +358,16 @@ public class MapView extends VerticalLayout implements View {
 
     @Subscribe
     public void createTransactionReport(final DashboardEvent.TransactionReportEvent event) {
-        for (Location temp :event.getLocations()) {
+        googleMap.clearMarkers();
+        List<Location> locations = new ArrayList<Location>(event.getLocations());
+        if(locations.size()==0)
+            return;
+        Collections.sort(locations);
+        for (Location temp : locations) {
             googleMap.addMarker(new GoogleMapMarker(temp.getCity(), new LatLon(temp.getLat(), temp.getLon()), false));
         }
+        Location latest = locations.get(locations.size()-1);
+        googleMap.setCenter(new LatLon(latest.getLat(), latest.getLon()));
         DashboardEventBus.post(new DashboardEvent.ReportsCountUpdatedEvent(
                 getComponentCount() - 1));
     }
