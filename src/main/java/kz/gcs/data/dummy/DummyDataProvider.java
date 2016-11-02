@@ -7,6 +7,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import kz.gcs.data.DataProvider;
+import kz.gcs.data.service.NameService;
 import kz.gcs.domain.*;
 import kz.gcs.maps.client.LatLon;
 
@@ -24,17 +25,18 @@ public class DummyDataProvider implements DataProvider, Serializable{
     private static final String ROTTEN_TOMATOES_API_KEY = null;
     private static final long serialVersionUID = -2435788440141620247L;
 
-    /* List of countries and cities for them */
-    private static Multimap<String, String> countryToCities;
+
     private static Date lastDataUpdate;
-    private static Collection<Movie> movies;
-    private static Multimap<Long, Transaction> transactions;
-    private static Multimap<Long, MovieRevenue> revenue;
+    private static Multimap<Long, Location> locations;
 
     private static Random rand = new Random();
 
     private final Collection<DashboardNotification> notifications = DummyDataGenerator
             .randomNotifications();
+
+
+    private NameService nameService;
+
 
     /**
      * Initialize the data for this application.
@@ -49,10 +51,7 @@ public class DummyDataProvider implements DataProvider, Serializable{
     }
 
     private void refreshStaticData() {
-        countryToCities = loadTheaterData();
-        movies = loadMoviesData();
-        transactions = generateTransactionsData();
-        revenue = countRevenues();
+        locations = generateLocationsData();
     }
 
     /**
@@ -60,10 +59,6 @@ public class DummyDataProvider implements DataProvider, Serializable{
      *
      * @return a list of Movie objects
      */
-    @Override
-    public Collection<Movie> getMovies() {
-        return Collections.unmodifiableCollection(movies);
-    }
 
     /**
      * Initialize the list of movies playing in theaters currently. Uses the
@@ -72,19 +67,6 @@ public class DummyDataProvider implements DataProvider, Serializable{
      *
      * @return
      */
-    private static Collection<Movie> loadMoviesData() {
-
-        Collection<Movie> result = new ArrayList<Movie>();
-
-        for (int i=0; i<100; i++){
-            Movie movie=new Movie();
-            movie.setId(new Long(i));
-            movie.setTitle(DummyDataGenerator.randomTitle(i));
-            result.add(movie);
-        }
-
-        return result;
-    }
 
     /* JSON utility method */
     private static String readAll(Reader rd) throws IOException {
@@ -120,146 +102,45 @@ public class DummyDataProvider implements DataProvider, Serializable{
         return jobject;
     }
 
-    /**
-     * =========================================================================
-     * Countries, cities, theaters and rooms
-     * =========================================================================
-     */
 
-    static List<String> theaters = new ArrayList<String>() {
-        private static final long serialVersionUID = 1L;
-        {
-            add("Threater 1");
-            add("Threater 2");
-            add("Threater 3");
-            add("Threater 4");
-            add("Threater 5");
-            add("Threater 6");
-        }
-    };
-
-    static List<String> rooms = new ArrayList<String>() {
-        private static final long serialVersionUID = 1L;
-        {
-            add("Room 1");
-            add("Room 2");
-            add("Room 3");
-            add("Room 4");
-            add("Room 5");
-            add("Room 6");
-        }
-    };
-
-    /**
-     * Parse the list of countries and cities
-     */
-    private static Multimap<String, String> loadTheaterData() {
-
-        Multimap<String, String> countryToCities = MultimapBuilder.hashKeys()
-                .arrayListValues().build();
-
-
-        return countryToCities;
-
-    }
 
     /**
      * Create a list of dummy transactions
      *
      * @return
      */
-    private Multimap<Long, Transaction> generateTransactionsData() {
-        Multimap<Long, Transaction> result = MultimapBuilder.hashKeys()
+    private Multimap<Long, Location> generateLocationsData() {
+        Multimap<Long, Location> result = MultimapBuilder.hashKeys()
                 .arrayListValues().build();
 
-        for (Movie movie : movies) {
-            result.putAll(movie.getId(), new ArrayList<Transaction>());
 
-            Calendar cal = Calendar.getInstance();
-            int daysSubtractor = rand.nextInt(150) + 30;
-            cal.add(Calendar.DAY_OF_YEAR, -daysSubtractor);
+        for (int i = 0; i < 3; i++) {
+            Location loc=new Location();
+            loc.setId(new Long(i));
+            loc.setTime(new Date());
+            String city = DummyDataGenerator.randomCity();
+            LatLon latLon = DummyDataGenerator.randomCoordinate(city);
+            loc.setCity(city);
+            loc.setLat(latLon.getLat());
+            loc.setLon(latLon.getLon());
+            loc.setCountry("Казахстан");
 
-            Calendar lastDayOfWeek = Calendar.getInstance();
-            lastDayOfWeek.add(Calendar.DAY_OF_YEAR,
-                    Calendar.SATURDAY - cal.get(Calendar.DAY_OF_WEEK));
-
-            while (cal.before(lastDayOfWeek)) {
-
-                int hourOfDay = cal.get(Calendar.HOUR_OF_DAY);
-                if (hourOfDay > 10 && hourOfDay < 22) {
-
-                    Transaction transaction = new Transaction();
-                    transaction.setMovieId(movie.getId());
-                    transaction.setTitle(movie.getTitle());
-
-                    // Country
-                    transaction.setCountry(DummyDataGenerator.randomWord(3,true));
-
-                    transaction.setTime(cal.getTime());
-
-                    // City
-                    //transaction.setCity(DummyDataGenerator.randomWord(5,true));
-
-                    // Theater
-                    String theater = theaters
-                            .get((int) (rand.nextDouble() * (theaters.size() - 1)));
-                    transaction.setTheater(theater);
-
-                    // Room
-                    /*String room = rooms.get((int) (rand.nextDouble() * (rooms
-                            .size() - 1)));
-                    transaction.setRoom(room);*/
-                    // Latitude
-                    //transaction.setLat(DummyDataGenerator.randomCoordinate());
-                    String city = DummyDataGenerator.randomCity();
-                    transaction.setCity(city);
-                    LatLon location = DummyDataGenerator.randomCoordinate(city);
-                    transaction.setLat(location.getLat());
-                    transaction.setLon(location.getLon());
-
-
-                    // Title
-                    /*int randomIndex = (int) (Math.abs(rand.nextGaussian()) * (movies
-                            .size() / 2.0 - 1));
-                    while (randomIndex >= movies.size()) {
-                        randomIndex = (int) (Math.abs(rand.nextGaussian()) * (movies
-                                .size() / 2.0 - 1));
-                    }*/
-                    // Longitude
-                    //transaction.setLon(DummyDataGenerator.randomCoordinate());
-
-                    // Seats
-                    int seats = (int) (1 + rand.nextDouble() * 3);
-                    transaction.setSeats(seats);
-
-                    // Price (approx. USD)
-                    double price = seats * (2 + (rand.nextDouble() * 8));
-                    transaction.setPrice(price);
-
-                    result.get(movie.getId()).add(transaction);
-                }
-
-                cal.add(Calendar.SECOND, rand.nextInt(500000) + 5000);
-            }
+            result.put(loc.getId(),loc);
         }
 
         return result;
 
     }
 
-    public static Movie getMovieForTitle(String title) {
-        for (Movie movie : movies) {
-            if (movie.getTitle().equals(title)) {
-                return movie;
-            }
-        }
-        return null;
-    }
+
 
     @Override
     public User authenticate(String userName, String password) {
         User user = new User();
-        user.setFirstName(DummyDataGenerator.randomFirstName());
+
+
+
+        user.setFirstName(nameService.getName());
         user.setLastName(DummyDataGenerator.randomLastName());
         user.setRole("admin");
         String email = user.getFirstName().toLowerCase() + "."
@@ -273,62 +154,21 @@ public class DummyDataProvider implements DataProvider, Serializable{
     }
 
     @Override
-    public Collection<Transaction> getRecentTransactions(int count) {
-        List<Transaction> orderedTransactions = Lists.newArrayList(transactions
+    public Collection<Location> getRecentLocations(int count) {
+        List<Location> orderedLocations = Lists.newArrayList(locations
                 .values());
-        Collections.sort(orderedTransactions, new Comparator<Transaction>() {
+        Collections.sort(orderedLocations, new Comparator<Location>() {
             @Override
-            public int compare(Transaction o1, Transaction o2) {
+            public int compare(Location o1, Location o2) {
                 return o2.getTime().compareTo(o1.getTime());
             }
         });
-        return orderedTransactions.subList(0,
-                Math.min(count, transactions.values().size() - 1));
+        return orderedLocations.subList(0,
+                Math.min(count, locations.values().size()));
     }
 
-    private Multimap<Long, MovieRevenue> countRevenues() {
-        Multimap<Long, MovieRevenue> result = MultimapBuilder.hashKeys()
-                .arrayListValues().build();
-        for (Movie movie : movies) {
-            result.putAll(movie.getId(), countMovieRevenue(movie));
-        }
-        return result;
-    }
 
-    private Collection<MovieRevenue> countMovieRevenue(Movie movie) {
-        Map<Date, Double> dailyIncome = new HashMap<Date, Double>();
-        for (Transaction transaction : transactions.get(movie.getId())) {
-            Date day = getDay(transaction.getTime());
 
-            Double currentValue = dailyIncome.get(day);
-            if (currentValue == null) {
-                currentValue = 0.0;
-            }
-            dailyIncome.put(day, currentValue + transaction.getPrice());
-        }
-
-        Collection<MovieRevenue> result = new ArrayList<MovieRevenue>();
-
-        List<Date> dates = new ArrayList<Date>(dailyIncome.keySet());
-        Collections.sort(dates);
-
-        double revenueSoFar = 0.0;
-        for (Date date : dates) {
-            MovieRevenue movieRevenue = new MovieRevenue();
-            movieRevenue.setTimestamp(date);
-            revenueSoFar += dailyIncome.get(date);
-            movieRevenue.setRevenue(revenueSoFar);
-            movieRevenue.setTitle(movie.getTitle());
-            result.add(movieRevenue);
-        }
-
-        return result;
-    }
-
-    @Override
-    public Collection<MovieRevenue> getDailyRevenuesByMovie(long id) {
-        return Collections.unmodifiableCollection(revenue.get(id));
-    }
 
     private Date getDay(Date time) {
         Calendar cal = Calendar.getInstance();
@@ -338,18 +178,6 @@ public class DummyDataProvider implements DataProvider, Serializable{
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.HOUR_OF_DAY, 0);
         return cal.getTime();
-    }
-
-    @Override
-    public Collection<MovieRevenue> getTotalMovieRevenues() {
-        return Collections2.transform(movies,
-                new Function<Movie, MovieRevenue>() {
-                    @Override
-                    public MovieRevenue apply(Movie input) {
-                        return Iterables.getLast(getDailyRevenuesByMovie(input
-                                .getId()));
-                    }
-                });
     }
 
     @Override
@@ -371,36 +199,25 @@ public class DummyDataProvider implements DataProvider, Serializable{
         return Collections.unmodifiableCollection(notifications);
     }
 
-    @Override
-    public double getTotalSum() {
-        double result = 0;
-        for (Transaction transaction : transactions.values()) {
-            result += transaction.getPrice();
-        }
-        return result;
-    }
+
 
     @Override
-    public Movie getMovie(final long movieId) {
-        return Iterables.find(movies, new Predicate<Movie>() {
-            @Override
-            public boolean apply(Movie input) {
-                return input.getId() == movieId;
-            }
-        });
-    }
-
-    @Override
-    public Collection<Transaction> getTransactionsBetween(final Date startDate,
-                                                          final Date endDate) {
-        return Collections2.filter(transactions.values(),
-                new Predicate<Transaction>() {
+    public Collection<Location> getLocationsBetween(final Date startDate,
+                                                       final Date endDate) {
+        return Collections2.filter(locations.values(),
+                new Predicate<Location>() {
                     @Override
-                    public boolean apply(Transaction input) {
+                    public boolean apply(Location input) {
                         return !input.getTime().before(startDate)
                                 && !input.getTime().after(endDate);
                     }
                 });
+    }
+
+    @Override
+    public void setService(NameService nameService) {
+
+        this.nameService = nameService;
     }
 
 }

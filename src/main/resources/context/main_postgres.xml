@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:jee="http://www.springframework.org/schema/jee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context.xsd
+           http://www.springframework.org/schema/tx
+           http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+  <import resource="source/common.xml"/>
+  <import resource="source/properties_postgres.xml"/>
+  <import resource="source/data_source_postgres.xml"/>
+  <import resource="source/data_access.xml"/>
+  <import resource="source/mybatis_postgres.xml"/>
+  <import resource="source/business_rules.xml"/>
+  <import resource="source/business_rules_real.xml"/>
+  <import resource="source/schedule.xml"/>
+  <!--<import resource="source/email_receiver.xml"/>-->
+
+
+
+
+</beans>

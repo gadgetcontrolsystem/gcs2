@@ -9,14 +9,21 @@
 		<param-name>productionMode</param-name>
 		<param-value>${productionMode}</param-value>
 	</context-param>
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>classpath:context/main_postgres.xml</param-value>
+	</context-param>
 	<servlet>
 		<servlet-name>QuickTicketsDashboard</servlet-name>
-		<servlet-class>kz.gcs.DashboardServlet</servlet-class>
+		<servlet-class>ru.xpoft.vaadin.SpringVaadinServlet</servlet-class>
 		<init-param>
-			<param-name>UI</param-name>
-			<param-value>kz.gcs.MyUI</param-value>
+			<param-name>beanName</param-name>
+			<param-value>myUI</param-value>
 		</init-param>
 	</servlet>
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
 	<servlet-mapping>
 		<servlet-name>QuickTicketsDashboard</servlet-name>
 		<url-pattern>/*</url-pattern>

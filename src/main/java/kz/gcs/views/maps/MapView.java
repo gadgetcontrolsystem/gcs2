@@ -3,6 +3,7 @@ package kz.gcs.views.maps;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
+import kz.gcs.domain.Location;
 import kz.gcs.maps.GoogleMap;
 import kz.gcs.maps.client.GoogleMapControl;
 import kz.gcs.maps.client.LatLon;
@@ -13,7 +14,6 @@ import kz.gcs.maps.client.overlays.GoogleMapMarker;
 import kz.gcs.maps.client.overlays.GoogleMapPolygon;
 import kz.gcs.maps.client.overlays.GoogleMapPolyline;
 import com.vaadin.ui.*;
-import kz.gcs.domain.Transaction;
 import kz.gcs.event.DashboardEvent;
 import kz.gcs.event.DashboardEventBus;
 import kz.gcs.views.maps.events.OpenInfoWindowOnMarkerClickListener;
@@ -354,7 +354,7 @@ public class MapView extends VerticalLayout implements View {
 
     @Subscribe
     public void createTransactionReport(final DashboardEvent.TransactionReportEvent event) {
-        for (Transaction temp :event.getTransactions()) {
+        for (Location temp :event.getLocations()) {
             googleMap.addMarker(new GoogleMapMarker(temp.getCity(), new LatLon(temp.getLat(), temp.getLon()), false));
         }
         DashboardEventBus.post(new DashboardEvent.ReportsCountUpdatedEvent(

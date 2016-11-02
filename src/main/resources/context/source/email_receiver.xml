@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+		http://www.springframework.org/schema/integration/mail http://www.springframework.org/schema/integration/mail/spring-integration-mail.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd"
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xmlns:int-mail="http://www.springframework.org/schema/integration/mail"
+	xmlns:util="http://www.springframework.org/schema/util">
+
+	<int:channel id="emailReceiver" />
+	<int-mail:inbound-channel-adapter id="emailReceiverAdapter"
+						store-uri="pop3://${email.receiver.username}:${email.receiver.password}@${email.receiver.host}/INBOX"
+						channel="emailReceiver"
+						should-delete-messages="${email.receiver.shoulddeletemsg}"
+						should-mark-messages-as-read="true"
+						auto-startup="false"
+						java-mail-properties="javaMailProperties">
+			<!-- Will poll every 10 seconds -->
+			<int:poller max-messages-per-poll="1" fixed-rate="10000" />
+	</int-mail:inbound-channel-adapter>
+
+	<util:properties id="javaMailProperties">
+		<prop key="mail.pop3.socketFactory.fallback">false</prop>
+		<prop key="mail.debug">true</prop>
+		<prop key="mail.pop3.port">${email.receiver.port}</prop>
+		<prop key="mail.pop3.socketFactory.class">${email.receiver.SocketFactory}</prop>
+		<prop key="mail.pop3.socketFactory.port">${email.receiver.socket.port}</prop>
+	</util:properties>
+</beans>
