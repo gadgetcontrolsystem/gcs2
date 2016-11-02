@@ -7,7 +7,7 @@ import org.apache.ibatis.annotations.Select;
  * Created by kaydar on 10/17/16.
  */
 @Mapper
-public interface NameDao {
+public interface LocationDao {
     @Select("SELECT name FROM demo")
     String name();
 

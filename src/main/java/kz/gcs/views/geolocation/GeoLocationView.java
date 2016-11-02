@@ -29,7 +29,8 @@ import java.util.*;
 
 public class GeoLocationView extends VerticalLayout implements View {
 
-    public static final String VIEW_NAME = "геолокация";
+    public static final String VIEW_TITLE = "геолокация";
+    public static final String VIEW_NAME = "locations";
     private static final long serialVersionUID = -4391726112270545081L;
 
     private final Table table;

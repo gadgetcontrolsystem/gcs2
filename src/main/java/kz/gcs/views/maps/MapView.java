@@ -23,7 +23,8 @@ import java.util.ArrayList;
 
 public class MapView extends VerticalLayout implements View {
 
-    public static final String VIEW_NAME = "карта";
+    public static final String VIEW_NAME = "map";
+    public static final String VIEW_TITLE = "карта";
     private static final long serialVersionUID = -379716808231511716L;
 
     private GoogleMap googleMap;

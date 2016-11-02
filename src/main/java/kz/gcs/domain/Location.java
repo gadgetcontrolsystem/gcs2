@@ -15,6 +15,11 @@ public final class Location implements Serializable{
     private Long gadgetId;
 
 
+    private boolean read;
+
+
+
+
     public Long getId() {
         return id;
     }
@@ -69,5 +74,13 @@ public final class Location implements Serializable{
 
     public void setGadgetId(Long gadgetId) {
         this.gadgetId = gadgetId;
+    }
+
+    public boolean isRead() {
+        return read;
+    }
+
+    public void setRead(boolean read) {
+        this.read = read;
     }
 }

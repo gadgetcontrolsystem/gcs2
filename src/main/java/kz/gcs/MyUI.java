@@ -10,7 +10,7 @@ import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 import kz.gcs.data.DataProvider;
 import kz.gcs.data.dummy.DummyDataProvider;
-import kz.gcs.data.service.NameService;
+import kz.gcs.data.service.LocationService;
 import kz.gcs.domain.User;
 import kz.gcs.event.DashboardEvent.BrowserResizeEvent;
 import kz.gcs.event.DashboardEvent.CloseOpenWindowsEvent;
@@ -51,7 +51,7 @@ public class MyUI extends UI {
 
 
     @Autowired
-    NameService nameService;
+    LocationService nameService;
 
 
     @Override

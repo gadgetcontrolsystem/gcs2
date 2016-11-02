@@ -1,7 +1,5 @@
 package kz.gcs.views;
 
-import java.util.Collection;
-
 import com.google.common.eventbus.Subscribe;
 import kz.gcs.MyUI;
 import kz.gcs.component.ProfilePreferencesWindow;
@@ -10,17 +8,12 @@ import kz.gcs.event.DashboardEvent.NotificationsCountUpdatedEvent;
 import kz.gcs.event.DashboardEvent.PostViewChangeEvent;
 import kz.gcs.event.DashboardEvent.ProfileUpdatedEvent;
 import kz.gcs.event.DashboardEvent.ReportsCountUpdatedEvent;
-import kz.gcs.event.DashboardEvent.TransactionReportEvent;
 import kz.gcs.event.DashboardEvent.UserLoggedOutEvent;
 import kz.gcs.event.DashboardEventBus;
-import com.vaadin.event.dd.DragAndDropEvent;
-import com.vaadin.event.dd.DropHandler;
-import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.ThemeResource;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.shared.ui.label.ContentMode;
-import com.vaadin.ui.AbstractSelect.AcceptItem;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -28,14 +21,11 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.DragAndDropWrapper;
-import com.vaadin.ui.DragAndDropWrapper.DragStartMode;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
-import com.vaadin.ui.Table;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -206,7 +196,7 @@ public final class MenuView extends CustomComponent {
     public void updateNotificationsCount(
             final NotificationsCountUpdatedEvent event) {
         int unreadNotificationsCount = MyUI.getDataProvider()
-                .getUnreadNotificationsCount();
+                .getUnreadLocationCount();
         notificationsBadge.setValue(String.valueOf(unreadNotificationsCount));
         notificationsBadge.setVisible(unreadNotificationsCount > 0);
     }
@@ -233,8 +223,8 @@ public final class MenuView extends CustomComponent {
             this.view = view;
             setPrimaryStyleName("valo-menu-item");
             setIcon(view.getIcon());
-            setCaption(view.getViewName().substring(0, 1).toUpperCase()
-                    + view.getViewName().substring(1));
+            setCaption(view.getViewTitle().substring(0, 1).toUpperCase()
+                    + view.getViewTitle().substring(1));
             DashboardEventBus.register(this);
             addClickListener(new ClickListener() {
                 @Override

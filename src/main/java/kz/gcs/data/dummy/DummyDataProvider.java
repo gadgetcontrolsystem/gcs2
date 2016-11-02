@@ -1,13 +1,12 @@
 package kz.gcs.data.dummy;
 
-import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.*;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import kz.gcs.data.DataProvider;
-import kz.gcs.data.service.NameService;
+import kz.gcs.data.service.LocationService;
 import kz.gcs.domain.*;
 import kz.gcs.maps.client.LatLon;
 
@@ -35,7 +34,7 @@ public class DummyDataProvider implements DataProvider, Serializable{
             .randomNotifications();
 
 
-    private NameService nameService;
+    private LocationService locationService;
 
 
     /**
@@ -140,7 +139,7 @@ public class DummyDataProvider implements DataProvider, Serializable{
 
 
 
-        user.setFirstName(nameService.getName());
+        user.setFirstName(locationService.getName());
         user.setLastName(DummyDataGenerator.randomLastName());
         user.setRole("admin");
         String email = user.getFirstName().toLowerCase() + "."
@@ -155,8 +154,15 @@ public class DummyDataProvider implements DataProvider, Serializable{
 
     @Override
     public Collection<Location> getRecentLocations(int count) {
+
+
+
         List<Location> orderedLocations = Lists.newArrayList(locations
                 .values());
+
+        for (Location location : orderedLocations) {
+            location.setRead(true);
+        }
         Collections.sort(orderedLocations, new Comparator<Location>() {
             @Override
             public int compare(Location o1, Location o2) {
@@ -181,23 +187,17 @@ public class DummyDataProvider implements DataProvider, Serializable{
     }
 
     @Override
-    public int getUnreadNotificationsCount() {
-        Predicate<DashboardNotification> unreadPredicate = new Predicate<DashboardNotification>() {
+    public int getUnreadLocationCount() {
+        Predicate<Location> unreadPredicate = new Predicate<Location>() {
             @Override
-            public boolean apply(DashboardNotification input) {
+            public boolean apply(Location input) {
                 return !input.isRead();
             }
         };
-        return Collections2.filter(notifications, unreadPredicate).size();
+        return Collections2.filter(locations.values(), unreadPredicate).size();
     }
 
-    @Override
-    public Collection<DashboardNotification> getNotifications() {
-        for (DashboardNotification notification : notifications) {
-            notification.setRead(true);
-        }
-        return Collections.unmodifiableCollection(notifications);
-    }
+
 
 
 
@@ -215,9 +215,9 @@ public class DummyDataProvider implements DataProvider, Serializable{
     }
 
     @Override
-    public void setService(NameService nameService) {
+    public void setService(LocationService locationService) {
 
-        this.nameService = nameService;
+        this.locationService = locationService;
     }
 
 }

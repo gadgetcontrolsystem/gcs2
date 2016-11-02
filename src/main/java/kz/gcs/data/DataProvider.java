@@ -1,6 +1,6 @@
 package kz.gcs.data;
 
-import kz.gcs.data.service.NameService;
+import kz.gcs.data.service.LocationService;
 import kz.gcs.domain.*;
 
 import java.util.Collection;
@@ -28,12 +28,8 @@ public interface DataProvider {
     /**
      * @return The number of unread notifications for the current user.
      */
-    int getUnreadNotificationsCount();
+    int getUnreadLocationCount();
 
-    /**
-     * @return Notifications for the current user.
-     */
-    Collection<DashboardNotification> getNotifications();
 
     /**
      * @param startDate
@@ -43,5 +39,5 @@ public interface DataProvider {
      */
     Collection<Location> getLocationsBetween(Date startDate, Date endDate);
 
-    void setService(NameService nameService);
+    void setService(LocationService nameService);
 }
