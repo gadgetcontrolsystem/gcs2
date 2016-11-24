@@ -85,4 +85,8 @@ public final class Location implements Serializable, Comparable<Location>{
     public void setRead(boolean read) {
         this.read = read;
     }
+
+    public String displayStr() {
+        return getCity()+ " "+getTime();
+    }
 }

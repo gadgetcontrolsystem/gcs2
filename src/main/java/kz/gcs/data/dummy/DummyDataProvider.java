@@ -139,7 +139,7 @@ public class DummyDataProvider implements DataProvider, Serializable{
 
 
 
-        user.setFirstName(locationService.getName());
+        user.setFirstName(DummyDataGenerator.randomName());
         user.setLastName(DummyDataGenerator.randomLastName());
         user.setRole("admin");
         String email = user.getFirstName().toLowerCase() + "."
@@ -173,7 +173,10 @@ public class DummyDataProvider implements DataProvider, Serializable{
                 Math.min(count, locations.values().size()));
     }
 
-
+    @Override
+    public Location getLastLocation(long gadgetId) {
+        return locationService.getLastLocation();
+    }
 
 
     private Date getDay(Date time) {

@@ -4,6 +4,7 @@ import com.google.common.eventbus.Subscribe;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.ui.*;
+import kz.gcs.MyUI;
 import kz.gcs.domain.Location;
 import kz.gcs.event.DashboardEvent;
 import kz.gcs.event.DashboardEventBus;
@@ -30,16 +31,7 @@ public class MapView extends VerticalLayout implements View {
     private static final long serialVersionUID = -379716808231511716L;
 
     private GoogleMap googleMap;
-    private GoogleMapMarker kakolaMarker = new GoogleMapMarker(
-            "DRAGGABLE: Kakolan vankila", new LatLon(60.44291, 22.242415),
-            true, null);
-    private GoogleMapInfoWindow kakolaInfoWindow = new GoogleMapInfoWindow(
-            "Kakola used to be a provincial prison.", kakolaMarker);
-    private GoogleMapMarker maariaMarker = new GoogleMapMarker("Maaria",
-            new LatLon(60.536403, 22.344648), false);
-    private GoogleMapInfoWindow maariaWindow = new GoogleMapInfoWindow(
-            "Maaria is a district of Turku", maariaMarker);
-    ;
+
     private Button componentToMaariaInfoWindowButton;
     private final String apiKey = "AIzaSyDmJQfLtxIo8u4dzu6FYsmHSFRSebEqp6k";
 
@@ -62,19 +54,18 @@ public class MapView extends VerticalLayout implements View {
         googleMap = new GoogleMap(this.apiKey, null, "Russian");
         googleMap.setDraggable(true);
 
-        googleMap.setCenter(new LatLon(51.1605, 71.4704));
         googleMap.setZoom(10);
         googleMap.setSizeFull();
-        kakolaMarker.setAnimationEnabled(false);
-        googleMap.addMarker(kakolaMarker);
-        googleMap.addMarker("Astana", new LatLon(
-                51.1605, 71.4704), false, null);
-        googleMap.addMarker(maariaMarker);
+
+        Location lastLocation = MyUI.getDataProvider().getLastLocation(0);
+        LatLon position = new LatLon(
+                lastLocation.getLat(), lastLocation.getLon());
+        googleMap.addMarker(lastLocation.displayStr(), position, false, null);
+
+        googleMap.setCenter(position);
         googleMap.setMinZoom(4);
         googleMap.setMaxZoom(16);
 
-        kakolaInfoWindow.setWidth("400px");
-        kakolaInfoWindow.setHeight("500px");
 
         mapContent.addComponent(googleMap);
         mapContent.setExpandRatio(googleMap, 1.0f);
@@ -89,10 +80,6 @@ public class MapView extends VerticalLayout implements View {
 
         drawButtons(buttonLayoutRow1, buttonLayoutRow2);
 
-        OpenInfoWindowOnMarkerClickListener infoWindowOpener = new OpenInfoWindowOnMarkerClickListener(
-                googleMap, kakolaMarker, kakolaInfoWindow);
-
-        googleMap.addMarkerClickListener(infoWindowOpener);
 
         DashboardEventBus.register(this);
     }
@@ -172,30 +159,7 @@ public class MapView extends VerticalLayout implements View {
                 });
         buttonLayoutRow1.addComponent(zoomToBoundsButton);
 
-        Button addMarkerToMaariaButton = new Button("Open Maaria Window",
-                new Button.ClickListener() {
-                    @Override
-                    public void buttonClick(Button.ClickEvent clickEvent) {
-                        googleMap.openInfoWindow(maariaWindow);
-                    }
-                });
-        buttonLayoutRow1.addComponent(addMarkerToMaariaButton);
 
-        componentToMaariaInfoWindowButton = new Button(
-                "Add component to Maaria window",
-                new Button.ClickListener() {
-                    @Override
-                    public void buttonClick(Button.ClickEvent clickEvent) {
-                        googleMap.setInfoWindowContents(maariaWindow,
-                                new Button("Maaria button does something", new Button.ClickListener() {
-                                    @Override
-                                    public void buttonClick(Button.ClickEvent event) {
-                                        Notification.show("hello there!");
-                                    }
-                                }));
-                    }
-                });
-        buttonLayoutRow1.addComponent(componentToMaariaInfoWindowButton);
 
         Button addPolyOverlayButton = new Button("Add overlay over Luonnonmaa",
                 new Button.ClickListener() {
@@ -268,25 +232,6 @@ public class MapView extends VerticalLayout implements View {
                 });
         buttonLayoutRow2.addComponent(changeControls);
 
-        Button addInfoWindowButton = new Button(
-                "Add InfoWindow to Kakola marker", new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent event) {
-                googleMap.openInfoWindow(kakolaInfoWindow);
-            }
-        });
-        buttonLayoutRow2.addComponent(addInfoWindowButton);
-
-        Button moveMarkerButton = new Button("Move kakola marker",
-                new Button.ClickListener() {
-
-                    @Override
-                    public void buttonClick(Button.ClickEvent event) {
-                        kakolaMarker.setPosition(new LatLon(60.3, 22.242415));
-                        googleMap.addMarker(kakolaMarker);
-                    }
-                });
-        buttonLayoutRow2.addComponent(moveMarkerButton);
 
         Button addKmlLayerButton = new Button("Add KML layer",
                 new Button.ClickListener() {
