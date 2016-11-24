@@ -58,5 +58,8 @@ public class UpgradePgOperative {
     liquibase.update("");
     
     con.close();
+
+
+    System.out.println("Db Upgraded");
   }
 }
