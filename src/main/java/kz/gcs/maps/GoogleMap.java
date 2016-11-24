@@ -281,6 +281,13 @@ public class GoogleMap extends AbstractComponentContainer {
     }
 
     /**
+     * Removes all MarkerClickListeners from the map.
+     */
+    public void clearMarkerClickListeners() {
+        markerClickListeners.clear();
+    }
+
+    /**
      * Adds a MarkerDragListener to the map.
      *
      * @param listener The listener to add.

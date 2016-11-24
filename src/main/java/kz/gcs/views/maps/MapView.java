@@ -3,23 +3,22 @@ package kz.gcs.views.maps;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.ui.*;
 import kz.gcs.domain.Location;
+import kz.gcs.event.DashboardEvent;
+import kz.gcs.event.DashboardEventBus;
 import kz.gcs.maps.GoogleMap;
 import kz.gcs.maps.client.GoogleMapControl;
 import kz.gcs.maps.client.LatLon;
-import kz.gcs.maps.client.events.*;
+import kz.gcs.maps.client.events.MarkerClickListener;
 import kz.gcs.maps.client.layers.GoogleMapKmlLayer;
 import kz.gcs.maps.client.overlays.GoogleMapInfoWindow;
 import kz.gcs.maps.client.overlays.GoogleMapMarker;
 import kz.gcs.maps.client.overlays.GoogleMapPolygon;
 import kz.gcs.maps.client.overlays.GoogleMapPolyline;
-import com.vaadin.ui.*;
-import kz.gcs.event.DashboardEvent;
-import kz.gcs.event.DashboardEventBus;
 import kz.gcs.views.maps.events.OpenInfoWindowOnMarkerClickListener;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -61,15 +60,13 @@ public class MapView extends VerticalLayout implements View {
         tabs.addTab(new Label("Эта страница еще в разработке"), "Карты Yandex");
 
         googleMap = new GoogleMap(this.apiKey, null, "Russian");
-        // uncomment to enable Chinese API.
-        //googleMap.setApiUrl("maps.google.cn");
+        googleMap.setDraggable(true);
+
         googleMap.setCenter(new LatLon(51.1605, 71.4704));
         googleMap.setZoom(10);
         googleMap.setSizeFull();
         kakolaMarker.setAnimationEnabled(false);
         googleMap.addMarker(kakolaMarker);
-        /*googleMap.addMarker("DRAGGABLE: Paavo Nurmi Stadion", new LatLon(
-                51.1605, 71.4704), true, "VAADIN/1377279006_stadium.png");*/
         googleMap.addMarker("Astana", new LatLon(
                 51.1605, 71.4704), false, null);
         googleMap.addMarker(maariaMarker);
@@ -82,12 +79,6 @@ public class MapView extends VerticalLayout implements View {
         mapContent.addComponent(googleMap);
         mapContent.setExpandRatio(googleMap, 1.0f);
 
-        /*Panel console = new Panel();
-        console.setHeight("100px");
-        final CssLayout consoleLayout = new CssLayout();
-        console.setContent(consoleLayout);
-        mapContent.addComponent(console);*/
-
         HorizontalLayout buttonLayoutRow1 = new HorizontalLayout();
         buttonLayoutRow1.setHeight("26px");
         mapContent.addComponent(buttonLayoutRow1);
@@ -96,67 +87,42 @@ public class MapView extends VerticalLayout implements View {
         buttonLayoutRow2.setHeight("26px");
         mapContent.addComponent(buttonLayoutRow2);
 
+        drawButtons(buttonLayoutRow1, buttonLayoutRow2);
+
         OpenInfoWindowOnMarkerClickListener infoWindowOpener = new OpenInfoWindowOnMarkerClickListener(
                 googleMap, kakolaMarker, kakolaInfoWindow);
 
         googleMap.addMarkerClickListener(infoWindowOpener);
 
-        /*googleMap.addMarkerClickListener(new MarkerClickListener() {
-            @Override
-            public void markerClicked(GoogleMapMarker clickedMarker) {
-                Label consoleEntry = new Label("Marker \""
-                        + clickedMarker.getCaption() + "\" at ("
-                        + clickedMarker.getPosition().getLat() + ", "
-                        + clickedMarker.getPosition().getLon() + ") clicked.");
-                consoleLayout.addComponent(consoleEntry, 0);
-            }
-        });
+        DashboardEventBus.register(this);
+    }
 
-        googleMap.addMapMoveListener(new MapMoveListener() {
-            @Override
-            public void mapMoved(int zoomLevel, LatLon center, LatLon boundsNE,
-                                 LatLon boundsSW) {
-                Label consoleEntry = new Label("Map moved to ("
-                        + center.getLat() + ", " + center.getLon() + "), zoom "
-                        + zoomLevel + ", boundsNE: (" + boundsNE.getLat()
-                        + ", " + boundsNE.getLon() + "), boundsSW: ("
-                        + boundsSW.getLat() + ", " + boundsSW.getLon() + ")");
-                consoleLayout.addComponent(consoleEntry, 0);
-            }
-        });
+    @Subscribe
+    public void createTransactionReport(final DashboardEvent.TransactionReportEvent event) {
+        googleMap.clearMarkers();
+        googleMap.clearMarkerClickListeners();
+        List<Location> locations = new ArrayList<>(event.getLocations());
+        if(locations.size()==0)
+            return;
+        Collections.sort(locations);
+        placeMarkersOnMap(locations);
+        DashboardEventBus.post(new DashboardEvent.ReportsCountUpdatedEvent(
+                getComponentCount() - 1));
+    }
 
-        googleMap.addMapClickListener(new MapClickListener() {
-            @Override
-            public void mapClicked(LatLon position) {
-                Label consoleEntry = new Label("Map click to ("
-                        + position.getLat() + ", " + position.getLon() + ")");
-                consoleLayout.addComponent(consoleEntry, 0);
-            }
-        });
+    private void placeMarkersOnMap(List<Location> locations) {
+        for (Location temp : locations) {
+            GoogleMapMarker marker = new GoogleMapMarker(temp.getCity(), new LatLon(temp.getLat(), temp.getLon()), false);
+            googleMap.addMarker(marker);
+            GoogleMapInfoWindow window = new GoogleMapInfoWindow(temp.getTime() + ", " + temp.getCity() + ", " + temp.getCountry(), marker);
+            OpenInfoWindowOnMarkerClickListener windowOpener = new OpenInfoWindowOnMarkerClickListener(googleMap, marker, window);
+            googleMap.addMarkerClickListener(windowOpener);
+        }
+        Location latest = locations.get(locations.size()-1);
+        googleMap.setCenter(new LatLon(latest.getLat(), latest.getLon()));
+    }
 
-        googleMap.addMarkerDragListener(new MarkerDragListener() {
-            @Override
-            public void markerDragged(GoogleMapMarker draggedMarker,
-                                      LatLon oldPosition) {
-                Label consoleEntry = new Label("Marker \""
-                        + draggedMarker.getCaption() + "\" dragged from ("
-                        + oldPosition.getLat() + ", " + oldPosition.getLon()
-                        + ") to (" + draggedMarker.getPosition().getLat()
-                        + ", " + draggedMarker.getPosition().getLon() + ")");
-                consoleLayout.addComponent(consoleEntry, 0);
-            }
-        });
-
-        googleMap.addInfoWindowClosedListener(new InfoWindowClosedListener() {
-
-            @Override
-            public void infoWindowClosed(GoogleMapInfoWindow window) {
-                Label consoleEntry = new Label("InfoWindow \""
-                        + window.getContent() + "\" closed");
-                consoleLayout.addComponent(consoleEntry, 0);
-            }
-        });*/
-
+    private void drawButtons(HorizontalLayout buttonLayoutRow1, HorizontalLayout buttonLayoutRow2) {
         Button moveCenterButton = new Button(
                 "Move over Astana (51.1605, 71.4704), zoom 12",
                 new Button.ClickListener() {
@@ -353,23 +319,71 @@ public class MapView extends VerticalLayout implements View {
                     }
                 });
         buttonLayoutRow2.addComponent(trafficLayerButton);
-        DashboardEventBus.register(this);
     }
 
-    @Subscribe
-    public void createTransactionReport(final DashboardEvent.TransactionReportEvent event) {
-        googleMap.clearMarkers();
-        List<Location> locations = new ArrayList<Location>(event.getLocations());
-        if(locations.size()==0)
-            return;
-        Collections.sort(locations);
-        for (Location temp : locations) {
-            googleMap.addMarker(new GoogleMapMarker(temp.getCity(), new LatLon(temp.getLat(), temp.getLon()), false));
-        }
-        Location latest = locations.get(locations.size()-1);
-        googleMap.setCenter(new LatLon(latest.getLat(), latest.getLon()));
-        DashboardEventBus.post(new DashboardEvent.ReportsCountUpdatedEvent(
-                getComponentCount() - 1));
+    private void drawConsolePanel() {
+        /*Panel console = new Panel();
+        console.setHeight("100px");
+        final CssLayout consoleLayout = new CssLayout();
+        console.setContent(consoleLayout);
+        mapContent.addComponent(console);*/
+
+        /*googleMap.addMarkerClickListener(new MarkerClickListener() {
+            @Override
+            public void markerClicked(GoogleMapMarker clickedMarker) {
+                Label consoleEntry = new Label("Marker \""
+                        + clickedMarker.getCaption() + "\" at ("
+                        + clickedMarker.getPosition().getLat() + ", "
+                        + clickedMarker.getPosition().getLon() + ") clicked.");
+                consoleLayout.addComponent(consoleEntry, 0);
+            }
+        });
+
+        googleMap.addMapMoveListener(new MapMoveListener() {
+            @Override
+            public void mapMoved(int zoomLevel, LatLon center, LatLon boundsNE,
+                                 LatLon boundsSW) {
+                Label consoleEntry = new Label("Map moved to ("
+                        + center.getLat() + ", " + center.getLon() + "), zoom "
+                        + zoomLevel + ", boundsNE: (" + boundsNE.getLat()
+                        + ", " + boundsNE.getLon() + "), boundsSW: ("
+                        + boundsSW.getLat() + ", " + boundsSW.getLon() + ")");
+                consoleLayout.addComponent(consoleEntry, 0);
+            }
+        });
+
+        googleMap.addMapClickListener(new MapClickListener() {
+            @Override
+            public void mapClicked(LatLon position) {
+                Label consoleEntry = new Label("Map click to ("
+                        + position.getLat() + ", " + position.getLon() + ")");
+                consoleLayout.addComponent(consoleEntry, 0);
+            }
+        });
+
+        googleMap.addMarkerDragListener(new MarkerDragListener() {
+            @Override
+            public void markerDragged(GoogleMapMarker draggedMarker,
+                                      LatLon oldPosition) {
+                Label consoleEntry = new Label("Marker \""
+                        + draggedMarker.getCaption() + "\" dragged from ("
+                        + oldPosition.getLat() + ", " + oldPosition.getLon()
+                        + ") to (" + draggedMarker.getPosition().getLat()
+                        + ", " + draggedMarker.getPosition().getLon() + ")");
+                consoleLayout.addComponent(consoleEntry, 0);
+            }
+        });
+
+        googleMap.addInfoWindowClosedListener(new InfoWindowClosedListener() {
+
+            @Override
+            public void infoWindowClosed(GoogleMapInfoWindow window) {
+                Label consoleEntry = new Label("InfoWindow \""
+                        + window.getContent() + "\" closed");
+                consoleLayout.addComponent(consoleEntry, 0);
+            }
+        });*/
+
     }
 
     @Override
