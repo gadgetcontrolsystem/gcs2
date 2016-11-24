@@ -2,6 +2,7 @@ package kz.gcs.data.service.impl;
 
 import kz.gcs.data.service.dao.LocationDao;
 import kz.gcs.data.service.LocationService;
+import kz.gcs.domain.Location;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -12,12 +13,10 @@ import org.springframework.stereotype.Component;
 public class LocationServiceImpl implements LocationService {
 
     @Autowired
-    private LocationDao nameDao;
+    private LocationDao locationDao;
 
     @Override
-    public String getName() {
-
-
-        return nameDao.name();
+    public Location getLastLocation() {
+        return locationDao.getLastLocation();
     }
 }

@@ -18,6 +18,9 @@ public interface DataProvider {
     Collection<Location> getRecentLocations(int count);
 
 
+    Location getLastLocation(long gadgetId);
+
+
     /**
      * @param userName
      * @param password
@@ -39,5 +42,5 @@ public interface DataProvider {
      */
     Collection<Location> getLocationsBetween(Date startDate, Date endDate);
 
-    void setService(LocationService nameService);
+    void setService(LocationService locationService);
 }

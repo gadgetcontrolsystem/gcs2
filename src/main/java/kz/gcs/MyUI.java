@@ -51,12 +51,12 @@ public class MyUI extends UI {
 
 
     @Autowired
-    LocationService nameService;
+    LocationService locationService;
 
 
     @Override
     protected void init(final VaadinRequest request) {
-        dataProvider.setService(nameService);
+        dataProvider.setService(locationService);
         setLocale(Locale.US);
 
         DashboardEventBus.register(this);
