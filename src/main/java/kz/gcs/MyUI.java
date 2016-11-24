@@ -46,7 +46,7 @@ public class MyUI extends UI {
      * injection; and not in the UI but somewhere closer to where they're
      * actually accessed.
      */
-    private final DataProvider dataProvider = new DummyDataProvider();
+    private DataProvider dataProvider;
     private final DashboardEventBus dashboardEventbus = new DashboardEventBus();
 
 
@@ -56,7 +56,7 @@ public class MyUI extends UI {
 
     @Override
     protected void init(final VaadinRequest request) {
-        dataProvider.setService(locationService);
+        dataProvider = new DummyDataProvider(locationService);
         setLocale(Locale.US);
 
         DashboardEventBus.register(this);

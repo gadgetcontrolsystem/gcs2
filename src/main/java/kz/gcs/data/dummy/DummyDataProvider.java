@@ -8,7 +8,6 @@ import com.google.gson.JsonParser;
 import kz.gcs.data.DataProvider;
 import kz.gcs.data.service.LocationService;
 import kz.gcs.domain.*;
-import kz.gcs.maps.client.LatLon;
 
 import java.io.*;
 import java.net.URL;
@@ -26,7 +25,7 @@ public class DummyDataProvider implements DataProvider, Serializable{
 
 
     private static Date lastDataUpdate;
-    private static Multimap<Long, Location> locations;
+    private static Map<Long, Location> locations=new HashMap<>();
 
     private static Random rand = new Random();
 
@@ -40,7 +39,9 @@ public class DummyDataProvider implements DataProvider, Serializable{
     /**
      * Initialize the data for this application.
      */
-    public DummyDataProvider() {
+    public DummyDataProvider(LocationService locationService) {
+        this.locationService = locationService;
+
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DAY_OF_YEAR, -1);
         if (lastDataUpdate == null || lastDataUpdate.before(cal.getTime())) {
@@ -50,7 +51,11 @@ public class DummyDataProvider implements DataProvider, Serializable{
     }
 
     private void refreshStaticData() {
-        locations = generateLocationsData();
+
+        List<Location> newLocations = locationService.getLocations(0);
+        for (Location loc:newLocations) {
+            locations.put(loc.getId(),loc);
+        }
     }
 
     /**
@@ -103,33 +108,6 @@ public class DummyDataProvider implements DataProvider, Serializable{
 
 
 
-    /**
-     * Create a list of dummy transactions
-     *
-     * @return
-     */
-    private Multimap<Long, Location> generateLocationsData() {
-        Multimap<Long, Location> result = MultimapBuilder.hashKeys()
-                .arrayListValues().build();
-
-
-        for (int i = 0; i < 3; i++) {
-            Location loc=new Location();
-            loc.setId(new Long(i));
-            loc.setTime(new Date());
-            String city = DummyDataGenerator.randomCity();
-            LatLon latLon = DummyDataGenerator.randomCoordinate(city);
-            loc.setCity(city);
-            loc.setLat(latLon.getLat());
-            loc.setLon(latLon.getLon());
-            loc.setCountry("Казахстан");
-
-            result.put(loc.getId(),loc);
-        }
-
-        return result;
-
-    }
 
 
 
@@ -157,8 +135,9 @@ public class DummyDataProvider implements DataProvider, Serializable{
 
 
 
-        List<Location> orderedLocations = Lists.newArrayList(locations
-                .values());
+
+        List<Location> orderedLocations = locationService.getLocations(0);
+
 
         for (Location location : orderedLocations) {
             location.setRead(true);
@@ -175,7 +154,7 @@ public class DummyDataProvider implements DataProvider, Serializable{
 
     @Override
     public Location getLastLocation(long gadgetId) {
-        return locationService.getLastLocation();
+        return locationService.getLastLocation(0);
     }
 
 
@@ -215,12 +194,6 @@ public class DummyDataProvider implements DataProvider, Serializable{
                                 && !input.getTime().after(endDate);
                     }
                 });
-    }
-
-    @Override
-    public void setService(LocationService locationService) {
-
-        this.locationService = locationService;
     }
 
 }

@@ -11,11 +11,11 @@ import java.util.List;
  */
 @Mapper
 public interface LocationDao {
-    @Select("SELECT id,time, country, city, LONGTITUDE as lon, LATITUDE as lat,GADGET_ID as gadgetId FROM locations")
+    @Select("SELECT id,time, country, city, LONGTITUDE as lon, LATITUDE as lat,GADGET_ID as gadgetId FROM locations order by time desc limit 1")
     Location getLastLocation();
 
 
-    @Select("SELECT * FROM locations")
+    @Select("SELECT id,time, country, city, LONGTITUDE as lon, LATITUDE as lat,GADGET_ID as gadgetId FROM locations")
     List<Location> getAllLocations();
 
 }

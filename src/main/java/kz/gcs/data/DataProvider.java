@@ -42,5 +42,4 @@ public interface DataProvider {
      */
     Collection<Location> getLocationsBetween(Date startDate, Date endDate);
 
-    void setService(LocationService locationService);
 }
