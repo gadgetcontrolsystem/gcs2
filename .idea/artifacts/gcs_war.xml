@@ -1,6 +1,6 @@
 <component name="ArtifactManager">
-  <artifact type="war" build-on-make="true" name="gcs:war">
-    <output-path>$USER_HOME$/apache-tomcat/webapps</output-path>
+  <artifact type="war" name="gcs:war">
+    <output-path>$PROJECT_DIR$/target</output-path>
     <root id="archive" name="gcs-2.war">
       <element id="artifact" artifact-name="gcs:war exploded" />
     </root>

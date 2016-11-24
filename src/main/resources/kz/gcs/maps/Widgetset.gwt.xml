@@ -12,4 +12,8 @@
         <set-configuration-property name="compiler.emulatedStack.recordLineNumbers"
                                     value="true" />
         <set-property name="user.agent" value="safari"/>-->
+
+    <inherits name="kz.gcs.DashboardWidgetSet" />
+
+    <inherits name="com.vaadin.tapio.googlemaps.Widgetset" />
 </module>
