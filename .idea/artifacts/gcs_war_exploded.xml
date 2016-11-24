@@ -64,6 +64,8 @@
           <element id="library" level="project" name="Maven: org.springframework:spring-messaging:4.1.2.RELEASE" />
           <element id="library" level="project" name="Maven: org.springframework.retry:spring-retry:1.1.1.RELEASE" />
           <element id="library" level="project" name="Maven: ru.xpoft.vaadin:spring-vaadin-integration:3.2" />
+          <element id="library" level="project" name="Maven: org.liquibase:liquibase-core:3.5.3" />
+          <element id="library" level="project" name="Maven: org.yaml:snakeyaml:1.17" />
         </element>
       </element>
       <element id="directory" name="META-INF">
