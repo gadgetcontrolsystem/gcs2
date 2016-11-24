@@ -114,7 +114,6 @@
     <orderEntry type="library" scope="TEST" name="Maven: org.seleniumhq.selenium:jetty-repacked:7.6.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.seleniumhq.selenium:jetty-rc-repacked:5" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: net.jcip:jcip-annotations:1.0" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: org.yaml:snakeyaml:1.8" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.seleniumhq.selenium:selenium-remote-driver:2.46.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: cglib:cglib-nodep:2.1_3" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.seleniumhq.selenium:selenium-api:2.46.0" level="project" />
@@ -181,5 +180,7 @@
     <orderEntry type="library" name="Maven: org.springframework:spring-messaging:4.1.2.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.retry:spring-retry:1.1.1.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: ru.xpoft.vaadin:spring-vaadin-integration:3.2" level="project" />
+    <orderEntry type="library" name="Maven: org.liquibase:liquibase-core:3.5.3" level="project" />
+    <orderEntry type="library" name="Maven: org.yaml:snakeyaml:1.17" level="project" />
   </component>
 </module>
