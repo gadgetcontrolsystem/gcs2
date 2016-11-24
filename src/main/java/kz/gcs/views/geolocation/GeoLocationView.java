@@ -44,7 +44,6 @@ public class GeoLocationView extends VerticalLayout implements View {
         setSizeFull();
         addStyleName("transactions");
         DashboardEventBus.register(this);
-        System.out.println("GCS register");
 
         addComponent(buildToolbar());
 
@@ -243,13 +242,10 @@ public class GeoLocationView extends VerticalLayout implements View {
     }
 
     void createNewReportFromSelection() {
-        System.out.println("before navigate");
         UI.getCurrent().getNavigator()
                 .navigateTo(MenuViewType.MAP.getViewName());
-        System.out.println("before post");
         DashboardEventBus.post(new DashboardEvent.TransactionReportEvent(
                 (Collection<Location>) table.getValue()));
-        System.out.println("after post");
     }
 
     @Override

@@ -61,7 +61,7 @@ public class ProfilePreferencesWindow extends Window implements Serializable{
         Responsive.makeResponsive(this);
 
         setModal(true);
-        setCloseShortcut(KeyCode.ESCAPE, null);
+        addCloseShortcut(KeyCode.ESCAPE, null);
         setResizable(false);
         setClosable(false);
         setHeight(90.0f, Unit.PERCENTAGE);
@@ -95,13 +95,13 @@ public class ProfilePreferencesWindow extends Window implements Serializable{
 
     private Component buildPreferencesTab() {
         VerticalLayout root = new VerticalLayout();
-        root.setCaption("Preferences");
-        root.setIcon(FontAwesome.COGS);
+        root.setCaption("Карта");
+        root.setIcon(FontAwesome.MAP);
         root.setSpacing(true);
         root.setMargin(true);
         root.setSizeFull();
 
-        Label message = new Label("Not implemented in this demo");
+        Label message = new Label("Страница находится в разработке");
         message.setSizeUndefined();
         message.addStyleName(ValoTheme.LABEL_LIGHT);
         root.addComponent(message);
@@ -112,7 +112,7 @@ public class ProfilePreferencesWindow extends Window implements Serializable{
 
     private Component buildProfileTab() {
         HorizontalLayout root = new HorizontalLayout();
-        root.setCaption("Profile");
+        root.setCaption("Профиль");
         root.setIcon(FontAwesome.USER);
         root.setWidth(100.0f, Unit.PERCENTAGE);
         root.setSpacing(true);
@@ -127,10 +127,10 @@ public class ProfilePreferencesWindow extends Window implements Serializable{
         profilePic.setWidth(100.0f, Unit.PIXELS);
         pic.addComponent(profilePic);
 
-        Button upload = new Button("Change…", new ClickListener() {
+        Button upload = new Button("Изменить…", new ClickListener() {
             @Override
             public void buttonClick(ClickEvent event) {
-                Notification.show("Not implemented in this demo");
+                Notification.show("Страница находится в разработке");
             }
         });
         upload.addStyleName(ValoTheme.BUTTON_TINY);
@@ -143,28 +143,28 @@ public class ProfilePreferencesWindow extends Window implements Serializable{
         root.addComponent(details);
         root.setExpandRatio(details, 1);
 
-        firstNameField = new TextField("First Name");
+        firstNameField = new TextField("Имя");
         details.addComponent(firstNameField);
-        lastNameField = new TextField("Last Name");
+        lastNameField = new TextField("Фамилия");
         details.addComponent(lastNameField);
 
-        titleField = new ComboBox("Title");
+        /*titleField = new ComboBox("Title");
         titleField.setInputPrompt("Please specify");
         titleField.addItem("Mr.");
         titleField.addItem("Mrs.");
         titleField.addItem("Ms.");
         titleField.setNewItemsAllowed(true);
-        details.addComponent(titleField);
+        details.addComponent(titleField);*/
 
-        sexField = new OptionGroup("Sex");
+        sexField = new OptionGroup("Пол");
         sexField.addItem(Boolean.FALSE);
-        sexField.setItemCaption(Boolean.FALSE, "Female");
+        sexField.setItemCaption(Boolean.FALSE, "Женский");
         sexField.addItem(Boolean.TRUE);
-        sexField.setItemCaption(Boolean.TRUE, "Male");
+        sexField.setItemCaption(Boolean.TRUE, "Мужской");
         sexField.addStyleName("horizontal");
         details.addComponent(sexField);
 
-        Label section = new Label("Contact Info");
+        Label section = new Label("Контакты");
         section.addStyleName(ValoTheme.LABEL_H4);
         section.addStyleName(ValoTheme.LABEL_COLORED);
         details.addComponent(section);
@@ -175,14 +175,14 @@ public class ProfilePreferencesWindow extends Window implements Serializable{
         emailField.setNullRepresentation("");
         details.addComponent(emailField);
 
-        locationField = new TextField("Location");
+        locationField = new TextField("Адрес");
         locationField.setWidth("100%");
         locationField.setNullRepresentation("");
         locationField.setComponentError(new UserError(
-                "This address doesn't exist"));
+                "Данный адрес не зарегистрирован в системе"));
         details.addComponent(locationField);
 
-        phoneField = new TextField("Phone");
+        phoneField = new TextField("Тел.");
         phoneField.setWidth("100%");
         phoneField.setNullRepresentation("");
         details.addComponent(phoneField);
@@ -193,18 +193,18 @@ public class ProfilePreferencesWindow extends Window implements Serializable{
         newsletterField.addOption(2, "Monthly");
         details.addComponent(newsletterField);*/
 
-        section = new Label("Additional Info");
+        section = new Label("Доп. информация");
         section.addStyleName(ValoTheme.LABEL_H4);
         section.addStyleName(ValoTheme.LABEL_COLORED);
         details.addComponent(section);
 
-        websiteField = new TextField("Website");
+        websiteField = new TextField("Вебсайт");
         websiteField.setInputPrompt("http://");
         websiteField.setWidth("100%");
         websiteField.setNullRepresentation("");
         details.addComponent(websiteField);
 
-        bioField = new TextArea("Bio");
+        bioField = new TextArea("Биография");
         bioField.setWidth("100%");
         bioField.setRows(4);
         bioField.setNullRepresentation("");
@@ -218,7 +218,7 @@ public class ProfilePreferencesWindow extends Window implements Serializable{
         footer.addStyleName(ValoTheme.WINDOW_BOTTOM_TOOLBAR);
         footer.setWidth(100.0f, Unit.PERCENTAGE);
 
-        Button ok = new Button("OK");
+        Button ok = new Button("Применить");
         ok.addStyleName(ValoTheme.BUTTON_PRIMARY);
         ok.addClickListener(new ClickListener() {
             @Override
@@ -229,7 +229,7 @@ public class ProfilePreferencesWindow extends Window implements Serializable{
                     // not in this demo.
 
                     Notification success = new Notification(
-                            "Profile updated successfully");
+                            "Настройки изменены");
                     success.setDelayMsec(2000);
                     success.setStyleName("bar success small");
                     success.setPosition(Position.BOTTOM_CENTER);
@@ -238,7 +238,7 @@ public class ProfilePreferencesWindow extends Window implements Serializable{
                     DashboardEventBus.post(new ProfileUpdatedEvent());
                     close();
                 } catch (CommitException e) {
-                    Notification.show("Error while updating profile",
+                    Notification.show("Ошибка при изменении настроек",
                             Type.ERROR_MESSAGE);
                 }
 
