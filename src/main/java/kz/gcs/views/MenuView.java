@@ -74,7 +74,7 @@ public final class MenuView extends CustomComponent {
     }
 
     private Component buildTitle() {
-        Label logo = new Label("ТОО <strong>GCS</strong>",
+        Label logo = new Label("<strong>GCS</strong>",
                 ContentMode.HTML);
         logo.setSizeUndefined();
         HorizontalLayout logoWrapper = new HorizontalLayout(logo);

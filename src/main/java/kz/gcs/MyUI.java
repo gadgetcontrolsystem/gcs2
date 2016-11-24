@@ -37,7 +37,7 @@ import java.util.Locale;
 @Scope("prototype")
 @Theme("dashboard")
 @Widgetset("kz.gcs.DashboardWidgetSet")
-@Title("ТОО GCS")
+@Title("GCS")
 public class MyUI extends UI {
 
     /*
