@@ -89,4 +89,18 @@ public final class Location implements Serializable, Comparable<Location>{
     public String displayStr() {
         return getCity()+ " "+getTime();
     }
+
+    @Override
+    public String toString() {
+        return "Location{" +
+                "id=" + id +
+                ", time=" + time +
+                ", country='" + country + '\'' +
+                ", city='" + city + '\'' +
+                ", lat=" + lat +
+                ", lon=" + lon +
+                ", gadgetId=" + gadgetId +
+                ", read=" + read +
+                '}';
+    }
 }

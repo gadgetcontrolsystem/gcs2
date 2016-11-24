@@ -143,10 +143,10 @@ public final class MenuView extends CustomComponent {
             Component menuItemComponent = new ValoMenuItemButton(view);
 
             if (view == MenuViewType.MAP) {
-                notificationsBadge = new Label();
-                notificationsBadge.setId(NOTIFICATIONS_BADGE_ID);
-                menuItemComponent = buildBadgeWrapper(menuItemComponent,
-                        notificationsBadge);
+//                notificationsBadge = new Label();
+//                notificationsBadge.setId(NOTIFICATIONS_BADGE_ID);
+//                menuItemComponent = buildBadgeWrapper(menuItemComponent,
+//                        notificationsBadge);
             }
 
             if (view == MenuViewType.GEOLOCATION) {
@@ -231,6 +231,11 @@ public final class MenuView extends CustomComponent {
                 public void buttonClick(final ClickEvent event) {
                     UI.getCurrent().getNavigator()
                             .navigateTo(view.getViewName());
+
+                    if(MenuViewType.GEOLOCATION==view){
+                        notificationsBadge.setValue(String.valueOf(0));
+                        notificationsBadge.setVisible(false);
+                    }
                 }
             });
 

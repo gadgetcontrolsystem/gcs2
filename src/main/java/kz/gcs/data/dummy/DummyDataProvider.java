@@ -54,7 +54,10 @@ public class DummyDataProvider implements DataProvider, Serializable{
 
         List<Location> newLocations = locationService.getLocations(0);
         for (Location loc:newLocations) {
-            locations.put(loc.getId(),loc);
+            System.out.println(loc);
+            if(!locations.containsKey(loc.getId())){
+                locations.put(loc.getId(),loc);
+            }
         }
     }
 
@@ -132,11 +135,12 @@ public class DummyDataProvider implements DataProvider, Serializable{
 
     @Override
     public Collection<Location> getRecentLocations(int count) {
+        refreshStaticData();
+        System.out.println("GET RECENT LOCATIONS!!!");
 
+        List<Location> orderedLocations = Lists.newArrayList(locations
+                .values());
 
-
-
-        List<Location> orderedLocations = locationService.getLocations(0);
 
 
         for (Location location : orderedLocations) {
@@ -148,8 +152,7 @@ public class DummyDataProvider implements DataProvider, Serializable{
                 return o2.getTime().compareTo(o1.getTime());
             }
         });
-        return orderedLocations.subList(0,
-                Math.min(count, locations.values().size()));
+        return orderedLocations;
     }
 
     @Override
@@ -170,6 +173,7 @@ public class DummyDataProvider implements DataProvider, Serializable{
 
     @Override
     public int getUnreadLocationCount() {
+        refreshStaticData();
         Predicate<Location> unreadPredicate = new Predicate<Location>() {
             @Override
             public boolean apply(Location input) {
