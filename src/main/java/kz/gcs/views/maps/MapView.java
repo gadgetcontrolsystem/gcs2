@@ -58,11 +58,11 @@ public class MapView extends VerticalLayout implements View {
         googleMap.setSizeFull();
 
         Location lastLocation = MyUI.getDataProvider().getLastLocation(0);
-        LatLon position = new LatLon(
-                lastLocation.getLat(), lastLocation.getLon());
-        googleMap.addMarker(lastLocation.displayStr(), position, false, null);
-
-        googleMap.setCenter(position);
+        if(lastLocation!=null) {
+            LatLon position = new LatLon(lastLocation.getLat(), lastLocation.getLon());
+            googleMap.addMarker(lastLocation.displayStr(), position, false, null);
+            googleMap.setCenter(position);
+        }
         googleMap.setMinZoom(4);
         googleMap.setMaxZoom(16);
 
