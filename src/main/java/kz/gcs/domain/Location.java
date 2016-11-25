@@ -3,7 +3,7 @@ package kz.gcs.domain;
 import java.io.Serializable;
 import java.util.Date;
 
-public final class Location implements Serializable, Comparable<Location>{
+public final class Location implements Serializable, Comparable<Location> {
     private static final long serialVersionUID = 4070830229335439060L;
 
     private Long id;
@@ -87,7 +87,7 @@ public final class Location implements Serializable, Comparable<Location>{
     }
 
     public String displayStr() {
-        return getCity()+ " "+getTime();
+        return getCity() + " " + getTime();
     }
 
     @Override

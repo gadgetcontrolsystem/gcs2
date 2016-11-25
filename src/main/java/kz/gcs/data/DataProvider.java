@@ -11,8 +11,7 @@ import java.util.Date;
  */
 public interface DataProvider {
     /**
-     * @param count
-     *            Number of transactions to fetch.
+     * @param count Number of transactions to fetch.
      * @return A Collection of most recent transactions.
      */
     Collection<Location> getRecentLocations(int count);
@@ -38,7 +37,7 @@ public interface DataProvider {
      * @param startDate
      * @param endDate
      * @return A Collection of Transactions between the given start and end
-     *         dates.
+     * dates.
      */
     Collection<Location> getLocationsBetween(Date startDate, Date endDate);
 
