@@ -13,6 +13,7 @@ import kz.gcs.maps.client.rpcs.*;
 import com.vaadin.ui.AbstractComponentContainer;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
+import kz.gcs.views.maps.events.OpenInfoWindowOnMarkerClickListener;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -153,6 +154,23 @@ public class GoogleMap extends AbstractComponentContainer {
         registerRpc(markerDraggedRpc);
         registerRpc(infoWindowClosedRpc);
         registerRpc(mapTypeChangedRpc);
+    }
+
+    /**
+     * Removes all elements from the map.
+     */
+    public void clearAll() {
+        clearInfoWindows();
+        clearMarkerClickListeners();
+        clearMarkers();
+        clearPolylines();
+    }
+
+    /**
+     * Removes all infoWindows from the map.
+     */
+    public void clearInfoWindows() {
+        getState().infoWindows.clear();
     }
 
     /*
@@ -424,6 +442,13 @@ public class GoogleMap extends AbstractComponentContainer {
      */
     public void removePolyline(GoogleMapPolyline polyline) {
         getState().polylines.remove(polyline);
+    }
+
+    /**
+     * Removes all polylines from the map.
+     */
+    public void clearPolylines() {
+        getState().polylines.clear();
     }
 
     /**
