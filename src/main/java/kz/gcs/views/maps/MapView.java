@@ -53,14 +53,9 @@ public class MapView extends VerticalLayout implements View {
         googleMap.setZoom(10);
         googleMap.setSizeFull();
 
-        Location lastLocation = MyUI.getDataProvider().getLastLocation(0);
-        if(lastLocation!=null) {
-            LatLon position = new LatLon(lastLocation.getLat(), lastLocation.getLon());
-            googleMap.addMarker(lastLocation.displayStr(), position, false, null);
-            googleMap.setCenter(position);
-        }
+        getLastLocation();
         googleMap.setMinZoom(4);
-        googleMap.setMaxZoom(16);
+//        googleMap.setMaxZoom(16);
 
 
         mapContent.addComponent(googleMap);
@@ -85,7 +80,7 @@ public class MapView extends VerticalLayout implements View {
         googleMap.clearMarkers();
         googleMap.clearMarkerClickListeners();
         List<Location> locations = new ArrayList<>(event.getLocations());
-        if(locations.size()==0)
+        if (locations.size() == 0)
             return;
         Collections.sort(locations);
         placeMarkersOnMap(locations);
@@ -101,18 +96,18 @@ public class MapView extends VerticalLayout implements View {
             OpenInfoWindowOnMarkerClickListener windowOpener = new OpenInfoWindowOnMarkerClickListener(googleMap, marker, window);
             googleMap.addMarkerClickListener(windowOpener);
         }
-        Location latest = locations.get(locations.size()-1);
+        Location latest = locations.get(locations.size() - 1);
         googleMap.setCenter(new LatLon(latest.getLat(), latest.getLon()));
     }
 
-    private void getLastLocation(){
+    private void getLastLocation() {
         Location lastLocation = MyUI.getDataProvider().getLastLocation(0);
-        if(lastLocation!=null) {
+        if (lastLocation != null) {
             LatLon position = new LatLon(lastLocation.getLat(), lastLocation.getLon());
             googleMap.addMarker(lastLocation.displayStr(), position, false, null);
             googleMap.setCenter(position);
         }
-        googleMap.setZoom(12);
+        googleMap.setZoom(45);
     }
 
     private void drawButtons(HorizontalLayout buttonLayoutRow1, HorizontalLayout buttonLayoutRow2) {
@@ -122,12 +117,12 @@ public class MapView extends VerticalLayout implements View {
             public void buttonClick(Button.ClickEvent clickEvent) {
                 googleMap.clearMarkers();
                 getLastLocation();
-                currentTimeStamp.setValue("Последнее обновление карты: "+new Date().toString());
+                currentTimeStamp.setValue("Последнее обновление карты: " + new Date().toString());
             }
         });
         buttonLayoutRow1.addComponent(refreshButton);
 
-        currentTimeStamp = new Label("Последнее обновление карты: "+new Date().toString());
+        currentTimeStamp = new Label("Последнее обновление карты: " + new Date().toString());
 
         buttonLayoutRow1.addComponent(currentTimeStamp);
 

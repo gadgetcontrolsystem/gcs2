@@ -183,5 +183,6 @@
     <orderEntry type="library" name="Maven: ru.xpoft.vaadin:spring-vaadin-integration:3.2" level="project" />
     <orderEntry type="library" name="Maven: org.liquibase:liquibase-core:3.5.3" level="project" />
     <orderEntry type="library" name="Maven: org.yaml:snakeyaml:1.17" level="project" />
+    <orderEntry type="library" name="Maven: log4j:log4j:1.2.17" level="project" />
   </component>
 </module>

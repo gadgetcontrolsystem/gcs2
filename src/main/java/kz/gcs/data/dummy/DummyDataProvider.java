@@ -8,6 +8,7 @@ import com.google.gson.JsonParser;
 import kz.gcs.data.DataProvider;
 import kz.gcs.data.service.LocationService;
 import kz.gcs.domain.*;
+import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.net.URL;
@@ -17,15 +18,17 @@ import java.util.*;
 /**
  * A dummy implementation for the backend API.
  */
-public class DummyDataProvider implements DataProvider, Serializable{
+public class DummyDataProvider implements DataProvider, Serializable {
 
     // TODO: Get API key from http://developer.rottentomatoes.com
     private static final String ROTTEN_TOMATOES_API_KEY = null;
     private static final long serialVersionUID = -2435788440141620247L;
 
+    private final static Logger logger = Logger.getLogger(DummyDataProvider.class);
+
 
     private static Date lastDataUpdate;
-    private static Map<Long, Location> locations=new HashMap<>();
+    private static Map<Long, Location> locations = new HashMap<>();
 
     private static Random rand = new Random();
 
@@ -42,6 +45,8 @@ public class DummyDataProvider implements DataProvider, Serializable{
     public DummyDataProvider(LocationService locationService) {
         this.locationService = locationService;
 
+        logger.error("DUMMY INIT");
+        logger.info("DUMMY INIT");
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DAY_OF_YEAR, -1);
         if (lastDataUpdate == null || lastDataUpdate.before(cal.getTime())) {
@@ -53,10 +58,11 @@ public class DummyDataProvider implements DataProvider, Serializable{
     private void refreshStaticData() {
 
         List<Location> newLocations = locationService.getLocations(0);
-        for (Location loc:newLocations) {
-            System.out.println(loc);
-            if(!locations.containsKey(loc.getId())){
-                locations.put(loc.getId(),loc);
+        logger.info("LOCATIONS SIZE FROM DB " + newLocations.size());
+        for (Location loc : newLocations) {
+            logger.info(loc);
+            if (!locations.containsKey(loc.getId())) {
+                locations.put(loc.getId(), loc);
             }
         }
     }
@@ -110,14 +116,9 @@ public class DummyDataProvider implements DataProvider, Serializable{
     }
 
 
-
-
-
-
     @Override
     public User authenticate(String userName, String password) {
         User user = new User();
-
 
 
         user.setFirstName(DummyDataGenerator.randomName());
@@ -136,11 +137,9 @@ public class DummyDataProvider implements DataProvider, Serializable{
     @Override
     public Collection<Location> getRecentLocations(int count) {
         refreshStaticData();
-        System.out.println("GET RECENT LOCATIONS!!!");
 
         List<Location> orderedLocations = Lists.newArrayList(locations
                 .values());
-
 
 
         for (Location location : orderedLocations) {
@@ -184,12 +183,9 @@ public class DummyDataProvider implements DataProvider, Serializable{
     }
 
 
-
-
-
     @Override
     public Collection<Location> getLocationsBetween(final Date startDate,
-                                                       final Date endDate) {
+                                                    final Date endDate) {
         return Collections2.filter(locations.values(),
                 new Predicate<Location>() {
                     @Override
