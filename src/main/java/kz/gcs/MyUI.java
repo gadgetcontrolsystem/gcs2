@@ -57,6 +57,9 @@ public class MyUI extends UI {
     @Override
     protected void init(final VaadinRequest request) {
         dataProvider = new DummyDataProvider(locationService);
+
+        getPage().getJavaScript().execute("document.head.innerHTML += '<meta name=\"viewport\" content=\"initial-scale = 1.0,maximum-scale = 1.0\">'");
+
         setLocale(Locale.US);
 
         DashboardEventBus.register(this);
