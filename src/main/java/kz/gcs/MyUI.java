@@ -27,10 +27,10 @@ import org.springframework.stereotype.Component;
 import java.util.Locale;
 
 /**
- * This UI is the application entry point. A UI may either represent a browser window
+ * This UI is the application entry point. A UI may either represent a browser window 
  * (or tab) or some part of a html page where a Vaadin application is embedded.
  * <p>
- * The UI is initialized using {@link #init(VaadinRequest)}. This method is intended to be
+ * The UI is initialized using {@link #init(VaadinRequest)}. This method is intended to be 
  * overridden to add component to the user interface and initialize non-component functionality.
  */
 
@@ -61,8 +61,10 @@ public class MyUI extends UI {
     @Override
     protected void init(final VaadinRequest request) {
         dataProvider = new DummyDataProvider(locationService, userService);
-        setLocale(Locale.US);
 
+        getPage().getJavaScript().execute("document.head.innerHTML += '<meta name=\"viewport\" content=\"initial-scale = 1.0,maximum-scale = 1.0\">'");
+
+        setLocale(Locale.US);
 
         DashboardEventBus.register(this);
         Responsive.makeResponsive(this);
