@@ -20,7 +20,7 @@ import com.vaadin.ui.themes.ValoTheme;
 import java.io.Serializable;
 
 
-public class ProfilePreferencesWindow extends Window implements Serializable{
+public class ProfilePreferencesWindow extends Window implements Serializable {
 
     public static final String ID = "profilepreferenceswindow";
     private static final long serialVersionUID = -1753338186626916476L;
@@ -33,9 +33,9 @@ public class ProfilePreferencesWindow extends Window implements Serializable{
      * explicitly set, calling fieldGroup.setItemDataSource(user) synchronizes
      * the fields with the user object.
      */
-    @PropertyId("firstName")
+    @PropertyId("name")
     private TextField firstNameField;
-    @PropertyId("lastName")
+    @PropertyId("surname")
     private TextField lastNameField;
     @PropertyId("title")
     private ComboBox titleField;
@@ -43,16 +43,16 @@ public class ProfilePreferencesWindow extends Window implements Serializable{
     private OptionGroup sexField;
     @PropertyId("email")
     private TextField emailField;
-    @PropertyId("location")
+    @PropertyId("address")
     private TextField locationField;
     @PropertyId("phone")
     private TextField phoneField;
     /*@PropertyId("newsletterSubscription")
     private OptionalSelect<Integer> newsletterField;*/
-    @PropertyId("website")
-    private TextField websiteField;
-    @PropertyId("bio")
-    private TextArea bioField;
+//    @PropertyId("website")
+//    private TextField websiteField;
+//    @PropertyId("bio")
+//    private TextArea bioField;
 
     private ProfilePreferencesWindow(final User user,
                                      final boolean preferencesTabOpen) {
@@ -198,17 +198,17 @@ public class ProfilePreferencesWindow extends Window implements Serializable{
         section.addStyleName(ValoTheme.LABEL_COLORED);
         details.addComponent(section);
 
-        websiteField = new TextField("Вебсайт");
-        websiteField.setInputPrompt("http://");
-        websiteField.setWidth("100%");
-        websiteField.setNullRepresentation("");
-        details.addComponent(websiteField);
-
-        bioField = new TextArea("Биография");
-        bioField.setWidth("100%");
-        bioField.setRows(4);
-        bioField.setNullRepresentation("");
-        details.addComponent(bioField);
+//        websiteField = new TextField("Вебсайт");
+//        websiteField.setInputPrompt("http://");
+//        websiteField.setWidth("100%");
+//        websiteField.setNullRepresentation("");
+//        details.addComponent(websiteField);
+//
+//        bioField = new TextArea("Биография");
+//        bioField.setWidth("100%");
+//        bioField.setRows(4);
+//        bioField.setNullRepresentation("");
+//        details.addComponent(bioField);
 
         return root;
     }

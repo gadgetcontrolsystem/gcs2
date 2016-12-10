@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
 
 
     <changeSet author="kaydar (generated)" id="1462867459087-3">
@@ -29,4 +30,52 @@
             </column>
         </createTable>
     </changeSet>
+
+    <changeSet author="kaydar (generated)" id="1462867459087-4">
+
+        <createTable tableName="USERS">
+            <column name="ID" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="PK_USER"/>
+            </column>
+            <column name="GADGET_ID" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="LOGIN" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="PK_USER_LOGIN"/>
+            </column>
+            <column name="PASSWORD" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="SURNAME" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="NAME" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PATRONYMIC" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="MALE" type="BOOLEAN">
+                <constraints nullable="true"/>
+            </column>
+            <column name="EMAIL" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="ADDRESS" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PHONE" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="ROLE" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet author="kaydar" id="001-insert-admin-user.sql">
+        <sqlFile path="kz/gcs/upgrade/pg/oper/v001/001-insert-admin-user.sql"/>
+    </changeSet>
+
+
 </databaseChangeLog>

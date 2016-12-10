@@ -11,6 +11,7 @@ import com.vaadin.ui.themes.ValoTheme;
 import kz.gcs.data.DataProvider;
 import kz.gcs.data.dummy.DummyDataProvider;
 import kz.gcs.data.service.LocationService;
+import kz.gcs.data.service.UserService;
 import kz.gcs.domain.User;
 import kz.gcs.event.DashboardEvent.BrowserResizeEvent;
 import kz.gcs.event.DashboardEvent.CloseOpenWindowsEvent;
@@ -26,10 +27,10 @@ import org.springframework.stereotype.Component;
 import java.util.Locale;
 
 /**
- * This UI is the application entry point. A UI may either represent a browser window 
+ * This UI is the application entry point. A UI may either represent a browser window
  * (or tab) or some part of a html page where a Vaadin application is embedded.
  * <p>
- * The UI is initialized using {@link #init(VaadinRequest)}. This method is intended to be 
+ * The UI is initialized using {@link #init(VaadinRequest)}. This method is intended to be
  * overridden to add component to the user interface and initialize non-component functionality.
  */
 
@@ -54,16 +55,20 @@ public class MyUI extends UI {
     LocationService locationService;
 
 
+    @Autowired
+    UserService userService;
+
     @Override
     protected void init(final VaadinRequest request) {
-        dataProvider = new DummyDataProvider(locationService);
+        dataProvider = new DummyDataProvider(locationService, userService);
         setLocale(Locale.US);
+
 
         DashboardEventBus.register(this);
         Responsive.makeResponsive(this);
         addStyleName(ValoTheme.UI_WITH_MENU);
 
-        updateContent();
+        updateContent(false);
 
         // Some views need to be aware of browser resize events so a
         // BrowserResizeEvent gets fired to the event bus on every occasion.
@@ -82,7 +87,7 @@ public class MyUI extends UI {
      * If the user is logged in with appropriate privileges, main view is shown.
      * Otherwise login view is shown.
      */
-    private void updateContent() {
+    private void updateContent(boolean showError) {
         User user = (User) VaadinSession.getCurrent().getAttribute(
                 User.class.getName());
         if (user != null && "admin".equals(user.getRole())) {
@@ -94,7 +99,7 @@ public class MyUI extends UI {
 
             getNavigator().navigateTo(getNavigator().getState());
         } else {
-            setContent(new LoginView());
+            setContent(new LoginView(showError));
             addStyleName("loginview");
         }
     }
@@ -104,7 +109,7 @@ public class MyUI extends UI {
         User user = getDataProvider().authenticate(event.getUserName(),
                 event.getPassword());
         VaadinSession.getCurrent().setAttribute(User.class.getName(), user);
-        updateContent();
+        updateContent(true);
     }
 
     @Subscribe

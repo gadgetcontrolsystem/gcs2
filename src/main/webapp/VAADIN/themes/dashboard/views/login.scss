@@ -20,7 +20,9 @@
     > .v-spacing {
       height: round($v-unit-size / 2);
     }
-
+    .errorLabel {
+      color: red;
+    }
     .labels {
       display: block;
 

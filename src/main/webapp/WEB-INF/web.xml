@@ -20,6 +20,7 @@
 			<param-name>beanName</param-name>
 			<param-value>myUI</param-value>
 		</init-param>
+
 	</servlet>
 	<listener>
 		<listener-class>kz.gcs.util.ContextListener</listener-class>

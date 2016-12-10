@@ -11186,6 +11186,10 @@ div.v-layout.v-horizontal.v-widget {
 	height: 19px;
 }
 
+.dashboard .login-panel .errorLabel {
+	color: red;
+}
+
 .dashboard .login-panel .labels {
 	display: block;
 }

@@ -5,103 +5,76 @@ import java.io.Serializable;
 public final class User implements Serializable {
     private static final long serialVersionUID = -5193998028932591313L;
     private String role;
-    private String firstName;
-    private String lastName;
+    private String name;
+    private String surname;
     private String title;
     private boolean male;
     private String email;
-    private String location;
     private String phone;
-    private Integer newsletterSubscription;
-    private String website;
-    private String bio;
+    private String address;
 
-    public String getEmail() {
-        return email;
+
+    public String getRole() {
+        return role;
     }
 
-    public void setEmail(final String email) {
-        this.email = email;
+    public void setRole(String role) {
+        this.role = role;
     }
 
-    public String getLocation() {
-        return location;
+    public String getName() {
+        return name;
     }
 
-    public void setLocation(final String location) {
-        this.location = location;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getPhone() {
-        return phone;
+    public String getSurname() {
+        return surname;
     }
 
-    public void setPhone(final String phone) {
-        this.phone = phone;
-    }
-
-    public Integer getNewsletterSubscription() {
-        return newsletterSubscription;
-    }
-
-    public void setNewsletterSubscription(final Integer newsletterSubscription) {
-        this.newsletterSubscription = newsletterSubscription;
-    }
-
-    public String getWebsite() {
-        return website;
-    }
-
-    public void setWebsite(final String website) {
-        this.website = website;
-    }
-
-    public String getBio() {
-        return bio;
-    }
-
-    public void setBio(final String bio) {
-        this.bio = bio;
-    }
-
-    public boolean isMale() {
-        return male;
-    }
-
-    public void setMale(final boolean male) {
-        this.male = male;
+    public void setSurname(String surname) {
+        this.surname = surname;
     }
 
     public String getTitle() {
         return title;
     }
 
-    public void setTitle(final String title) {
+    public void setTitle(String title) {
         this.title = title;
     }
 
-    public String getRole() {
-        return role;
+    public boolean isMale() {
+        return male;
     }
 
-    public void setRole(final String role) {
-        this.role = role;
+    public void setMale(boolean male) {
+        this.male = male;
     }
 
-    public String getFirstName() {
-        return firstName;
+    public String getEmail() {
+        return email;
     }
 
-    public void setFirstName(final String firstName) {
-        this.firstName = firstName;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
-    public String getLastName() {
-        return lastName;
+    public String getPhone() {
+        return phone;
     }
 
-    public void setLastName(final String lastName) {
-        this.lastName = lastName;
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
 }

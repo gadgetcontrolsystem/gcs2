@@ -25,12 +25,18 @@ import com.vaadin.ui.themes.ValoTheme;
 @SuppressWarnings("serial")
 public class LoginView extends VerticalLayout {
 
-    public LoginView() {
+    private Label error;
+
+    public LoginView(boolean showError) {
         setSizeFull();
 
         Component loginForm = buildLoginForm();
         addComponent(loginForm);
         setComponentAlignment(loginForm, Alignment.MIDDLE_CENTER);
+
+        error.setVisible(showError);
+
+
 
         /*Notification notification = new Notification(
                 "Welcome to Dashboard Demo");
@@ -52,6 +58,7 @@ public class LoginView extends VerticalLayout {
 
         loginPanel.addComponent(buildLabels());
         loginPanel.addComponent(buildFields());
+        loginPanel.addComponent(buildErrorLabel());
         loginPanel.addComponent(new CheckBox("Запомнить меня", true));
         return loginPanel;
     }
@@ -103,6 +110,23 @@ public class LoginView extends VerticalLayout {
         title.addStyleName(ValoTheme.LABEL_LIGHT);
         labels.addComponent(title);
         return labels;
+    }
+
+    private Component buildErrorLabel() {
+
+        HorizontalLayout errorLabelHL = new HorizontalLayout();
+        errorLabelHL.setSizeFull();
+
+        error = new Label("Неверный логин/пароль");
+        error.setSizeUndefined();
+        error.addStyleName(ValoTheme.LABEL_TINY);
+        error.setStyleName("errorLabel");
+        error.setSizeUndefined();
+
+        errorLabelHL.addComponent(error);
+        errorLabelHL.setComponentAlignment(error, Alignment.MIDDLE_CENTER);
+
+        return errorLabelHL;
     }
 
 }

@@ -7,6 +7,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import kz.gcs.data.DataProvider;
 import kz.gcs.data.service.LocationService;
+import kz.gcs.data.service.UserService;
 import kz.gcs.domain.*;
 import org.apache.log4j.Logger;
 
@@ -37,16 +38,16 @@ public class DummyDataProvider implements DataProvider, Serializable {
 
 
     private LocationService locationService;
+    private UserService userService;
 
 
     /**
      * Initialize the data for this application.
      */
-    public DummyDataProvider(LocationService locationService) {
+    public DummyDataProvider(LocationService locationService, UserService userService) {
         this.locationService = locationService;
+        this.userService = userService;
 
-        logger.error("DUMMY INIT");
-        logger.info("DUMMY INIT");
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DAY_OF_YEAR, -1);
         if (lastDataUpdate == null || lastDataUpdate.before(cal.getTime())) {
@@ -118,20 +119,7 @@ public class DummyDataProvider implements DataProvider, Serializable {
 
     @Override
     public User authenticate(String userName, String password) {
-        User user = new User();
-
-
-        user.setFirstName(DummyDataGenerator.randomName());
-        user.setLastName(DummyDataGenerator.randomLastName());
-        user.setRole("admin");
-        String email = user.getFirstName().toLowerCase() + "."
-                + user.getLastName().toLowerCase() + "@"
-                + DummyDataGenerator.randomCompanyName().toLowerCase() + ".com";
-        user.setEmail(email.replaceAll(" ", ""));
-        user.setLocation(DummyDataGenerator.randomWord(5, true));
-        user.setBio("Quis aute iure reprehenderit in voluptate velit esse."
-                + "Cras mattis iudicium purus sit amet fermentum.");
-        return user;
+        return userService.getUser(userName, password);
     }
 
     @Override

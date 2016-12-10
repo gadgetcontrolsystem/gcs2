@@ -33,7 +33,7 @@ import com.vaadin.ui.themes.ValoTheme;
  * A responsive menu component providing user information and the controls for
  * primary navigation between the views.
  */
-@SuppressWarnings({ "serial", "unchecked" })
+@SuppressWarnings({"serial", "unchecked"})
 public final class MenuView extends CustomComponent {
 
     public static final String ID = "dashboard-menu";
@@ -210,7 +210,7 @@ public final class MenuView extends CustomComponent {
     @Subscribe
     public void updateUserName(final ProfileUpdatedEvent event) {
         User user = getCurrentUser();
-        settingsItem.setText(user.getFirstName() + " " + user.getLastName());
+        settingsItem.setText(user.getName() + " " + user.getSurname());
     }
 
     public final class ValoMenuItemButton extends Button {
@@ -232,7 +232,7 @@ public final class MenuView extends CustomComponent {
                     UI.getCurrent().getNavigator()
                             .navigateTo(view.getViewName());
 
-                    if(MenuViewType.GEOLOCATION==view){
+                    if (MenuViewType.GEOLOCATION == view) {
                         notificationsBadge.setValue(String.valueOf(0));
                         notificationsBadge.setVisible(false);
                     }
