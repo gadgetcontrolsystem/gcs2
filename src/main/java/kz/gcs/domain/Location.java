@@ -17,6 +17,20 @@ public final class Location implements Serializable, Comparable<Location> {
 
     private boolean read;
 
+    public Location(Long id, Date time, String country, String city, Double lat, Double lon, Long gadgetId, boolean read) {
+        this.id = id;
+        this.time = time;
+        this.country = country;
+        this.city = city;
+        this.lat = lat;
+        this.lon = lon;
+        this.gadgetId = gadgetId;
+        this.read = read;
+    }
+
+    public Location() {
+    }
+
     @Override
     public int compareTo(Location o1) {
         return this.getTime().compareTo(o1.getTime());

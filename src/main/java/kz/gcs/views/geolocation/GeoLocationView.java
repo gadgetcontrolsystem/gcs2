@@ -19,6 +19,7 @@ import kz.gcs.MyUI;
 import kz.gcs.domain.Location;
 import kz.gcs.event.DashboardEvent;
 import kz.gcs.event.DashboardEventBus;
+import kz.gcs.util.AllUtils;
 import kz.gcs.views.MenuViewType;
 import org.vaadin.maddon.FilterableListContainer;
 
@@ -156,7 +157,8 @@ public class GeoLocationView extends VerticalLayout implements View {
                 String result = super.formatPropertyValue(rowId, colId,
                         property);
                 if (colId.equals("time")) {
-                    result = DATEFORMAT.format(((Date) property.getValue()));
+                    //result = DATEFORMAT.format(((Date) property.getValue()));
+                    result = AllUtils.dateToStrDateTimeP((Date) property.getValue(), "");
                 }
                 return result;
             }
@@ -169,6 +171,9 @@ public class GeoLocationView extends VerticalLayout implements View {
 
         table.setColumnCollapsingAllowed(true);
         table.setColumnCollapsible("time", false);
+        table.setColumnCollapsible("city", false);
+        table.setColumnCollapsible("lat", false);
+        table.setColumnCollapsible("lon", false);
 
         table.setColumnReorderingAllowed(true);
         table.setContainerDataSource(new TempLocationsContainer(MyUI
@@ -179,8 +184,8 @@ public class GeoLocationView extends VerticalLayout implements View {
 
         table.setVisibleColumns("time", "country", "city", "lat",
                 "lon");
-        table.setColumnHeaders("Time", "Country", "City", "Latitude",
-                "Longitude");
+        table.setColumnHeaders("Время", "Страна", "Город", "Широта",
+                "Долгота");
 
 
 

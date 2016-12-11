@@ -129,6 +129,10 @@ public class DummyDataProvider implements DataProvider, Serializable {
         List<Location> orderedLocations = Lists.newArrayList(locations
                 .values());
 
+        if(orderedLocations.size()==0) {
+            orderedLocations.add(new Location());
+        }
+
 
         for (Location location : orderedLocations) {
             location.setRead(true);
