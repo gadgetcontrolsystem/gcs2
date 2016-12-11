@@ -21,7 +21,7 @@ public class GoogleMapState extends AbstractComponentState {
     // defaults to the language setting of the browser
     public String language = null;
     public String mapTypeId = "Roadmap";
-    public LatLon center = new LatLon(51.477811, -0.001475);
+    public LatLon center = new LatLon(51.12686, 71.4316786);
     public int zoom = 8;
     public int maxZoom = 21;
     public int minZoom = 0;
