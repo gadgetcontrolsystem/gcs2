@@ -118,7 +118,7 @@ public final class MenuView extends CustomComponent {
     }
 
     private Component buildToggleButton() {
-        Button valoMenuToggleButton = new Button("Menu", new ClickListener() {
+        Button valoMenuToggleButton = new Button("Меню", new ClickListener() {
             @Override
             public void buttonClick(final ClickEvent event) {
                 if (getCompositionRoot().getStyleName().contains(STYLE_VISIBLE)) {

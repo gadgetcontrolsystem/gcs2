@@ -93,25 +93,41 @@ public class MapView extends VerticalLayout implements View {
         List<LatLon> latLons = new ArrayList<>();
         String url = "http://mt.google.com/vt/icon/name=icons/spotlight/measle_green_8px.png&scale=2";
         int counter = 1;
+        /*LatLon maxLatLon = new LatLon(0, 0);
+        LatLon minLatLon = new LatLon(0, 0);*/
         for (Location temp : locations) {
             LatLon latLon = new LatLon(temp.getLat(), temp.getLon());
             latLons.add(latLon);
 
+            /*if(maxLatLon.getLat()<temp.getLat()){
+                maxLatLon.setLat(temp.getLat());
+            }
+            if(maxLatLon.getLon()<temp.getLon()){
+                maxLatLon.setLon(temp.getLon());
+            }
+            if(minLatLon.getLat()>temp.getLat()){
+                minLatLon.setLat(temp.getLat());
+            }
+            if(minLatLon.getLon()>temp.getLon()){
+                minLatLon.setLon(temp.getLon());
+            }
+*/
             if(counter==1){
                 url = "http://mt.google.com/vt/icon?color=ff004C13&name=icons/spotlight/spotlight-waypoint-a.png";
             } else if (counter==locations.size()){
                 url = "http://mt.google.com/vt/icon?color=ff004C13&name=icons/spotlight/spotlight-waypoint-b.png";
-            } else {
-                url = "http://mt.google.com/vt/icon/name=icons/spotlight/measle_green_8px.png&scale=2";
             }
+
             GoogleMapMarker marker = new GoogleMapMarker(temp.displayStr(), new LatLon(temp.getLat(), temp.getLon()), false, url);
             googleMap.addMarker(marker);
-            GoogleMapInfoWindow window = new GoogleMapInfoWindow(temp.getTime() + ", " + temp.getCity() + ", " + temp.getCountry(), marker);
+            GoogleMapInfoWindow window = new GoogleMapInfoWindow(temp.getTime() + ", " + temp.getCity() + ", " + temp.getCountry()+" Lat: "+temp.getLat()+" Lon: "+temp.getLon(), marker);
             OpenInfoWindowOnMarkerClickListener windowOpener = new OpenInfoWindowOnMarkerClickListener(googleMap, marker, window);
             googleMap.addMarkerClickListener(windowOpener);
 
             counter++;
         }
+        /*googleMap.setCenterBoundLimits(maxLatLon, minLatLon);
+        googleMap.setCenterBoundLimitsEnabled(true);*/
         GoogleMapPolyline mapPolyline = new GoogleMapPolyline(latLons, "#2e96db", 0.8, 2);
         googleMap.addPolyline(mapPolyline);
         Location latest = locations.get(locations.size() - 1);

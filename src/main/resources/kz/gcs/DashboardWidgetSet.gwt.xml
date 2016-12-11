@@ -5,7 +5,7 @@ http://google-web-toolkit.googlecode.com/svn/tags/1.7.0/distro-source/core/src/g
 	<inherits name="com.vaadin.DefaultWidgetSet" />
 	<!--inherits name="com.vaadin.tapio.googlemaps.Widgetset" /-->
 	<inherits name="kz.gcs.maps.Widgetset" />
-	<inherits name='com.google.gwt.maps.Maps'/>
+	<!--inherits name='com.google.gwt.maps.Maps'/-->
 	<!--<stylesheet src="maps/styles.css"/>-->
 	
 	
