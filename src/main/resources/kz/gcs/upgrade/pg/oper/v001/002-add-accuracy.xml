@@ -1,11 +1,15 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
 
 
-    <include file="kz/gcs/upgrade/pg/oper/v001/001-create_tables.xml"/>
-    <include file="kz/gcs/upgrade/pg/oper/v001/002-add-accuracy.xml"/>
+    <changeSet author="kaydar" id="002-add-accuracy">
+        <addColumn
+                tableName="locations">
+            <column name="accuracy" type="DOUBLE PRECISION"/>
+        </addColumn>
+    </changeSet>
 
 
 </databaseChangeLog>
