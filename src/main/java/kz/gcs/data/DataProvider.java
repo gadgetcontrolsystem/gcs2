@@ -17,7 +17,7 @@ public interface DataProvider {
     Collection<Location> getRecentLocations(int count);
 
 
-    Location getLastLocation(long gadgetId);
+    Location getLastLocation();
 
 
     /**
