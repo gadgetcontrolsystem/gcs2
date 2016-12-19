@@ -12,7 +12,16 @@ public final class User implements Serializable {
     private String email;
     private String phone;
     private String address;
+    private Long gadgetId;
 
+
+    public Long getGadgetId() {
+        return gadgetId;
+    }
+
+    public void setGadgetId(Long gadgetId) {
+        this.gadgetId = gadgetId;
+    }
 
     public String getRole() {
         return role;
