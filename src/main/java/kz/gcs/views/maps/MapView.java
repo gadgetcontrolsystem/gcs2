@@ -56,7 +56,7 @@ public class MapView extends VerticalLayout implements View {
         tabs.addTab(mapContent, "Карты Google");
         tabs.addTab(new Label("Страница находится в разработке"), "Карты Yandex");
 
-        Location location = MyUI.getDataProvider().getLastLocation(0);
+        Location location = MyUI.getDataProvider().getLastLocation();
         googleMap = new GoogleMap(new LatLon(location.getLat(), location.getLon()), 15, this.apiKey);
         googleMap.setDraggable(true);
 
