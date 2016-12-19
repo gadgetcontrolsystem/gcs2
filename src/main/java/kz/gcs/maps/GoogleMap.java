@@ -2,28 +2,49 @@ package kz.gcs.maps;
 
 import kz.gcs.maps.client.GoogleMapControl;
 import kz.gcs.maps.client.GoogleMapState;
-import kz.gcs.maps.client.LatLon;
+import kz.gcs.maps.client.base.LatLon;
+import kz.gcs.maps.client.drawing.DrawingOptions;
 import kz.gcs.maps.client.events.*;
+import kz.gcs.maps.client.events.centerchange.CircleCenterChangeListener;
+import kz.gcs.maps.client.events.click.CircleClickListener;
+import kz.gcs.maps.client.events.click.MapClickListener;
+import kz.gcs.maps.client.events.click.MarkerClickListener;
+import kz.gcs.maps.client.events.click.PolygonClickListener;
+import kz.gcs.maps.client.events.doubleclick.CircleDoubleClickListener;
+import kz.gcs.maps.client.events.doubleclick.MarkerDoubleClickListener;
+import kz.gcs.maps.client.events.overlaycomplete.CircleCompleteListener;
+import kz.gcs.maps.client.events.overlaycomplete.PolygonCompleteListener;
+import kz.gcs.maps.client.events.radiuschange.CircleRadiusChangeListener;
+import kz.gcs.maps.client.layers.GoogleMapHeatMapLayer;
 import kz.gcs.maps.client.layers.GoogleMapKmlLayer;
-import kz.gcs.maps.client.overlays.GoogleMapInfoWindow;
-import kz.gcs.maps.client.overlays.GoogleMapMarker;
-import kz.gcs.maps.client.overlays.GoogleMapPolygon;
-import kz.gcs.maps.client.overlays.GoogleMapPolyline;
+import kz.gcs.maps.client.maptypes.GoogleImageMapType;
+import kz.gcs.maps.client.overlays.*;
 import kz.gcs.maps.client.rpcs.*;
-import com.vaadin.ui.AbstractComponentContainer;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.CssLayout;
-import kz.gcs.views.maps.events.OpenInfoWindowOnMarkerClickListener;
-import org.apache.commons.lang3.StringUtils;
+import kz.gcs.maps.client.rpcs.centerchange.CircleCenterChangeRpc;
+import kz.gcs.maps.client.rpcs.click.CircleClickedRpc;
+import kz.gcs.maps.client.rpcs.click.MapClickedRpc;
+import kz.gcs.maps.client.rpcs.click.MarkerClickedRpc;
+import kz.gcs.maps.client.rpcs.click.PolygonClickedRpc;
+import kz.gcs.maps.client.rpcs.doubleclick.CircleDoubleClickRpc;
+import kz.gcs.maps.client.rpcs.doubleclick.MarkerDoubleClickedRpc;
+import kz.gcs.maps.client.rpcs.overlaycomplete.CircleCompleteRpc;
+import kz.gcs.maps.client.rpcs.overlaycomplete.PolygonCompleteRpc;
+import kz.gcs.maps.client.rpcs.radiuschange.CircleRadiusChangeRpc;
+import kz.gcs.maps.client.services.DirectionsRequest;
+import kz.gcs.maps.client.services.DirectionsResult;
+import kz.gcs.maps.client.services.DirectionsResultCallback;
+import kz.gcs.maps.client.services.DirectionsStatus;
 
 import java.util.*;
 
 /**
  * The class representing Google Maps.
+ * 
+ * @author Tapio Aali <tapio@vaadin.com>
  */
-public class GoogleMap extends AbstractComponentContainer {
+public class GoogleMap extends com.vaadin.ui.AbstractComponent {
 
-    private static final long serialVersionUID = -2705758804085338725L;
+    private static final long serialVersionUID = -2869498659894907433L;
 
     /**
      * Base map types supported by Google Maps.
@@ -32,7 +53,11 @@ public class GoogleMap extends AbstractComponentContainer {
         Hybrid, Roadmap, Satellite, Terrain
     }
 
-    private final MarkerClickedRpc markerClickedRpc = new MarkerClickedRpc() {
+    private Map<Long, DirectionsResultCallback> directionsCallbacks = new HashMap<Long, DirectionsResultCallback>();
+
+    private MarkerClickedRpc markerClickedRpc = new MarkerClickedRpc() {
+        private static final long serialVersionUID = -1895207589346639292L;
+
         @Override
         public void markerClicked(long markerId) {
 
@@ -43,7 +68,22 @@ public class GoogleMap extends AbstractComponentContainer {
         }
     };
 
-    private final MarkerDraggedRpc markerDraggedRpc = new MarkerDraggedRpc() {
+    private MarkerDoubleClickedRpc markerDoubleClickedRpc = new MarkerDoubleClickedRpc() {
+        private static final long serialVersionUID = 72001405321104167L;
+
+        @Override
+        public void markerClicked(long markerId) {
+
+            GoogleMapMarker marker = getState().markers.get(markerId);
+            for (MarkerDoubleClickListener listener : markerDoubleClickListeners) {
+                listener.markerDoubleClicked(marker);
+            }
+        }
+    };
+
+    private MarkerDraggedRpc markerDraggedRpc = new MarkerDraggedRpc() {
+        private static final long serialVersionUID = 7427899436428646969L;
+
         @Override
         public void markerDragged(long markerId, LatLon newPosition) {
             GoogleMapMarker marker = getState().markers.get(markerId);
@@ -55,12 +95,17 @@ public class GoogleMap extends AbstractComponentContainer {
         }
     };
 
-    private final MapMovedRpc mapMovedRpc = new MapMovedRpc() {
+    private MapMovedRpc mapMovedRpc = new MapMovedRpc() {
+        private static final long serialVersionUID = -8853831335700786314L;
+
         @Override
         public void mapMoved(int zoomLevel, LatLon center, LatLon boundsNE,
-                             LatLon boundsSW) {
+                LatLon boundsSW) {
+            getState().locationFromClient = true;
             getState().zoom = zoomLevel;
             getState().center = center;
+            getState().boundNE = boundsNE;
+            getState().boundSW = boundsSW;
             fitToBounds(null, null);
 
             for (MapMoveListener listener : mapMoveListeners) {
@@ -70,7 +115,9 @@ public class GoogleMap extends AbstractComponentContainer {
         }
     };
 
-    private final MapClickedRpc mapClickedRpc = new MapClickedRpc() {
+    private MapClickedRpc mapClickedRpc = new MapClickedRpc() {
+        private static final long serialVersionUID = -3074239582333387650L;
+
         @Override
         public void mapClicked(LatLon position) {
             for (MapClickListener listener : mapClickListeners) {
@@ -79,7 +126,23 @@ public class GoogleMap extends AbstractComponentContainer {
         }
     };
 
-    private final InfoWindowClosedRpc infoWindowClosedRpc = new InfoWindowClosedRpc() {
+    private MapInitRpc mapInitRpc = new MapInitRpc() {
+
+        private static final long serialVersionUID = 9112208038019675738L;
+
+        @Override
+        public void init(LatLon center, int zoom, LatLon boundsNE, LatLon boundsSW) {
+            getState().boundNE = boundsNE;
+            getState().boundSW = boundsSW;
+            if (initListener != null) {
+                initListener.init(center, zoom, boundsNE, boundsSW);
+            }
+        }
+    };
+
+    private InfoWindowClosedRpc infoWindowClosedRpc = new InfoWindowClosedRpc() {
+
+        private static final long serialVersionUID = -7969087900137607456L;
 
         @Override
         public void infoWindowClosed(long windowId) {
@@ -91,69 +154,300 @@ public class GoogleMap extends AbstractComponentContainer {
         }
     };
 
-    private final MapTypeChangedRpc mapTypeChangedRpc = new MapTypeChangedRpc() {
+    private PolygonCompleteRpc polygonCompleteRpc = new PolygonCompleteRpc() {
+        private static final long serialVersionUID = 8989540297240790126L;
+
         @Override
-        public void mapTypeChanged(String mapTypeId) {
-            MapType mapType = MapType
-                .valueOf(StringUtils.capitalize(mapTypeId));
-            setMapType(mapType);
+        public void polygonComplete(GoogleMapPolygon polygon) {
+            if (polygon == null) {
+                return;
+            }
+            getState().polygons.put(polygon.getId(), polygon);
+            for (PolygonCompleteListener listener : polygonCompleteListeners) {
+                listener.polygonComplete(polygon);
+            }
         }
     };
 
-    private final List<MarkerClickListener> markerClickListeners = new ArrayList<>();
+    private CircleCompleteRpc circleCompleteRpc = new CircleCompleteRpc() {
+        private static final long serialVersionUID = 8989540297240790126L;
 
-    private final List<MapMoveListener> mapMoveListeners = new ArrayList<>();
+        @Override
+        public void circleComplete(GoogleMapCircle circle) {
+            if (circle == null) {
+                return;
+            }
+            getState().circles.put(circle.getId(), circle);
+            for (CircleCompleteListener listener : circleCompleteListeners) {
+                listener.circleComplete(circle);
+            }
+        }
+    };
 
-    private final List<MapClickListener> mapClickListeners = new ArrayList<>();
+    private PolygonEditRpc polygonEditRpc = new PolygonEditRpc() {
+        private static final long serialVersionUID = -8138362526979836605L;
 
-    private final List<MarkerDragListener> markerDragListeners = new ArrayList<>();
+        @Override
+        public void polygonEdited(long polygonId, PolygonEditListener.ActionType actionType, int idx, LatLon latLon) {
+            if (actionType == null || latLon == null) {
+                return;
+            }
+            GoogleMapPolygon polygon = ((GoogleMapState)getState(false)).polygons.get(polygonId);
+            if (polygon == null) {
+                return;
+            }
 
-    private final List<InfoWindowClosedListener> infoWindowClosedListeners = new ArrayList<>();
+            switch (actionType) {
+                case INSERT:
+                    polygon.getCoordinates().add(idx, latLon);
+                    break;
+                case REMOVE:
+                    polygon.getCoordinates().remove(idx);
+                    break;
+                case SET:
+                    LatLon existing = polygon.getCoordinates().get(idx);
+                    existing.setLat(latLon.getLat());
+                    existing.setLon(latLon.getLon());
+                    latLon = existing;
+                    break;
+            }
+            for (PolygonEditListener listener : polygonEditListeners) {
+                listener.polygonEdited(polygon, actionType, idx, latLon);
+            }
+        }
+    };
 
-    private final Map<GoogleMapInfoWindow, Component> infoWindowContents = new HashMap<>();
+    private HandleDirectionsResultRpc handleDirectionsResultRpc = new HandleDirectionsResultRpc() {
+        private static final long serialVersionUID = 2075879581561166850L;
 
-    /**
-     * The layout that actually contains the contents of Info Windows (if Vaadin components are used).
-     * Should never be visible itself.
-     */
-    private final CssLayout infoWindowContentLayout = new CssLayout();
+        @Override
+        public void handle(DirectionsResult result, DirectionsStatus status, long directionsRequestId) {
+            DirectionsResultCallback handler = directionsCallbacks.get(directionsRequestId);
+            if (handler != null) {
+                try {
+                    handler.onCallback(result, status);
+                } finally {
+                    getState().directionsRequests.remove(directionsRequestId);
+                    directionsCallbacks.remove(directionsRequestId);
+                }
+            }
+        }
+    };
+
+    private CircleClickedRpc circleClickedRpc = new CircleClickedRpc() {
+
+        private static final long serialVersionUID = -147202438775817921L;
+
+        @Override
+        public void circleClicked(long circleId) {
+            GoogleMapCircle circle = ((GoogleMapState)getState(false)).circles.get(circleId);
+            for (CircleClickListener listener : circleClickListeners) {
+                listener.circleClicked(circle);
+            }
+        }
+    };
+
+    private PolygonClickedRpc polygonClickedRpc = new PolygonClickedRpc() {
+        private static final long serialVersionUID = -8630070910806102818L;
+
+        @Override
+        public void polygonClicked(long polygonId) {
+            GoogleMapPolygon polygon = ((GoogleMapState)getState(false)).polygons.get(polygonId);
+            for (PolygonClickListener listener : polygonClickListeners) {
+                listener.polygonClicked(polygon);
+            }
+        }
+    };
+
+    private CircleDoubleClickRpc circleDoubleClickRpc = new CircleDoubleClickRpc() {
+
+        private static final long serialVersionUID = 3257369147581938217L;
+
+        @Override
+        public void circleDoubleClicked(long circleId) {
+            GoogleMapCircle circle = ((GoogleMapState)getState(false)).circles.get(circleId);
+            for (CircleDoubleClickListener listener : circleDoubleClickListeners) {
+                listener.circleDoubleClicked(circle);
+            }
+        }
+    };
+
+    private CircleCenterChangeRpc circleCenterChangeRpc = new CircleCenterChangeRpc() {
+
+        private static final long serialVersionUID = 5703076552698659247L;
+
+        @Override
+        public void centerChanged(long circleId, LatLon newCenter) {
+            GoogleMapCircle circle = ((GoogleMapState)getState(false)).circles.get(circleId);
+            LatLon oldCenter = circle.getCenter();
+            circle.setCenter(newCenter);
+            for (CircleCenterChangeListener listener : circleCenterChangeListeners) {
+                listener.centerChanged(circle, oldCenter);
+            }
+        }
+    };
+
+    private CircleRadiusChangeRpc circleRadiusChangeRpc = new CircleRadiusChangeRpc() {
+
+        private static final long serialVersionUID = 4898056413558408843L;
+
+        @Override
+        public void radiusChanged(long circleId, double newRadius) {
+            GoogleMapCircle circle = ((GoogleMapState)getState(false)).circles.get(circleId);
+            double oldRadius = circle.getRadius();
+            circle.setRadius(newRadius);
+            for (CircleRadiusChangeListener listener : circleRadiusChangeListeners) {
+                listener.radiusChange(circle, oldRadius);
+            }
+        }
+    };
+
+
+    private List<MarkerClickListener> markerClickListeners = new ArrayList<MarkerClickListener>();
+
+    private List<MarkerDoubleClickListener> markerDoubleClickListeners = new ArrayList<MarkerDoubleClickListener>();
+
+    private List<MapMoveListener> mapMoveListeners = new ArrayList<MapMoveListener>();
+
+    private List<MapClickListener> mapClickListeners = new ArrayList<MapClickListener>();
+
+    private List<MarkerDragListener> markerDragListeners = new ArrayList<MarkerDragListener>();
+
+    private List<InfoWindowClosedListener> infoWindowClosedListeners = new ArrayList<InfoWindowClosedListener>();
+
+    private List<PolygonCompleteListener> polygonCompleteListeners = new ArrayList<PolygonCompleteListener>();
+
+    private List<PolygonEditListener> polygonEditListeners = new ArrayList<PolygonEditListener>();
+
+    private List<PolygonClickListener> polygonClickListeners = new ArrayList<PolygonClickListener>();
+
+    private List<CircleCompleteListener> circleCompleteListeners = new ArrayList<CircleCompleteListener>();
+
+    private List<CircleCenterChangeListener> circleCenterChangeListeners = new ArrayList<CircleCenterChangeListener>();
+
+    private List<CircleRadiusChangeListener> circleRadiusChangeListeners = new ArrayList<CircleRadiusChangeListener>();
+
+    private List<CircleClickListener> circleClickListeners = new ArrayList<CircleClickListener>();
+
+    private List<CircleDoubleClickListener> circleDoubleClickListeners = new ArrayList<CircleDoubleClickListener>();
+
+    private MapInitListener initListener;
 
     /**
      * Initiates a new GoogleMap object with default settings from the
      * {@link GoogleMapState state object}.
-     *
-     * @param apiKey   The Maps API key from Google. Not required when developing in
-     *                 localhost or when using a client id. Use null or empty string
-     *                 to disable.
-     * @param clientId Google Maps API for Work client ID. Use this instead of API
-     *                 key if available. Use null or empty string to disable.
-     * @param language The language to use with maps. See
-     *                 https://developers.google.com/maps/faq#languagesupport for the
-     *                 list of the supported languages. Use null or empty string to
-     *                 disable.
+     * 
+     * @param apiKeyOrClientId
+     *            The Maps API key from Google or the client ID for the Business
+     *            API. All client IDs begin with a gme- prefix. Not required
+     *            when developing in localhost.
      */
-    public GoogleMap(String apiKey, String clientId, String language) {
-        infoWindowContentLayout
-            .addStyleName(
-                "maps-infowindow-components-layout should-be-invisible");
-
-        if (apiKey != null && !apiKey.isEmpty()) {
-            getState().apiKey = apiKey;
+    public GoogleMap(String apiKeyOrClientId) {
+        if (isClientId(apiKeyOrClientId)) {
+            getState().clientId = apiKeyOrClientId;
+        } else {
+            getState().apiKey = apiKeyOrClientId;
         }
-        if (clientId != null && !clientId.isEmpty()) {
-            getState().clientId = clientId;
-        }
-
-        if (language != null && !language.isEmpty()) {
-            getState().language = language;
-        }
-
         registerRpc(markerClickedRpc);
+        registerRpc(markerDoubleClickedRpc);
         registerRpc(mapMovedRpc);
         registerRpc(mapClickedRpc);
         registerRpc(markerDraggedRpc);
         registerRpc(infoWindowClosedRpc);
-        registerRpc(mapTypeChangedRpc);
+        registerRpc(polygonCompleteRpc);
+        registerRpc(polygonEditRpc);
+        registerRpc(polygonClickedRpc);
+        registerRpc(mapInitRpc);
+        registerRpc(handleDirectionsResultRpc);
+        registerRpc(circleClickedRpc);
+        registerRpc(circleDoubleClickRpc);
+        registerRpc(circleCenterChangeRpc);
+        registerRpc(circleCompleteRpc);
+        registerRpc(circleRadiusChangeRpc);
+    }
+
+    /**
+     * Creates a new GoogleMap object with the given center. Other settings will
+     * be {@link GoogleMapState defaults of the state object}.
+     * 
+     * @param center
+     *            Coordinates of the center.
+     * @param apiKeyOrClientId
+     *            The Maps API key from Google or the client ID for the Business
+     *            API. All client IDs begin with a gme- prefix. Not required
+     *            when developing in localhost.
+     */
+    public GoogleMap(LatLon center, String apiKeyOrClientId) {
+        this(apiKeyOrClientId);
+        getState().center = center;
+    }
+
+    /**
+     * Creates a new GoogleMap object with the given center and zoom. Other
+     * settings will be {@link GoogleMapState defaults of the state object}.
+     * 
+     * @param center
+     *            Coordinates of the center.
+     * @param zoom
+     *            Amount of zoom.
+     * @param apiKeyOrClientId
+     *            The Maps API key from Google or the client ID for the Business
+     *            API. All client IDs begin with a gme- prefix. Not required
+     *            when developing in localhost.
+     */
+    public GoogleMap(LatLon center, int zoom, String apiKeyOrClientId) {
+        this(apiKeyOrClientId);
+        getState().zoom = zoom;
+        getState().center = center;
+    }
+
+    /**
+     * Creates a new GoogleMap object with the given center, zoom and ability
+     * to set init listener. Other settings will be
+     * {@link GoogleMapState defaults of the state object}.
+     *
+     * @param center
+     *              Coordinates of the center.
+     * @param zoom
+     *              Amount of zoom.
+     * @param apiKeyOrClientId The Maps API key from Google or the client ID for the Business
+     *            API. All client IDs begin with a gme- prefix. Not required
+     *            when developing in localhost.
+     * @param initListener listener which will be called once, on map initialization. Map initialization
+     *                     corresponds to "tilesloaded" event in google map api v3.
+     */
+    public GoogleMap(LatLon center, int zoom, String apiKeyOrClientId,
+                     MapInitListener initListener) {
+        this(apiKeyOrClientId);
+        getState().zoom = zoom;
+        getState().center = center;
+        this.initListener = initListener;
+    }
+
+    /**
+     * Creates a new GoogleMap object with the given center, zoom and language.
+     * Other settings will be {@link GoogleMapState defaults of the state
+     * object}.
+     * 
+     * @param center
+     *            Coordinates of the center.
+     * @param zoom
+     *            Amount of zoom.
+     * @param apiKeyOrClientId
+     *            The Maps API key from Google or the client ID for the Business
+     *            API. All client IDs begin with a gme- prefix. Not required
+     *            when developing in localhost.
+     * @param language
+     *            The language to use with maps. See
+     *            https://developers.google.com/maps/faq#languagesupport for the
+     *            list of the supported languages.
+     */
+    public GoogleMap(LatLon center, int zoom, String apiKeyOrClientId,
+            String language) {
+        this(apiKeyOrClientId);
+        getState().zoom = zoom;
+        getState().center = center;
+        getState().language = language;
     }
 
     /**
@@ -164,6 +458,7 @@ public class GoogleMap extends AbstractComponentContainer {
         clearMarkerClickListeners();
         clearMarkers();
         clearPolylines();
+        clearMapCircles();
     }
 
     /**
@@ -171,131 +466,6 @@ public class GoogleMap extends AbstractComponentContainer {
      */
     public void clearInfoWindows() {
         getState().infoWindows.clear();
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see com.vaadin.ui.AbstractComponent#getState()
-     */
-    @Override
-    protected GoogleMapState getState() {
-        return (GoogleMapState) super.getState();
-    }
-
-    /**
-     * Sets the center of the map to the given coordinates.
-     *
-     * @param center The new coordinates of the center.
-     */
-    public void setCenter(LatLon center) {
-        getState().center = center;
-    }
-
-    /**
-     * Returns the current position of the center of the map.
-     *
-     * @return Coordinates of the center.
-     */
-    public LatLon getCenter() {
-        return getState().center;
-    }
-
-    /**
-     * Zooms the map to the given value.
-     *
-     * @param zoom New amount of the zoom.
-     */
-    public void setZoom(int zoom) {
-        getState().zoom = zoom;
-    }
-
-    /**
-     * Returns the current zoom of the map.
-     *
-     * @return Current value of the zoom.
-     */
-    public int getZoom() {
-        return getState().zoom;
-    }
-
-    /**
-     * Adds a new marker to the map.
-     *
-     * @param caption   Caption of the marker shown when the marker is hovered.
-     * @param position  Coordinates of the marker on the map.
-     * @param draggable Set true to enable dragging of the marker.
-     * @param iconUrl   The url of the icon of the marker.
-     * @return GoogleMapMarker object created with the given settings.
-     */
-    public GoogleMapMarker addMarker(String caption, LatLon position,
-                                     boolean draggable, String iconUrl) {
-        GoogleMapMarker marker = new GoogleMapMarker(caption, position,
-            draggable, iconUrl);
-        getState().markers.put(marker.getId(), marker);
-        return marker;
-    }
-
-    /**
-     * Adds a marker to the map.
-     *
-     * @param marker The marker to add.
-     */
-    public void addMarker(GoogleMapMarker marker) {
-        getState().markers.put(marker.getId(), marker);
-    }
-
-    /**
-     * Removes a marker from the map.
-     *
-     * @param marker The marker to remove.
-     */
-    public void removeMarker(GoogleMapMarker marker) {
-        getState().markers.remove(marker.getId());
-    }
-
-    /**
-     * Removes all the markers from the map.
-     */
-    public void clearMarkers() {
-        getState().markers = new HashMap<Long, GoogleMapMarker>();
-    }
-
-    /**
-     * Checks if a marker has been added to the map.
-     *
-     * @param marker The marker to check.
-     * @return true, if the marker has been added to the map.
-     */
-    public boolean hasMarker(GoogleMapMarker marker) {
-        return getState().markers.containsKey(marker.getId());
-    }
-
-    /**
-     * Returns the markers that have been added to he map.
-     *
-     * @return Set of the markers.
-     */
-    public Collection<GoogleMapMarker> getMarkers() {
-        return getState().markers.values();
-    }
-
-    /**
-     * Adds a MarkerClickListener to the map.
-     *
-     * @param listener The listener to add.
-     */
-    public void addMarkerClickListener(MarkerClickListener listener) {
-        markerClickListeners.add(listener);
-    }
-
-    /**
-     * Removes a MarkerClickListener from the map.
-     *
-     * @param listener The listener to remove.
-     */
-    public void removeMarkerClickListener(MarkerClickListener listener) {
-        markerClickListeners.remove(listener);
     }
 
     /**
@@ -306,18 +476,270 @@ public class GoogleMap extends AbstractComponentContainer {
     }
 
     /**
-     * Adds a MarkerDragListener to the map.
+     * Removes all polylines from the map.
+     */
+    public void clearPolylines() {
+        getState().polylines.clear();
+    }
+
+    /**
+     * Removes all circles from the map.
+     */
+    public void clearMapCircles() {
+        getState().circles.clear();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.vaadin.ui.AbstractComponent#getState()
+     */
+    @Override
+    protected GoogleMapState getState() {
+        return (GoogleMapState) super.getState();
+    }
+
+    /**
+     * Sets the center of the map to the given coordinates.
+     * 
+     * @param center
+     *            The new coordinates of the center.
+     */
+    public void setCenter(LatLon center) {
+        getState().locationFromClient = false;
+        getState().center = center;
+    }
+
+    /**
+     * Returns the current position of the center of the map.
+     * 
+     * @return Coordinates of the center.
+     */
+    public LatLon getCenter() {
+        return getState().center;
+    }
+
+    /**
+     * @return the current position of north-east bound of the map
+     */
+    public LatLon getBoundNE() {
+        return getState().boundNE;
+    }
+
+    /**
+     * @return the current position of south-west bound of the map
+     */
+    public LatLon getBoundSW() {
+        return getState().boundSW;
+    }
+
+    /**
+     * Zooms the map to the given value.
+     * 
+     * @param zoom
+     *            New amount of the zoom.
+     */
+    public void setZoom(int zoom) {
+        getState().locationFromClient = false;
+        getState().zoom = zoom;
+    }
+
+    /**
+     * Returns the current zoom of the map.
+     * 
+     * @return Current value of the zoom.
+     */
+    public int getZoom() {
+        return getState().zoom;
+    }
+
+    /**
+     * Adds a new marker to the map.
+     * 
+     * @param caption
+     *            Caption of the marker shown when the marker is hovered.
+     * @param position
+     *            Coordinates of the marker on the map.
+     * @param draggable
+     *            Set true to enable dragging of the marker.
+     * @param iconUrl
+     *            The url of the icon of the marker.
+     * @return GoogleMapMarker object created with the given settings.
+     */
+    public GoogleMapMarker addMarker(String caption, LatLon position,
+            boolean draggable, String iconUrl) {
+        GoogleMapMarker marker = new GoogleMapMarker(caption, position,
+                draggable, iconUrl);
+        getState().markers.put(marker.getId(), marker);
+        return marker;
+    }
+
+    /**
+     * Adds a marker to the map.
+     * 
+     * @param marker
+     *            The marker to add.
+     */
+    public void addMarker(GoogleMapMarker marker) {
+        getState().markers.put(marker.getId(), marker);
+    }
+
+    /**
+     * Removes a marker from the map.
+     * 
+     * @param marker
+     *            The marker to remove.
+     */
+    public void removeMarker(GoogleMapMarker marker) {
+        getState().markers.remove(marker.getId());
+    }
+
+    /**
+     * Removes all the markers from the map.
+     */
+    public void clearMarkers() {
+        getState().markers.clear();
+    }
+
+    /**
+     * Checks if a marker has been added to the map.
+     * 
+     * @param marker
+     *            The marker to check.
+     * @return true, if the marker has been added to the map.
+     */
+    public boolean hasMarker(GoogleMapMarker marker) {
+        return getState().markers.containsKey(marker.getId());
+    }
+
+    /**
+     * Returns the markers that have been added to he map.
+     * 
+     * @return Set of the markers.
+     */
+    public Collection<GoogleMapMarker> getMarkers() {
+        return getState().markers.values();
+    }
+
+    /**
+     * Adds a MarkerClickListener to the map.
      *
-     * @param listener The listener to add.
+     * @param listener
+     *            The listener to add.
+     */
+    public void addMarkerClickListener(MarkerClickListener listener) {
+        markerClickListeners.add(listener);
+    }
+
+    /**
+     * Removes a MarkerClickListener from the map.
+     *
+     * @param listener
+     *            The listener to remove.
+     */
+    public void removeMarkerClickListener(MarkerClickListener listener) {
+        markerClickListeners.remove(listener);
+    }
+
+    /**
+     * Adds a MarkerDoubleClickListener to the map.
+     *
+     * @param listener
+     *            The listener to add.
+     */
+    public void addMarkerDoubleClickListener(MarkerDoubleClickListener listener) {
+        markerDoubleClickListeners.add(listener);
+    }
+
+    /**
+     * Removes a MarkerClickListener from the map.
+     *
+     * @param listener
+     *            The listener to remove.
+     */
+    public void removeMarkerDoubleClickListener(MarkerDoubleClickListener listener) {
+        markerDoubleClickListeners.remove(listener);
+    }
+
+    /**
+     * Adds a MarkerDragListener to the map.
+     * 
+     * @param listener
+     *            The listener to add.
      */
     public void addMarkerDragListener(MarkerDragListener listener) {
         markerDragListeners.add(listener);
     }
 
+    public void addPolygonCompleteListener(PolygonCompleteListener listener) {
+        polygonCompleteListeners.add(listener);
+    }
+
+    public void removePolygonCompleteListener(PolygonCompleteListener listener) {
+        polygonCompleteListeners.remove(listener);
+    }
+
+    public void addPolygonClickListener(PolygonClickListener listener) {
+        polygonClickListeners.add(listener);
+    }
+
+    public void removePolygonClickListener(PolygonClickListener listener) {
+        polygonClickListeners.remove(listener);
+    }
+
+    public void addPolygonEditListener(PolygonEditListener listener) {
+        polygonEditListeners.add(listener);
+    }
+
+    public void removePolygonEditListener(PolygonEditListener listener) {
+        polygonEditListeners.remove(listener);
+    }
+
+    public void addCircleCompleteListener(CircleCompleteListener listener) {
+        circleCompleteListeners.add(listener);
+    }
+
+    public void removeCircleCompleteListener(CircleCompleteListener listener) {
+        circleCompleteListeners.remove(listener);
+    }
+
+    public void addCircleClickListener(CircleClickListener listener) {
+        circleClickListeners.add(listener);
+    }
+
+    public void removeCircleClickListener(CircleClickListener listener) {
+        circleClickListeners.remove(listener);
+    }
+
+    public void addCircleDoubleClickListener(CircleDoubleClickListener listener) {
+        circleDoubleClickListeners.add(listener);
+    }
+
+    public void removeCircleDoubleClickListener(CircleDoubleClickListener listener) {
+        circleDoubleClickListeners.remove(listener);
+    }
+
+    public void addCircleCenterChangeListener(CircleCenterChangeListener listener) {
+        circleCenterChangeListeners.add(listener);
+    }
+
+    public void removeCircleCenterChangeListener(CircleCenterChangeListener listener) {
+        circleCenterChangeListeners.remove(listener);
+    }
+
+    public void addCircleRadiusChangeListener(CircleRadiusChangeListener listener) {
+        circleRadiusChangeListeners.add(listener);
+    }
+
+    public void removeCircleRadiusChangeListener(CircleRadiusChangeListener listener) {
+        circleRadiusChangeListeners.remove(listener);
+    }
+
     /**
-     * Removes a MarkerDragListenr from the map.
-     *
-     * @param listener The listener to remove.
+     * Removes a MarkerDragListener from the map.
+     * 
+     * @param listener
+     *            The listener to remove.
      */
     public void removeMarkerDragListener(MarkerDragListener listener) {
         markerDragListeners.remove(listener);
@@ -325,8 +747,9 @@ public class GoogleMap extends AbstractComponentContainer {
 
     /**
      * Adds a MapMoveListener to the map.
-     *
-     * @param listener The listener to add.
+     * 
+     * @param listener
+     *            The listener to add.
      */
     public void addMapMoveListener(MapMoveListener listener) {
         mapMoveListeners.add(listener);
@@ -334,8 +757,9 @@ public class GoogleMap extends AbstractComponentContainer {
 
     /**
      * Removes a MapMoveListener from the map.
-     *
-     * @param listener The listener to add.
+     * 
+     * @param listener
+     *            The listener to add.
      */
     public void removeMapMoveListener(MapMoveListener listener) {
         mapMoveListeners.remove(listener);
@@ -343,8 +767,9 @@ public class GoogleMap extends AbstractComponentContainer {
 
     /**
      * Adds a MapClickListener to the map.
-     *
-     * @param listener The listener to add.
+     * 
+     * @param listener
+     *            The listener to add.
      */
     public void addMapClickListener(MapClickListener listener) {
         mapClickListeners.add(listener);
@@ -352,8 +777,9 @@ public class GoogleMap extends AbstractComponentContainer {
 
     /**
      * Removes a MapClickListener from the map.
-     *
-     * @param listener The listener to add.
+     * 
+     * @param listener
+     *            The listener to add.
      */
     public void removeMapClickListener(MapClickListener listener) {
         mapClickListeners.remove(listener);
@@ -361,8 +787,9 @@ public class GoogleMap extends AbstractComponentContainer {
 
     /**
      * Adds an InfoWindowClosedListener to the map.
-     *
-     * @param listener The listener to add.
+     * 
+     * @param listener
+     *            The listener to add.
      */
     public void addInfoWindowClosedListener(InfoWindowClosedListener listener) {
         infoWindowClosedListeners.add(listener);
@@ -370,17 +797,17 @@ public class GoogleMap extends AbstractComponentContainer {
 
     /**
      * Removes an InfoWindowClosedListener from the map.
-     *
-     * @param listener The listener to remove.
+     * 
+     * @param listener
+     *            The listener to remove.
      */
-    public void removeInfoWindowClosedListener(
-        InfoWindowClosedListener listener) {
+    public void removeInfoWindowClosedListener(InfoWindowClosedListener listener) {
         infoWindowClosedListeners.remove(listener);
     }
 
     /**
      * Checks if limiting of the center bounds is enabled.
-     *
+     * 
      * @return true, if enabled
      */
     public boolean isCenterBoundLimitsEnabled() {
@@ -389,8 +816,9 @@ public class GoogleMap extends AbstractComponentContainer {
 
     /**
      * Enables/disables limiting of the center bounds.
-     *
-     * @param enable Set true to enable the limiting.
+     * 
+     * @param enable
+     *            Set true to enable the limiting.
      */
     public void setCenterBoundLimitsEnabled(boolean enable) {
         getState().limitCenterBounds = enable;
@@ -398,9 +826,11 @@ public class GoogleMap extends AbstractComponentContainer {
 
     /**
      * Sets the limits of the bounds of the center to given values.
-     *
-     * @param limitNE The coordinates of the northeast limit.
-     * @param limitSW The coordinates of the southwest limit.
+     * 
+     * @param limitNE
+     *            The coordinates of the northeast limit.
+     * @param limitSW
+     *            The coordinates of the southwest limit.
      */
     public void setCenterBoundLimits(LatLon limitNE, LatLon limitSW) {
         getState().centerNELimit = limitNE;
@@ -410,26 +840,46 @@ public class GoogleMap extends AbstractComponentContainer {
 
     /**
      * Adds a polygon overlay to the map.
-     *
-     * @param polygon The GoogleMapPolygon to add.
+     * 
+     * @param polygon
+     *            The GoogleMapPolygon to add.
      */
     public void addPolygonOverlay(GoogleMapPolygon polygon) {
-        getState().polygons.add(polygon);
+        getState().polygons.put(polygon.getId(), polygon);
     }
 
     /**
      * Removes a polygon overlay from the map.
-     *
-     * @param polygon The GoogleMapPolygon to remove.
+     * 
+     * @param polygon
+     *            The GoogleMapPolygon to remove.
      */
     public void removePolygonOverlay(GoogleMapPolygon polygon) {
-        getState().polygons.remove(polygon);
+        getState().polygons.remove(polygon.getId());
+    }
+
+    /**
+     * Adds a circle overlay to the map
+     * @param circle The GoogleMapCircle to add
+     */
+    public void addCircleOverlay(GoogleMapCircle circle) {
+        getState().circles.put(circle.getId(), circle);
+    }
+
+    /**
+     * Removes a circle overlay from the map
+     *
+     * @param circle The GoogleMapCircle to remove
+     */
+    public void removeCircleOverlay(GoogleMapCircle circle) {
+        getState().circles.remove(circle.getId());
     }
 
     /**
      * Adds a polyline to the map.
-     *
-     * @param polyline The GoogleMapPolyline to add.
+     * 
+     * @param polyline
+     *            The GoogleMapPolyline to add.
      */
     public void addPolyline(GoogleMapPolyline polyline) {
         getState().polylines.add(polyline);
@@ -437,24 +887,19 @@ public class GoogleMap extends AbstractComponentContainer {
 
     /**
      * Removes a polyline from the map.
-     *
-     * @param polyline The GoogleMapPolyline to add.
+     * 
+     * @param polyline
+     *            The GoogleMapPolyline to add.
      */
     public void removePolyline(GoogleMapPolyline polyline) {
         getState().polylines.remove(polyline);
     }
 
     /**
-     * Removes all polylines from the map.
-     */
-    public void clearPolylines() {
-        getState().polylines.clear();
-    }
-
-    /**
      * Adds a KML layer to the map.
      *
-     * @param kmlLayer The KML layer to add.
+     * @param kmlLayer
+     *            The KML layer to add.
      */
     public void addKmlLayer(GoogleMapKmlLayer kmlLayer) {
         getState().kmlLayers.add(kmlLayer);
@@ -463,16 +908,54 @@ public class GoogleMap extends AbstractComponentContainer {
     /**
      * Removes a KML layer from the map.
      *
-     * @param kmlLayer The KML layer to remove.
+     * @param kmlLayer
+     *            The KML layer to remove.
      */
     public void removeKmlLayer(GoogleMapKmlLayer kmlLayer) {
         getState().kmlLayers.remove(kmlLayer);
     }
 
     /**
-     * Sets the type of the base map.
+     * Adds a HeatMap layer to the map.
      *
-     * @param type The new MapType to use.
+     * @param heatMapLayer
+     *            The HeatMap layer to add.
+     */
+    public void addHeatMapLayer(GoogleMapHeatMapLayer heatMapLayer) {
+        getState().heatMapLayers.add(heatMapLayer);
+    }
+
+    /**
+     * Removes a HeatMap layer from the map.
+     *
+     * @param heatMapLayer
+     *            The HeatMap layer to remove.
+     */
+    public void removeHeatMapLayer(GoogleMapHeatMapLayer heatMapLayer) {
+        getState().heatMapLayers.remove(heatMapLayer);
+    }
+
+    public void addImageMapType(GoogleImageMapType imageMapType) {
+        getState().imageMapTypes.add(imageMapType);
+    }
+
+    public void removeImageMapType(GoogleImageMapType imageMapType) {
+        getState().imageMapTypes.remove(imageMapType);
+    }
+
+    public void addOverlayImageMapType(GoogleImageMapType imageMapType) {
+        getState().overlayImageMapTypes.add(imageMapType);
+    }
+
+    public void removeOverlayImageMapType(GoogleImageMapType imageMapType) {
+        getState().overlayImageMapTypes.remove(imageMapType);
+    }
+
+    /**
+     * Sets the type of the base map.
+     * 
+     * @param type
+     *            The new MapType to use.
      */
     public void setMapType(MapType type) {
         getState().mapTypeId = type.name();
@@ -480,16 +963,20 @@ public class GoogleMap extends AbstractComponentContainer {
 
     /**
      * Returns the current type of the base map.
-     *
+     * 
      * @return The current MapType.
      */
-    public MapType getMapType() {
-        return MapType.valueOf(getState().mapTypeId);
+    public String getMapType() {
+        return getState().mapTypeId;
+    }
+
+    public void setMapType(String mapTypeId) {
+        getState().mapTypeId = mapTypeId;
     }
 
     /**
      * Checks if the map is currently draggable.
-     *
+     * 
      * @return true, if the map draggable.
      */
     public boolean isDraggable() {
@@ -498,8 +985,9 @@ public class GoogleMap extends AbstractComponentContainer {
 
     /**
      * Enables/disables dragging of the map.
-     *
-     * @param draggable Set to true to enable dragging.
+     * 
+     * @param draggable
+     *            Set to true to enable dragging.
      */
     public void setDraggable(boolean draggable) {
         getState().draggable = draggable;
@@ -507,7 +995,7 @@ public class GoogleMap extends AbstractComponentContainer {
 
     /**
      * Checks if the keyboard shortcuts are enabled.
-     *
+     * 
      * @return true, if the shortcuts are enabled.
      */
     public boolean areKeyboardShortcutsEnabled() {
@@ -516,8 +1004,9 @@ public class GoogleMap extends AbstractComponentContainer {
 
     /**
      * Enables/disables the keyboard shortcuts.
-     *
-     * @param enabled Set true to enable keyboard shortcuts.
+     * 
+     * @param enabled
+     *            Set true to enable keyboard shortcuts.
      */
     public void setKeyboardShortcutsEnabled(boolean enabled) {
         getState().keyboardShortcutsEnabled = enabled;
@@ -525,7 +1014,7 @@ public class GoogleMap extends AbstractComponentContainer {
 
     /**
      * Checks if the scroll wheel is enabled.
-     *
+     * 
      * @return true, if the scroll wheel is enabled
      */
     public boolean isScrollWheelEnabled() {
@@ -534,8 +1023,9 @@ public class GoogleMap extends AbstractComponentContainer {
 
     /**
      * Enables/disables the scroll wheel.
-     *
-     * @param enabled Set true to enable scroll wheel.
+     * 
+     * @param enabled
+     *            Set true to enable scroll wheel.
      */
     public void setScrollWheelEnabled(boolean enabled) {
         getState().scrollWheelEnabled = enabled;
@@ -543,7 +1033,7 @@ public class GoogleMap extends AbstractComponentContainer {
 
     /**
      * Returns the currently enabled map controls.
-     *
+     * 
      * @return Currently enabled map controls.
      */
     public Set<GoogleMapControl> getControls() {
@@ -552,18 +1042,24 @@ public class GoogleMap extends AbstractComponentContainer {
 
     /**
      * Sets the controls of the map.
-     *
-     * @param controls The new controls to use.
+     * 
+     * @param controls
+     *            The new controls to use.
      */
     public void setControls(Set<GoogleMapControl> controls) {
         getState().controls = controls;
     }
 
+    public void setMapTypes(List<String> mapTypeIds) {
+        getState().mapTypeIds = new ArrayList<String>(mapTypeIds);
+    }
+
     /**
      * Enables the given control on the map. Does nothing if the control is
      * already enabled.
-     *
-     * @param control The control to enable.
+     * 
+     * @param control
+     *            The control to enable.
      */
     public void addControl(GoogleMapControl control) {
         getState().controls.add(control);
@@ -572,8 +1068,9 @@ public class GoogleMap extends AbstractComponentContainer {
     /**
      * Removes the control from the map. Does nothing if the control isn't
      * enabled.
-     *
-     * @param control The control to remove.
+     * 
+     * @param control
+     *            The control to remove.
      */
     public void removeControl(GoogleMapControl control) {
         getState().controls.remove(control);
@@ -581,8 +1078,9 @@ public class GoogleMap extends AbstractComponentContainer {
 
     /**
      * Enables/disables limiting of the bounds of the visible area.
-     *
-     * @param enabled Set true to enable the limiting.
+     * 
+     * @param enabled
+     *            Set true to enable the limiting.
      */
     public void setVisibleAreaBoundLimitsEnabled(boolean enabled) {
         getState().limitVisibleAreaBounds = enabled;
@@ -591,7 +1089,7 @@ public class GoogleMap extends AbstractComponentContainer {
 
     /**
      * Checks if limiting of the bounds of the visible area is enabled.
-     *
+     * 
      * @return true if enabled
      */
     public boolean isVisibleAreaBoundLimitsEnabled() {
@@ -602,9 +1100,11 @@ public class GoogleMap extends AbstractComponentContainer {
      * Sets the limits of the bounds of the visible area to the given values.
      * NOTE: Using the feature does not affect zooming, consider using
      * {@link #setMinZoom(int)} too.
-     *
-     * @param limitNE The coordinates of the northeast limit.
-     * @param limitSW The coordinates of the southwest limit.
+     * 
+     * @param limitNE
+     *            The coordinates of the northeast limit.
+     * @param limitSW
+     *            The coordinates of the southwest limit.
      */
     public void setVisibleAreaBoundLimits(LatLon limitNE, LatLon limitSW) {
         getState().visibleAreaNELimit = limitNE;
@@ -614,8 +1114,9 @@ public class GoogleMap extends AbstractComponentContainer {
 
     /**
      * Sets the maximum allowed amount of zoom (default 21.0).
-     *
-     * @param maxZoom The maximum amount for zoom.
+     * 
+     * @param maxZoom
+     *            The maximum amount for zoom.
      */
     public void setMaxZoom(int maxZoom) {
         getState().maxZoom = maxZoom;
@@ -623,7 +1124,7 @@ public class GoogleMap extends AbstractComponentContainer {
 
     /**
      * Returns the current maximum amount of zoom.
-     *
+     * 
      * @return maximum amount of zoom
      */
     public int getMaxZoom() {
@@ -632,8 +1133,9 @@ public class GoogleMap extends AbstractComponentContainer {
 
     /**
      * Sets the minimum allowed amount of zoom (default 0.0).
-     *
-     * @param minZoom The minimum amount for zoom.
+     * 
+     * @param minZoom
+     *            The minimum amount for zoom.
      */
     public void setMinZoom(int minZoom) {
         getState().minZoom = minZoom;
@@ -641,7 +1143,7 @@ public class GoogleMap extends AbstractComponentContainer {
 
     /**
      * Returns the current minimum amount of zoom.
-     *
+     * 
      * @return minimum amount of zoom
      */
     public int getMinZoom() {
@@ -650,8 +1152,9 @@ public class GoogleMap extends AbstractComponentContainer {
 
     /**
      * Opens an info window.
-     *
-     * @param infoWindow The window to open.
+     * 
+     * @param infoWindow
+     *            The window to open.
      */
     public void openInfoWindow(GoogleMapInfoWindow infoWindow) {
         getState().infoWindows.put(infoWindow.getId(), infoWindow);
@@ -659,8 +1162,9 @@ public class GoogleMap extends AbstractComponentContainer {
 
     /**
      * Closes an info window.
-     *
-     * @param infoWindow The window to close.
+     * 
+     * @param infoWindow
+     *            The window to close.
      */
     public void closeInfoWindow(GoogleMapInfoWindow infoWindow) {
         getState().infoWindows.remove(infoWindow.getId());
@@ -668,8 +1172,9 @@ public class GoogleMap extends AbstractComponentContainer {
 
     /**
      * Checks if an info window is open.
-     *
-     * @param infoWindow The window to check.
+     * 
+     * @param infoWindow
+     *            The window to check.
      * @return true, if the window is open.
      */
     public boolean isInfoWindowOpen(GoogleMapInfoWindow infoWindow) {
@@ -677,83 +1182,53 @@ public class GoogleMap extends AbstractComponentContainer {
     }
 
     /**
+     * Enables/disables new visual style of the map. NOTICE: this must be set
+     * before rendering the map.
+     * 
+     * @param enabled
+     *            Set true to enable (defaul false).
+     */
+    public void setVisualRefreshEnabled(boolean enabled) {
+        getState().visualRefreshEnabled = enabled;
+    }
+
+    /**
+     * Checks if the new visual style is enabled.
+     * 
+     * @return true, if visual refresh is enabled
+     */
+    public boolean isVisualRefreshEnabled() {
+        return getState().visualRefreshEnabled;
+    }
+
+    /**
      * Tries to fit the visible area of the map inside given boundaries by
      * modifying zoom and/or center.
-     *
-     * @param boundsNE The northeast boundaries.
-     * @param boundsSW The southwest boundaries.
+     * 
+     * @param boundsNE
+     *            The northeast boundaries.
+     * @param boundsSW
+     *            The southwest boundaries.
      */
     public void fitToBounds(LatLon boundsNE, LatLon boundsSW) {
         getState().fitToBoundsNE = boundsNE;
         getState().fitToBoundsSW = boundsSW;
     }
 
-    /**
-     * Check if a traffic layer is visible
-     *
-     * @return true, if traffic layer is visible
-     */
-    public boolean isTrafficLayerVisible() {
-        return getState().trafficLayerVisible;
+    private boolean isClientId(String apiKeyOrClientId) {
+        return apiKeyOrClientId != null && apiKeyOrClientId.startsWith("gme-");
     }
 
-    /**
-     * Set a traffic layer visibility
-     *
-     * @param visible
-     */
-    public void setTrafficLayerVisible(boolean visible) {
-        getState().trafficLayerVisible = visible;
+    public void setDrawingOptions(DrawingOptions drawingOptions) {
+        getState().drawingOptions = drawingOptions;
     }
 
-    /**
-     * Set a custom url for API. For example Chinese API would be
-     * "maps.google.cn".
-     *
-     * @param url the url to use WITHOUT protocol (http/https)
-     */
-    public void setApiUrl(String url) {
-        getState().apiUrl = url;
+    public DrawingOptions getDrawingOptions() {
+        return getState().drawingOptions;
     }
 
-    @Override
-    public void replaceComponent(Component oldComponent,
-        Component newComponent) {
-        for (GoogleMapInfoWindow window : infoWindowContents.keySet()) {
-            if (infoWindowContents.get(window).equals(oldComponent)) {
-                setInfoWindowContents(window, newComponent);
-                super.removeComponent(oldComponent);
-                break;
-            }
-        }
+    public void route(DirectionsRequest request, DirectionsResultCallback handler) {
+        getState().directionsRequests.put(request.getId(), request);
+        directionsCallbacks.put(request.getId(), handler);
     }
-
-    @Override
-    public int getComponentCount() {
-        return infoWindowContents.size();
-    }
-
-    @Override
-    public Iterator<Component> iterator() {
-        return infoWindowContents.values().iterator();
-    }
-
-    /**
-     * Sets the contents of an info window to a single Vaadin component which may,
-     * of course, be a layout.
-     *
-     * @param window  the info window which contents should be modified
-     * @param content the contents for the info window
-     */
-    public void setInfoWindowContents(GoogleMapInfoWindow window,
-        Component content) {
-        super.addComponent(content);
-        infoWindowContents.put(window, content);
-        String contentIdentifier = "content-for-infowindow-" + window.getId();
-        content.addStyleName(contentIdentifier);
-        window.setContent("Loading...");
-        getState().infoWindowContentIdentifiers
-            .put(window.getId(), contentIdentifier);
-    }
-
 }

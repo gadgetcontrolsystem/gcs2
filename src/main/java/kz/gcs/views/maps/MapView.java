@@ -15,7 +15,8 @@ import kz.gcs.event.DashboardEvent;
 import kz.gcs.event.DashboardEvent.TransactionReportEvent;
 import kz.gcs.event.DashboardEventBus;
 import kz.gcs.maps.GoogleMap;
-import kz.gcs.maps.client.LatLon;
+import kz.gcs.maps.client.base.LatLon;
+import kz.gcs.maps.client.overlays.GoogleMapCircle;
 import kz.gcs.maps.client.overlays.GoogleMapInfoWindow;
 import kz.gcs.maps.client.overlays.GoogleMapMarker;
 import kz.gcs.maps.client.overlays.GoogleMapPolyline;
@@ -55,7 +56,8 @@ public class MapView extends VerticalLayout implements View {
         tabs.addTab(mapContent, "Карты Google");
         tabs.addTab(new Label("Страница находится в разработке"), "Карты Yandex");
 
-        googleMap = new GoogleMap(this.apiKey, null, "Russian");
+        Location location = MyUI.getDataProvider().getLastLocation(0);
+        googleMap = new GoogleMap(new LatLon(location.getLat(), location.getLon()), 15, this.apiKey);
         googleMap.setDraggable(true);
 
         googleMap.setZoom(15);
@@ -142,9 +144,11 @@ public class MapView extends VerticalLayout implements View {
         if (lastLocation != null) {
             googleMap.clearAll();
             LatLon position = new LatLon(lastLocation.getLat(), lastLocation.getLon());
-            GoogleMapMarker marker = new GoogleMapMarker(lastLocation.displayStr(), position, false, null);
+            GoogleMapMarker marker = new GoogleMapMarker(lastLocation.displayStr(), position, false, "http://mt.google.com/vt/icon?color=ff004C13&name=icons/spotlight/spotlight-waypoint-b.png");
             googleMap.addMarker(marker);
             googleMap.setCenter(position);
+            GoogleMapCircle mapCircle = new GoogleMapCircle(position, lastLocation.getAccuracy());
+            googleMap.addCircleOverlay(mapCircle);
             GoogleMapInfoWindow window = new GoogleMapInfoWindow(AllUtils.dateToStrDateTimeP(lastLocation.getTime(), "Время не доступно") + ", " + lastLocation.getCity() + ", " + lastLocation.getCountry()+" Lat: "+lastLocation.getLat()+" Lon: "+lastLocation.getLon(), marker);
             OpenInfoWindowOnMarkerClickListener windowOpener = new OpenInfoWindowOnMarkerClickListener(googleMap, marker, window);
             googleMap.addMarkerClickListener(windowOpener);

@@ -1,14 +1,16 @@
 package kz.gcs.maps.client.overlays;
 
-import kz.gcs.maps.client.LatLon;
+import kz.gcs.maps.client.base.LatLon;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A class representing a polyline (a line consisting of multiple points)
+ * A class representing a poly line (a line consisting of multiple points)
  * overlay of Google Maps.
+ * 
+ * @author Tapio Aali <tapio@vaadin.com>
  */
 public class GoogleMapPolyline implements Serializable {
 
@@ -19,15 +21,10 @@ public class GoogleMapPolyline implements Serializable {
     private long id;
 
     private List<LatLon> coordinates = new ArrayList<LatLon>();
-
     private String strokeColor = "#000000";
-
     private double strokeOpacity = 1.0;
-
     private int strokeWeight = 1;
-
     private int zIndex = 0;
-
     private boolean geodesic = false;
 
     public GoogleMapPolyline() {
@@ -41,7 +38,7 @@ public class GoogleMapPolyline implements Serializable {
     }
 
     public GoogleMapPolyline(List<LatLon> coordinates, String strokeColor,
-                             double strokeOpacity, int strokeWeight) {
+            double strokeOpacity, int strokeWeight) {
         this(coordinates);
         this.strokeColor = strokeColor;
         this.strokeOpacity = strokeOpacity;
@@ -50,8 +47,9 @@ public class GoogleMapPolyline implements Serializable {
 
     /**
      * Returns the coordinates of the polyline.
-     *
+     * 
      * @return coordinates
+     * 
      */
     public List<LatLon> getCoordinates() {
         return coordinates;
@@ -59,8 +57,9 @@ public class GoogleMapPolyline implements Serializable {
 
     /**
      * Sets the coordinates of the polyline.
-     *
-     * @param coordinates the new coordinates
+     * 
+     * @param coordinates
+     *            the new coordinates
      */
     public void setCoordinates(List<LatLon> coordinates) {
         this.coordinates = coordinates;
@@ -68,7 +67,7 @@ public class GoogleMapPolyline implements Serializable {
 
     /**
      * Returns the stroke color of the polyline.
-     *
+     * 
      * @return the stroke color
      */
     public String getStrokeColor() {
@@ -77,8 +76,9 @@ public class GoogleMapPolyline implements Serializable {
 
     /**
      * Sets the stroke color of the polyline.
-     *
-     * @param strokeColor The new stroke color.
+     * 
+     * @param strokeColor
+     *            The new stroke color.
      */
     public void setStrokeColor(String strokeColor) {
         this.strokeColor = strokeColor;
@@ -86,7 +86,7 @@ public class GoogleMapPolyline implements Serializable {
 
     /**
      * Returns the stroke opacity of the polyline.
-     *
+     * 
      * @return the stroke opacity
      */
     public double getStrokeOpacity() {
@@ -95,8 +95,9 @@ public class GoogleMapPolyline implements Serializable {
 
     /**
      * Sets the stroke opacity of the polyline.
-     *
-     * @param strokeOpacity The new stroke opacity.
+     * 
+     * @param strokeOpacity
+     *            The new stroke opacity.
      */
     public void setStrokeOpacity(double strokeOpacity) {
         this.strokeOpacity = strokeOpacity;
@@ -104,7 +105,7 @@ public class GoogleMapPolyline implements Serializable {
 
     /**
      * Returns the stroke weight of the polyline.
-     *
+     * 
      * @return the stroke weight
      */
     public int getStrokeWeight() {
@@ -113,8 +114,9 @@ public class GoogleMapPolyline implements Serializable {
 
     /**
      * Sets the stroke weight of the polyline.
-     *
-     * @param strokeWeight The new stroke weight.
+     * 
+     * @param strokeWeight
+     *            The new stroke weight.
      */
     public void setStrokeWeight(int strokeWeight) {
         this.strokeWeight = strokeWeight;
@@ -122,7 +124,7 @@ public class GoogleMapPolyline implements Serializable {
 
     /**
      * Returns the z index compared to other polyline.
-     *
+     * 
      * @return the z index
      */
     public int getzIndex() {
@@ -131,8 +133,9 @@ public class GoogleMapPolyline implements Serializable {
 
     /**
      * Sets the z index compared to other polyline.
-     *
-     * @param zIndex the new z index
+     * 
+     * @param zIndex
+     *            the new z index
      */
     public void setzIndex(int zIndex) {
         this.zIndex = zIndex;
@@ -140,7 +143,7 @@ public class GoogleMapPolyline implements Serializable {
 
     /**
      * Checks if the polyline is geodesic.
-     *
+     * 
      * @return true, if it is geodesic
      */
     public boolean isGeodesic() {
@@ -149,8 +152,9 @@ public class GoogleMapPolyline implements Serializable {
 
     /**
      * Enables/disables geodesicity of the polyline.
-     *
-     * @param geodesic Set true to enable geodesicity.
+     * 
+     * @param geodesic
+     *            Set true to enable geodesicity.
      */
     public void setGeodesic(boolean geodesic) {
         this.geodesic = geodesic;
@@ -183,7 +187,7 @@ public class GoogleMapPolyline implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        kz.gcs.maps.client.overlays.GoogleMapPolyline other = (kz.gcs.maps.client.overlays.GoogleMapPolyline) obj;
+        GoogleMapPolyline other = (GoogleMapPolyline) obj;
         if (id != other.id) {
             return false;
         }

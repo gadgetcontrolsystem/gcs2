@@ -1,11 +1,15 @@
 package kz.gcs.maps.client.overlays;
 
-import kz.gcs.maps.client.LatLon;
+import kz.gcs.maps.client.base.LatLon;
+import kz.gcs.maps.client.base.MarkerImage;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * The class representing a marker of the Google Map.
+ * 
+ * @author Tapio Aali <tapio@vaadin.com>
  */
 public class GoogleMapMarker implements Serializable {
     private static final long serialVersionUID = 612346543243L;
@@ -15,16 +19,12 @@ public class GoogleMapMarker implements Serializable {
     private long id;
 
     private LatLon position = new LatLon(0, 0);
-
     private String caption = "";
-
     private boolean draggable = false;
-
     private String iconUrl = null;
-
     private boolean animationEnabled = true;
-
     private boolean optimized = true;
+    private MarkerImage markerImage = null;
 
     /**
      * Instantiates a new GoogleMapMarker.
@@ -36,10 +36,13 @@ public class GoogleMapMarker implements Serializable {
 
     /**
      * Instantiates a new GoogleMapMarker
-     *
-     * @param caption   The caption to use.
-     * @param position  The position of the marker
-     * @param draggable Can marker be dragged?
+     * 
+     * @param caption
+     *            The caption to use.
+     * @param position
+     *            The position of the marker
+     * @param draggable
+     *            Can marker be dragged?
      */
     public GoogleMapMarker(String caption, LatLon position, boolean draggable) {
         this();
@@ -51,9 +54,14 @@ public class GoogleMapMarker implements Serializable {
     /**
      * Instantiates a new GoogleMapMarker
      *
-     * @param caption   The caption to use.
-     * @param position  The position of the marker
-     * @param draggable Can marker be dragged?
+     * @param caption
+     *            The caption to use.
+     * @param position
+     *            The position of the marker
+     * @param draggable
+     *            Can marker be dragged?
+     * @param iconUrl
+     *            Url of marker icon
      */
     public GoogleMapMarker(String caption, LatLon position, boolean draggable,
                            String iconUrl) {
@@ -62,8 +70,25 @@ public class GoogleMapMarker implements Serializable {
     }
 
     /**
-     * Returns the position of the marker.
+     * Instantiates a new GoogleMapMarker
      *
+     * @param caption
+     *            The caption to use.
+     * @param position
+     *            The position of the marker
+     * @param draggable
+     *            Can marker be dragged?
+     * @param markerImage
+     *            Object describing marker icon
+     */
+    public GoogleMapMarker(String caption, LatLon position, boolean draggable, MarkerImage markerImage) {
+        this(caption, position, draggable);
+        this.markerImage = markerImage;
+    }
+
+    /**
+     * Returns the position of the marker.
+     * 
      * @return The position of the marker.
      */
     public LatLon getPosition() {
@@ -72,8 +97,9 @@ public class GoogleMapMarker implements Serializable {
 
     /**
      * Sets the position of the marker.
-     *
-     * @param position The new position of the marker.
+     * 
+     * @param position
+     *            The new position of the marker.
      */
     public void setPosition(LatLon position) {
         this.position = position;
@@ -81,7 +107,7 @@ public class GoogleMapMarker implements Serializable {
 
     /**
      * Gets the caption of the marker.
-     *
+     * 
      * @return The caption of the marker.
      */
     public String getCaption() {
@@ -90,8 +116,9 @@ public class GoogleMapMarker implements Serializable {
 
     /**
      * Sets the caption of the marker.
-     *
-     * @param caption The new caption of the marker.
+     * 
+     * @param caption
+     *            The new caption of the marker.
      */
     public void setCaption(String caption) {
         this.caption = caption;
@@ -99,7 +126,7 @@ public class GoogleMapMarker implements Serializable {
 
     /**
      * Checks if the marker is draggable.
-     *
+     * 
      * @return true, if it is draggable
      */
     public boolean isDraggable() {
@@ -108,8 +135,9 @@ public class GoogleMapMarker implements Serializable {
 
     /**
      * Enables/disables dragging of the marker.
-     *
-     * @param draggable Set to true to enable dragging.
+     * 
+     * @param draggable
+     *            Set to true to enable dragging.
      */
     public void setDraggable(boolean draggable) {
         this.draggable = draggable;
@@ -117,7 +145,7 @@ public class GoogleMapMarker implements Serializable {
 
     /**
      * Returns the url of the icon of the marker.
-     *
+     * 
      * @return the url of the icon, default null.
      */
     public String getIconUrl() {
@@ -126,8 +154,9 @@ public class GoogleMapMarker implements Serializable {
 
     /**
      * Sets the url of the icon of the marker.
-     *
-     * @param iconUrl The new url of the icon.
+     * 
+     * @param iconUrl
+     *            The new url of the icon.
      */
     public void setIconUrl(String iconUrl) {
         this.iconUrl = iconUrl;
@@ -135,7 +164,7 @@ public class GoogleMapMarker implements Serializable {
 
     /**
      * Checks if marker animation is enabled.
-     *
+     * 
      * @return true, if enabled
      */
     public boolean isAnimationEnabled() {
@@ -144,8 +173,9 @@ public class GoogleMapMarker implements Serializable {
 
     /**
      * Enables/disables marker animation.
-     *
-     * @param animationEnabled Set true to enable (default true).
+     * 
+     * @param animationEnabled
+     *            Set true to enable (default true).
      */
     public void setAnimationEnabled(boolean animationEnabled) {
         this.animationEnabled = animationEnabled;
@@ -153,7 +183,7 @@ public class GoogleMapMarker implements Serializable {
 
     /**
      * Checks if optimization is enabled.
-     *
+     * 
      * @return true, if enabled
      */
     public boolean isOptimized() {
@@ -164,11 +194,20 @@ public class GoogleMapMarker implements Serializable {
      * Enables/disables marker optimization. If enabled, many markers are
      * rendered as a single static element. Disable if you want to use animated
      * GIFs or PNGs.
-     *
-     * @param optimized Set true to enable (default true).
+     * 
+     * @param optimized
+     *            Set true to enable (default true).
      */
     public void setOptimized(boolean optimized) {
         this.optimized = optimized;
+    }
+
+    public MarkerImage getMarkerImage() {
+        return markerImage;
+    }
+
+    public void setMarkerImage(MarkerImage markerImage) {
+        this.markerImage = markerImage;
     }
 
     public long getId() {
@@ -198,32 +237,33 @@ public class GoogleMapMarker implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        kz.gcs.maps.client.overlays.GoogleMapMarker other = (kz.gcs.maps.client.overlays.GoogleMapMarker) obj;
+        GoogleMapMarker other = (GoogleMapMarker) obj;
         if (id != other.id) {
             return false;
         }
         return true;
     }
 
-    public boolean hasSameFieldValues(kz.gcs.maps.client.overlays.GoogleMapMarker other) {
-        if ((other.getCaption() != null || getCaption() != null)
-            && !other.getCaption().equals(getCaption())) {
+    public boolean hasSameFieldValues(GoogleMapMarker o) {
+        if (!Objects.equals(caption, o.caption)) {
             return false;
         }
-        if ((other.getIconUrl() != null || getIconUrl() != null)
-            && !other.getIconUrl().equals(getIconUrl())) {
+        if (!Objects.equals(iconUrl, o.iconUrl)) {
             return false;
         }
-        if (!other.getPosition().equals(getPosition())) {
+        if (!Objects.equals(markerImage, o.markerImage)) {
             return false;
         }
-        if (other.isAnimationEnabled() != isAnimationEnabled()) {
+        if (!Objects.equals(position, o.position)) {
             return false;
         }
-        if (other.isDraggable() != isDraggable()) {
+        if (!Objects.equals(animationEnabled, o.animationEnabled)) {
             return false;
         }
-        if (other.isOptimized() != isOptimized()) {
+        if (!Objects.equals(draggable, o.draggable)) {
+            return false;
+        }
+        if (!Objects.equals(optimized, o.optimized)) {
             return false;
         }
         return true;

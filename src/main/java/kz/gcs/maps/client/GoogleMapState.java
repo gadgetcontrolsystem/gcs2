@@ -1,16 +1,20 @@
 package kz.gcs.maps.client;
 
 import com.vaadin.shared.AbstractComponentState;
+import kz.gcs.maps.client.base.LatLon;
+import kz.gcs.maps.client.drawing.DrawingOptions;
+import kz.gcs.maps.client.layers.GoogleMapHeatMapLayer;
 import kz.gcs.maps.client.layers.GoogleMapKmlLayer;
-import kz.gcs.maps.client.overlays.GoogleMapInfoWindow;
-import kz.gcs.maps.client.overlays.GoogleMapMarker;
-import kz.gcs.maps.client.overlays.GoogleMapPolygon;
-import kz.gcs.maps.client.overlays.GoogleMapPolyline;
+import kz.gcs.maps.client.maptypes.GoogleImageMapType;
+import kz.gcs.maps.client.overlays.*;
+import kz.gcs.maps.client.services.DirectionsRequest;
 
 import java.util.*;
 
 /**
- * The shared state of the Google Maps. Contains also the default values.
+ * The shared state of the Google Maps. Contains also the default
+ * 
+ * @author Tapio Aali <tapio@vaadin.com>
  */
 public class GoogleMapState extends AbstractComponentState {
     private static final long serialVersionUID = 646346522643L;
@@ -21,7 +25,10 @@ public class GoogleMapState extends AbstractComponentState {
     // defaults to the language setting of the browser
     public String language = null;
     public String mapTypeId = "Roadmap";
-    public LatLon center = new LatLon(51.12686, 71.4316786);
+    public List<String> mapTypeIds = Arrays.asList("Roadmap", "Terrain", "Satellite");
+    public LatLon center = new LatLon(51.477811, -0.001475);
+    public LatLon boundNE = null;
+    public LatLon boundSW = null;
     public int zoom = 8;
     public int maxZoom = 21;
     public int minZoom = 0;
@@ -30,10 +37,17 @@ public class GoogleMapState extends AbstractComponentState {
     public boolean keyboardShortcutsEnabled = true;
     public boolean scrollWheelEnabled = true;
 
-    public Set<kz.gcs.maps.client.GoogleMapControl> controls = new HashSet<kz.gcs.maps.client.GoogleMapControl>(
-        Arrays.asList(kz.gcs.maps.client.GoogleMapControl.MapType, kz.gcs.maps.client.GoogleMapControl.Pan,
-            kz.gcs.maps.client.GoogleMapControl.Rotate, kz.gcs.maps.client.GoogleMapControl.Scale,
-            kz.gcs.maps.client.GoogleMapControl.StreetView, GoogleMapControl.Zoom));
+    public boolean visualRefreshEnabled = false;
+
+    public boolean supportDrawing = false;
+
+    public DrawingOptions drawingOptions = null;
+
+    public Set<GoogleMapControl> controls = new HashSet<GoogleMapControl>(
+            Arrays.asList(GoogleMapControl.MapType, GoogleMapControl.Pan,
+                    GoogleMapControl.Rotate, GoogleMapControl.Scale,
+                    GoogleMapControl.StreetView, GoogleMapControl.Zoom));
+    public boolean locationFromClient = false;
 
     public boolean limitCenterBounds = false;
     public LatLon centerSWLimit = new LatLon(0.0, 0.0);
@@ -46,16 +60,24 @@ public class GoogleMapState extends AbstractComponentState {
     public LatLon fitToBoundsNE = null;
     public LatLon fitToBoundsSW = null;
 
-    public Set<GoogleMapPolygon> polygons = new HashSet<GoogleMapPolygon>();
     public Set<GoogleMapPolyline> polylines = new HashSet<GoogleMapPolyline>();
     public Set<GoogleMapKmlLayer> kmlLayers = new HashSet<GoogleMapKmlLayer>();
+    public Set<GoogleMapHeatMapLayer> heatMapLayers = new HashSet<GoogleMapHeatMapLayer>();
+    public Set<GoogleImageMapType> imageMapTypes = new LinkedHashSet<GoogleImageMapType>();
+    public Set<GoogleImageMapType> overlayImageMapTypes = new LinkedHashSet<GoogleImageMapType>();
+
+    public Map<Long, DirectionsRequest> directionsRequests = new HashMap<Long, DirectionsRequest>();
 
     public Map<Long, GoogleMapMarker> markers = new HashMap<Long, GoogleMapMarker>();
 
     public Map<Long, GoogleMapInfoWindow> infoWindows = new HashMap<Long, GoogleMapInfoWindow>();
-    public boolean trafficLayerVisible = false;
 
-    public String apiUrl = null;
+    public Map<Long, GoogleMapPolygon> polygons = new HashMap<Long, GoogleMapPolygon>();
 
-    public Map<Long, String> infoWindowContentIdentifiers = new HashMap<>();
+    public Map<Long, GoogleMapCircle> circles = new HashMap<Long, GoogleMapCircle>();
+
+    public boolean isBusiness() {
+        return clientId != null;
+    }
+
 }

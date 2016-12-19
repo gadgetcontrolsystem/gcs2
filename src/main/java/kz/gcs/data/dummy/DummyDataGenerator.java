@@ -1,7 +1,7 @@
 package kz.gcs.data.dummy;
 
 import kz.gcs.domain.DashboardNotification;
-import kz.gcs.maps.client.LatLon;
+import kz.gcs.maps.client.base.LatLon;
 
 import java.io.Serializable;
 import java.util.*;

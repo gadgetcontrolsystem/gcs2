@@ -1,7 +1,7 @@
 package kz.gcs.views.maps.events;
 
 import kz.gcs.maps.GoogleMap;
-import kz.gcs.maps.client.events.MarkerClickListener;
+import kz.gcs.maps.client.events.click.MarkerClickListener;
 import kz.gcs.maps.client.overlays.GoogleMapInfoWindow;
 import kz.gcs.maps.client.overlays.GoogleMapMarker;
 
