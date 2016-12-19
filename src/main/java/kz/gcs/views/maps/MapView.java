@@ -102,28 +102,28 @@ public class MapView extends VerticalLayout implements View {
             LatLon latLon = new LatLon(temp.getLat(), temp.getLon());
             latLons.add(latLon);
 
-            if(maxLatLon.getLat()<temp.getLat()){
+            if (maxLatLon.getLat() < temp.getLat()) {
                 maxLatLon.setLat(temp.getLat());
             }
-            if(maxLatLon.getLon()<temp.getLon()){
+            if (maxLatLon.getLon() < temp.getLon()) {
                 maxLatLon.setLon(temp.getLon());
             }
-            if(minLatLon.getLat()>temp.getLat()){
+            if (minLatLon.getLat() > temp.getLat()) {
                 minLatLon.setLat(temp.getLat());
             }
-            if(minLatLon.getLon()>temp.getLon()){
+            if (minLatLon.getLon() > temp.getLon()) {
                 minLatLon.setLon(temp.getLon());
             }
 
-            if(counter==1){
+            if (counter == 1) {
                 url = "http://mt.google.com/vt/icon?color=ff004C13&name=icons/spotlight/spotlight-waypoint-a.png";
-            } else if (counter==locations.size()){
+            } else if (counter == locations.size()) {
                 url = "http://mt.google.com/vt/icon?color=ff004C13&name=icons/spotlight/spotlight-waypoint-b.png";
             }
 
             GoogleMapMarker marker = new GoogleMapMarker(temp.displayStr(), new LatLon(temp.getLat(), temp.getLon()), false, url);
             googleMap.addMarker(marker);
-            GoogleMapInfoWindow window = new GoogleMapInfoWindow(AllUtils.dateToStrDateTimeP(temp.getTime(), "Время не доступно") + ", " + temp.getCity() + ", " + temp.getCountry()+" Lat: "+temp.getLat()+" Lon: "+temp.getLon(), marker);
+            GoogleMapInfoWindow window = new GoogleMapInfoWindow(AllUtils.dateToStrDateTimeP(temp.getTime(), "Время не доступно") + ", " + temp.getCity() + ", " + temp.getCountry() + " Lat: " + temp.getLat() + " Lon: " + temp.getLon(), marker);
             OpenInfoWindowOnMarkerClickListener windowOpener = new OpenInfoWindowOnMarkerClickListener(googleMap, marker, window);
             googleMap.addMarkerClickListener(windowOpener);
 
@@ -138,14 +138,16 @@ public class MapView extends VerticalLayout implements View {
     }
 
     private void getLastLocation() {
-        Location lastLocation = MyUI.getDataProvider().getLastLocation(0);
+
+
+        Location lastLocation = MyUI.getDataProvider().getLastLocation();
         if (lastLocation != null) {
             googleMap.clearAll();
             LatLon position = new LatLon(lastLocation.getLat(), lastLocation.getLon());
             GoogleMapMarker marker = new GoogleMapMarker(lastLocation.displayStr(), position, false, null);
             googleMap.addMarker(marker);
             googleMap.setCenter(position);
-            GoogleMapInfoWindow window = new GoogleMapInfoWindow(AllUtils.dateToStrDateTimeP(lastLocation.getTime(), "Время не доступно") + ", " + lastLocation.getCity() + ", " + lastLocation.getCountry()+" Lat: "+lastLocation.getLat()+" Lon: "+lastLocation.getLon(), marker);
+            GoogleMapInfoWindow window = new GoogleMapInfoWindow(AllUtils.dateToStrDateTimeP(lastLocation.getTime(), "Время не доступно") + ", " + lastLocation.getCity() + ", " + lastLocation.getCountry() + " Lat: " + lastLocation.getLat() + " Lon: " + lastLocation.getLon(), marker);
             OpenInfoWindowOnMarkerClickListener windowOpener = new OpenInfoWindowOnMarkerClickListener(googleMap, marker, window);
             googleMap.addMarkerClickListener(windowOpener);
         }
@@ -166,7 +168,7 @@ public class MapView extends VerticalLayout implements View {
         buttonLayoutRow.addComponent(refreshButton);
 
         final DateField beforeDateField = new DateField("С", new Date());
-        beforeDateField.setResolution(Resolution.MINUTE );
+        beforeDateField.setResolution(Resolution.MINUTE);
         beforeDateField.setDateFormat("dd.MM.yyyy HH:mm:ss");
         final PopupDateField afterDateField = new PopupDateField("По", new Date());
         afterDateField.setResolution(Resolution.MINUTE);
@@ -179,10 +181,9 @@ public class MapView extends VerticalLayout implements View {
                 Date beforeDate = beforeDateField.getValue();
                 Date afterDate = afterDateField.getValue();
                 List<Location> locations = new ArrayList(MyUI.getDataProvider().getLocationsBetween(beforeDate, afterDate));
-                if(locations.size()==0) {
+                if (locations.size() == 0) {
                     Notification.show("По этому отрезку времени местоположений не найдено");
-                }
-                else {
+                } else {
                     placeMarkersOnMap(locations);
                 }
                 datesWindow.close();
