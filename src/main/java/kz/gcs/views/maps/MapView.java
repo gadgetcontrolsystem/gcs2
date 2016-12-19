@@ -3,10 +3,16 @@ package kz.gcs.views.maps;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.server.FontAwesome;
+import com.vaadin.shared.ui.datefield.Resolution;
+import com.vaadin.shared.ui.window.WindowMode;
 import com.vaadin.ui.*;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import kz.gcs.MyUI;
 import kz.gcs.domain.Location;
 import kz.gcs.event.DashboardEvent;
+import kz.gcs.event.DashboardEvent.TransactionReportEvent;
 import kz.gcs.event.DashboardEventBus;
 import kz.gcs.maps.GoogleMap;
 import kz.gcs.maps.client.LatLon;
@@ -27,9 +33,9 @@ public class MapView extends VerticalLayout implements View {
     public static final String VIEW_NAME = "map";
     public static final String VIEW_TITLE = "карта";
     private static final long serialVersionUID = -379716808231511716L;
+    private Window datesWindow;
 
     private GoogleMap googleMap;
-    private Label currentTimeStamp;
 
     private final String apiKey = "AIzaSyDmJQfLtxIo8u4dzu6FYsmHSFRSebEqp6k";
 
@@ -63,22 +69,18 @@ public class MapView extends VerticalLayout implements View {
         mapContent.addComponent(googleMap);
         mapContent.setExpandRatio(googleMap, 1.0f);
 
-        HorizontalLayout buttonLayoutRow1 = new HorizontalLayout();
-        buttonLayoutRow1.setHeight("26px");
-        mapContent.addComponent(buttonLayoutRow1);
+        HorizontalLayout buttonLayoutRow = new HorizontalLayout();
+        mapContent.addComponent(buttonLayoutRow);
+        mapContent.setComponentAlignment(buttonLayoutRow, Alignment.MIDDLE_CENTER);
 
-        HorizontalLayout buttonLayoutRow2 = new HorizontalLayout();
-        buttonLayoutRow2.setHeight("26px");
-        mapContent.addComponent(buttonLayoutRow2);
-
-        drawButtons(buttonLayoutRow1, buttonLayoutRow2);
+        drawButtons(buttonLayoutRow);
 
 
         DashboardEventBus.register(this);
     }
 
     @Subscribe
-    public void createTransactionReport(final DashboardEvent.TransactionReportEvent event) {
+    public void createTransactionReport(final TransactionReportEvent event) {
         googleMap.clearAll();
         List<Location> locations = new ArrayList<>(event.getLocations());
         if (locations.size() == 0)
@@ -138,30 +140,73 @@ public class MapView extends VerticalLayout implements View {
     private void getLastLocation() {
         Location lastLocation = MyUI.getDataProvider().getLastLocation(0);
         if (lastLocation != null) {
+            googleMap.clearAll();
             LatLon position = new LatLon(lastLocation.getLat(), lastLocation.getLon());
-            googleMap.addMarker(lastLocation.displayStr(), position, false, null);
+            GoogleMapMarker marker = new GoogleMapMarker(lastLocation.displayStr(), position, false, null);
+            googleMap.addMarker(marker);
             googleMap.setCenter(position);
+            GoogleMapInfoWindow window = new GoogleMapInfoWindow(AllUtils.dateToStrDateTimeP(lastLocation.getTime(), "Время не доступно") + ", " + lastLocation.getCity() + ", " + lastLocation.getCountry()+" Lat: "+lastLocation.getLat()+" Lon: "+lastLocation.getLon(), marker);
+            OpenInfoWindowOnMarkerClickListener windowOpener = new OpenInfoWindowOnMarkerClickListener(googleMap, marker, window);
+            googleMap.addMarkerClickListener(windowOpener);
         }
         googleMap.setZoom(15);
     }
 
-    private void drawButtons(HorizontalLayout buttonLayoutRow1, HorizontalLayout buttonLayoutRow2) {
+    @SuppressWarnings("all")
+    private void drawButtons(HorizontalLayout buttonLayoutRow) {
 
-        Button refreshButton = new Button("Обновить карту", new Button.ClickListener() {
+        Button refreshButton = new Button(null, new ClickListener() {
             @Override
-            public void buttonClick(Button.ClickEvent clickEvent) {
+            public void buttonClick(ClickEvent clickEvent) {
                 googleMap.clearAll();
                 getLastLocation();
-                currentTimeStamp.setValue("Последнее обновление карты: " + AllUtils.dateToStrDateTimeP(new Date(), ""));
             }
         });
-        buttonLayoutRow1.addComponent(refreshButton);
+        refreshButton.setIcon(FontAwesome.REFRESH, "Обновить карту");
+        buttonLayoutRow.addComponent(refreshButton);
 
-        currentTimeStamp = new Label("Последнее обновление карты: " + AllUtils.dateToStrDateTimeP(new Date(), ""));
+        final DateField beforeDateField = new DateField("С", new Date());
+        beforeDateField.setResolution(Resolution.MINUTE );
+        beforeDateField.setDateFormat("dd.MM.yyyy HH:mm:ss");
+        final PopupDateField afterDateField = new PopupDateField("По", new Date());
+        afterDateField.setResolution(Resolution.MINUTE);
+        afterDateField.setDateFormat("dd.MM.yyyy HH:mm:ss");
 
-        buttonLayoutRow1.addComponent(currentTimeStamp);
+        Button submitButton = new Button("Найти", new ClickListener() {
+            @Override
+            public void buttonClick(ClickEvent clickEvent) {
+                googleMap.clearAll();
+                Date beforeDate = beforeDateField.getValue();
+                Date afterDate = afterDateField.getValue();
+                List<Location> locations = new ArrayList(MyUI.getDataProvider().getLocationsBetween(beforeDate, afterDate));
+                if(locations.size()==0) {
+                    Notification.show("По этому отрезку времени местоположений не найдено");
+                }
+                else {
+                    placeMarkersOnMap(locations);
+                }
+                datesWindow.close();
+            }
+        });
 
-        buttonLayoutRow1.setSpacing(true);
+        VerticalLayout dates = new VerticalLayout(beforeDateField, afterDateField, submitButton);
+        dates.setComponentAlignment(submitButton, Alignment.MIDDLE_CENTER);
+        dates.setComponentAlignment(beforeDateField, Alignment.MIDDLE_CENTER);
+        dates.setComponentAlignment(afterDateField, Alignment.MIDDLE_CENTER);
+        dates.setSpacing(true);
+
+        datesWindow = new Window("Введите даты");
+        datesWindow.setContent(dates);
+        datesWindow.center();
+        Button windowButton = new Button(null, new ClickListener() {
+            @Override
+            public void buttonClick(ClickEvent clickEvent) {
+                getUI().addWindow(datesWindow);
+            }
+        });
+        windowButton.setIcon(FontAwesome.CALENDAR, "Ввод даты");
+
+        buttonLayoutRow.addComponent(windowButton);
 
     }
 
