@@ -12,6 +12,12 @@
        ]]>
         </sql>
     </changeSet>
+    <changeSet author="kaydar" id="003-alter-table-locations2">
+        <sql><![CDATA[
+        ALTER TABLE locations RENAME longtitude TO longitude;
+       ]]>
+        </sql>
+    </changeSet>
 
 
 </databaseChangeLog>
