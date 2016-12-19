@@ -150,10 +150,11 @@ public class DummyDataProvider implements DataProvider, Serializable {
     }
 
     @Override
-    public Location getLastLocation(long gadgetId) {
+    public Location getLastLocation() {
 
         User user = (User) VaadinSession.getCurrent().getAttribute(
                 User.class.getName());
+        if (user == null) return null;
 
         return locationService.getLastLocation(user.getGadgetId());
     }
