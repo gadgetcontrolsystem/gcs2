@@ -4,6 +4,7 @@ import com.google.common.eventbus.Subscribe;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
 import com.vaadin.annotations.Widgetset;
+import com.vaadin.event.UIEvents;
 import com.vaadin.server.*;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
@@ -13,6 +14,7 @@ import kz.gcs.data.dummy.DummyDataProvider;
 import kz.gcs.data.service.LocationService;
 import kz.gcs.data.service.UserService;
 import kz.gcs.domain.User;
+import kz.gcs.event.DashboardEvent;
 import kz.gcs.event.DashboardEvent.BrowserResizeEvent;
 import kz.gcs.event.DashboardEvent.CloseOpenWindowsEvent;
 import kz.gcs.event.DashboardEvent.UserLoggedOutEvent;
@@ -27,10 +29,10 @@ import org.springframework.stereotype.Component;
 import java.util.Locale;
 
 /**
- * This UI is the application entry point. A UI may either represent a browser window 
+ * This UI is the application entry point. A UI may either represent a browser window
  * (or tab) or some part of a html page where a Vaadin application is embedded.
  * <p>
- * The UI is initialized using {@link #init(VaadinRequest)}. This method is intended to be 
+ * The UI is initialized using {@link #init(VaadinRequest)}. This method is intended to be
  * overridden to add component to the user interface and initialize non-component functionality.
  */
 
@@ -72,6 +74,15 @@ public class MyUI extends UI {
 
         updateContent(false);
 
+        setPollInterval(60000);
+
+        addPollListener(new UIEvents.PollListener() {
+            @Override
+            public void poll(UIEvents.PollEvent event) {
+                DashboardEventBus.post(new DashboardEvent.NotificationsCountUpdatedEvent());
+            }
+        });
+
         // Some views need to be aware of browser resize events so a
         // BrowserResizeEvent gets fired to the event bus on every occasion.
         Page.getCurrent().addBrowserWindowResizeListener(
@@ -97,7 +108,6 @@ public class MyUI extends UI {
             setContent(new MainView());
 
             removeStyleName("loginview");
-
 
             getNavigator().navigateTo(getNavigator().getState());
         } else {

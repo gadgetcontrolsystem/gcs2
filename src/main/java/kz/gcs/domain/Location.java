@@ -12,12 +12,13 @@ public final class Location implements Serializable, Comparable<Location> {
     private String city;
     private Double lat;
     private Double lon;
+    private Double accuracy;
     private Long gadgetId;
 
 
     private boolean read;
 
-    public Location(Long id, Date time, String country, String city, Double lat, Double lon, Long gadgetId, boolean read) {
+    public Location(Long id, Date time, String country, String city, Double lat, Double lon, Long gadgetId, Double accuracy, boolean read) {
         this.id = id;
         this.time = time;
         this.country = country;
@@ -25,6 +26,7 @@ public final class Location implements Serializable, Comparable<Location> {
         this.lat = lat;
         this.lon = lon;
         this.gadgetId = gadgetId;
+        this.accuracy = accuracy;
         this.read = read;
     }
 
@@ -104,6 +106,14 @@ public final class Location implements Serializable, Comparable<Location> {
         return getCity() + " " + getTime();
     }
 
+    public Double getAccuracy() {
+        return accuracy;
+    }
+
+    public void setAccuracy(Double accuracy) {
+        this.accuracy = accuracy;
+    }
+
     @Override
     public String toString() {
         return "Location{" +
@@ -113,6 +123,7 @@ public final class Location implements Serializable, Comparable<Location> {
                 ", city='" + city + '\'' +
                 ", lat=" + lat +
                 ", lon=" + lon +
+                ", accuracy=" + accuracy +
                 ", gadgetId=" + gadgetId +
                 ", read=" + read +
                 '}';

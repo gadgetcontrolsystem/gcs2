@@ -6,6 +6,7 @@
 
     <include file="kz/gcs/upgrade/pg/oper/v001/001-create_tables.xml"/>
     <include file="kz/gcs/upgrade/pg/oper/v001/002-add-accuracy.xml"/>
+    <include file="kz/gcs/upgrade/pg/oper/v001/003-alter-table-locations.xml"/>
 
 
 </databaseChangeLog>

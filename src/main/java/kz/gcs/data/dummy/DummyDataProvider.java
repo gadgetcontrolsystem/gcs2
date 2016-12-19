@@ -5,6 +5,7 @@ import com.google.common.collect.*;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.vaadin.server.VaadinSession;
 import kz.gcs.data.DataProvider;
 import kz.gcs.data.service.LocationService;
 import kz.gcs.data.service.UserService;
@@ -57,8 +58,10 @@ public class DummyDataProvider implements DataProvider, Serializable {
     }
 
     private void refreshStaticData() {
-
-        List<Location> newLocations = locationService.getLocations(0);
+        User user = (User) VaadinSession.getCurrent().getAttribute(
+                User.class.getName());
+        if (user == null) return;
+        List<Location> newLocations = locationService.getLocations(user.getGadgetId());
         logger.info("LOCATIONS SIZE FROM DB " + newLocations.size());
         for (Location loc : newLocations) {
             logger.info(loc);
@@ -129,7 +132,7 @@ public class DummyDataProvider implements DataProvider, Serializable {
         List<Location> orderedLocations = Lists.newArrayList(locations
                 .values());
 
-        if(orderedLocations.size()==0) {
+        if (orderedLocations.size() == 0) {
             orderedLocations.add(new Location());
         }
 
@@ -148,7 +151,11 @@ public class DummyDataProvider implements DataProvider, Serializable {
 
     @Override
     public Location getLastLocation(long gadgetId) {
-        return locationService.getLastLocation(0);
+
+        User user = (User) VaadinSession.getCurrent().getAttribute(
+                User.class.getName());
+
+        return locationService.getLastLocation(user.getGadgetId());
     }
 
 

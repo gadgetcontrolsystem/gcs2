@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+
+    <changeSet author="kaydar" id="003-alter-table-locations">
+        <sql><![CDATA[
+        CREATE SEQUENCE loc_seq;
+        ALTER TABLE locations ALTER COLUMN id SET DEFAULT nextval('loc_seq');
+        ALTER TABLE locations ADD COLUMN createdat TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
+       ]]>
+        </sql>
+    </changeSet>
+    <changeSet author="kaydar" id="003-alter-table-locations2">
+        <sql><![CDATA[
+        ALTER TABLE locations RENAME longtitude TO longitude;
+       ]]>
+        </sql>
+    </changeSet>
+    <changeSet author="kaydar" id="003-alter-table-locations3">
+        <sql><![CDATA[
+        ALTER TABLE locations ALTER COLUMN country DROP NOT NULL;
+        ALTER TABLE locations ALTER COLUMN city DROP NOT NULL;
+       ]]>
+        </sql>
+    </changeSet>
+
+
+</databaseChangeLog>
