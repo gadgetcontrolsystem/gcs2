@@ -18,6 +18,13 @@
        ]]>
         </sql>
     </changeSet>
+    <changeSet author="kaydar" id="003-alter-table-locations3">
+        <sql><![CDATA[
+        ALTER TABLE locations ALTER COLUMN country DROP NOT NULL;
+        ALTER TABLE locations ALTER COLUMN city DROP NOT NULL;
+       ]]>
+        </sql>
+    </changeSet>
 
 
 </databaseChangeLog>
