@@ -279,6 +279,6 @@ public class Position extends Message implements Comparable<Position>{
     }
 
     public String displayStr() {
-        return getDeviceId() + " " + getDeviceTime();
+        return getAddress() + " " + getDeviceTime();
     }
 }

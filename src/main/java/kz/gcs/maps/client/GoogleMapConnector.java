@@ -271,9 +271,14 @@ public class GoogleMapConnector extends AbstractComponentConnector implements
 
     private void loadMapApi() {
         StringBuilder otherParams = new StringBuilder();
+
+        if (getState().apiKey != null) {
+            otherParams.append("key=").append(getState().apiKey);
+        }
         if (getState().language != null) {
             otherParams.append("&language=").append(getState().language);
         }
+
 
         ArrayList<LoadApi.LoadLibrary> loadLibraries = new ArrayList<LoadApi.LoadLibrary>();
         loadLibraries.add(LoadApi.LoadLibrary.DRAWING);
@@ -285,7 +290,9 @@ public class GoogleMapConnector extends AbstractComponentConnector implements
             }
         };
 
-        AjaxLoader.init(getState().apiKey);
+        AjaxLoader.init(getState().apiKey, "www.google.com");
+
+
         
         LoadApi.go(callback, loadLibraries, false, otherParams.toString());
     }

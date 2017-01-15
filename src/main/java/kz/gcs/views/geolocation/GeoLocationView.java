@@ -39,7 +39,7 @@ public class GeoLocationView extends VerticalLayout implements View {
     private static final DateFormat DATEFORMAT = new SimpleDateFormat(
             "MM/dd/yyyy hh:mm:ss a");
     private static final DecimalFormat DECIMALFORMAT = new DecimalFormat("#.##");
-    private static final String[] DEFAULT_COLLAPSIBLE = { "country", "city", "lat", "lon" };
+    private static final String[] DEFAULT_COLLAPSIBLE = { "address", "latitude", "longitude" };
 
     public GeoLocationView() {
         setSizeFull();
@@ -114,17 +114,17 @@ public class GeoLocationView extends VerticalLayout implements View {
                             return true;
                         }
 
-                        return filterByProperty("country", item,
+                        return filterByProperty("latitude", item,
                                 event.getText())
-                                || filterByProperty("city", item,
+                                || filterByProperty("longitude", item,
                                 event.getText());
 
                     }
 
                     @Override
                     public boolean appliesToProperty(final Object propertyId) {
-                        if (propertyId.equals("country")
-                                || propertyId.equals("city")
+                        if (propertyId.equals("latitude")
+                                || propertyId.equals("longitude")
                                 ) {
                             return true;
                         }
@@ -156,7 +156,7 @@ public class GeoLocationView extends VerticalLayout implements View {
                                                  final Object colId, final Property<?> property) {
                 String result = super.formatPropertyValue(rowId, colId,
                         property);
-                if (colId.equals("time")) {
+                if (colId.equals("deviceTime")) {
                     //result = DATEFORMAT.format(((Date) property.getValue()));
                     result = AllUtils.dateToStrDateTimeP((Date) property.getValue(), "");
                 }
@@ -171,6 +171,7 @@ public class GeoLocationView extends VerticalLayout implements View {
 
         table.setColumnCollapsingAllowed(true);
         table.setColumnCollapsible("deviceTime", false);
+        table.setColumnCollapsible("address", false);
         table.setColumnCollapsible("latitude", false);
         table.setColumnCollapsible("longitude", false);
 
@@ -181,9 +182,9 @@ public class GeoLocationView extends VerticalLayout implements View {
         table.setSortAscending(false);
 
 
-        table.setVisibleColumns("deviceTime", "latitude",
+        table.setVisibleColumns("deviceTime", "address", "latitude",
                 "longitude");
-        table.setColumnHeaders("Время", "Широта",
+        table.setColumnHeaders("Время", "Адрес", "Широта",
                 "Долгота");
 
 
