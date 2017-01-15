@@ -38,7 +38,7 @@ public class MapView extends VerticalLayout implements View {
 
     private GoogleMap googleMap;
 
-    private final String apiKey = "AIzaSyDmJQfLtxIo8u4dzu6FYsmHSFRSebEqp6k";
+    private final String apiKey = "AIzaSyCJccmv1mCCRdsG8ubD2wcMA7zKEoty5pc";
 
     public MapView() {
         setSizeFull();
