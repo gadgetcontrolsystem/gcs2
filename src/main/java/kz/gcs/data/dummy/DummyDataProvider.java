@@ -7,7 +7,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.vaadin.server.VaadinSession;
 import kz.gcs.data.DataProvider;
-import kz.gcs.data.service.LocationService;
+import kz.gcs.data.service.PositionService;
 import kz.gcs.data.service.UserService;
 import kz.gcs.domain.*;
 import org.apache.log4j.Logger;
@@ -30,7 +30,7 @@ public class DummyDataProvider implements DataProvider, Serializable {
 
 
     private static Date lastDataUpdate;
-    private static Map<Long, Location> locations = new HashMap<>();
+    private static Map<Long, Position> locations = new HashMap<>();
 
     private static Random rand = new Random();
 
@@ -38,15 +38,15 @@ public class DummyDataProvider implements DataProvider, Serializable {
             .randomNotifications();
 
 
-    private LocationService locationService;
+    private PositionService positionService;
     private UserService userService;
 
 
     /**
      * Initialize the data for this application.
      */
-    public DummyDataProvider(LocationService locationService, UserService userService) {
-        this.locationService = locationService;
+    public DummyDataProvider(PositionService positionService, UserService userService) {
+        this.positionService = positionService;
         this.userService = userService;
 
         Calendar cal = Calendar.getInstance();
@@ -61,9 +61,9 @@ public class DummyDataProvider implements DataProvider, Serializable {
         User user = (User) VaadinSession.getCurrent().getAttribute(
                 User.class.getName());
         if (user == null) return;
-        List<Location> newLocations = locationService.getLocations(user.getGadgetId());
+        List<Position> newLocations = positionService.getPositions(user.getDeviceId());
         logger.info("LOCATIONS SIZE FROM DB " + newLocations.size());
-        for (Location loc : newLocations) {
+        for (Position loc : newLocations) {
             logger.info(loc);
             if (!locations.containsKey(loc.getId())) {
                 locations.put(loc.getId(), loc);
@@ -122,41 +122,47 @@ public class DummyDataProvider implements DataProvider, Serializable {
 
     @Override
     public User authenticate(String userName, String password) {
-        return userService.getUser(userName, password);
+        User user = userService.getUserByLogin(userName);
+        if(user!=null && user.isPasswordValid(password)) {
+            return user;
+        }
+        return null;
+
+        //return userService.getUser(userName, password);
     }
 
     @Override
-    public Collection<Location> getRecentLocations(int count) {
+    public Collection<Position> getRecentLocations(int count) {
         refreshStaticData();
 
-        List<Location> orderedLocations = Lists.newArrayList(locations
+        List<Position> orderedLocations = Lists.newArrayList(locations
                 .values());
 
         if (orderedLocations.size() == 0) {
-            orderedLocations.add(new Location());
+            orderedLocations.add(new Position());
         }
 
 
-        for (Location location : orderedLocations) {
+        for (Position location : orderedLocations) {
             location.setRead(true);
         }
-        Collections.sort(orderedLocations, new Comparator<Location>() {
+        Collections.sort(orderedLocations, new Comparator<Position>() {
             @Override
-            public int compare(Location o1, Location o2) {
-                return o2.getTime().compareTo(o1.getTime());
+            public int compare(Position o1, Position o2) {
+                return o2.getDeviceTime().compareTo(o1.getDeviceTime());
             }
         });
         return orderedLocations;
     }
 
     @Override
-    public Location getLastLocation() {
+    public Position getLastLocation() {
 
         User user = (User) VaadinSession.getCurrent().getAttribute(
                 User.class.getName());
         if (user == null) return null;
 
-        return locationService.getLastLocation(user.getGadgetId());
+        return positionService.getLastPosition(user.getDeviceId());
     }
 
 
@@ -173,9 +179,9 @@ public class DummyDataProvider implements DataProvider, Serializable {
     @Override
     public int getUnreadLocationCount() {
         refreshStaticData();
-        Predicate<Location> unreadPredicate = new Predicate<Location>() {
+        Predicate<Position> unreadPredicate = new Predicate<Position>() {
             @Override
-            public boolean apply(Location input) {
+            public boolean apply(Position input) {
                 return !input.isRead();
             }
         };
@@ -184,14 +190,14 @@ public class DummyDataProvider implements DataProvider, Serializable {
 
 
     @Override
-    public Collection<Location> getLocationsBetween(final Date startDate,
+    public Collection<Position> getLocationsBetween(final Date startDate,
                                                     final Date endDate) {
         return Collections2.filter(locations.values(),
-                new Predicate<Location>() {
+                new Predicate<Position>() {
                     @Override
-                    public boolean apply(Location input) {
-                        return !input.getTime().before(startDate)
-                                && !input.getTime().after(endDate);
+                    public boolean apply(Position input) {
+                        return !input.getDeviceTime().before(startDate)
+                                && !input.getDeviceTime().after(endDate);
                     }
                 });
     }

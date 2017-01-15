@@ -11,7 +11,7 @@ import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 import kz.gcs.data.DataProvider;
 import kz.gcs.data.dummy.DummyDataProvider;
-import kz.gcs.data.service.LocationService;
+import kz.gcs.data.service.PositionService;
 import kz.gcs.data.service.UserService;
 import kz.gcs.domain.User;
 import kz.gcs.event.DashboardEvent;
@@ -54,7 +54,7 @@ public class MyUI extends UI {
 
 
     @Autowired
-    LocationService locationService;
+    PositionService positionService;
 
 
     @Autowired
@@ -62,7 +62,7 @@ public class MyUI extends UI {
 
     @Override
     protected void init(final VaadinRequest request) {
-        dataProvider = new DummyDataProvider(locationService, userService);
+        dataProvider = new DummyDataProvider(positionService, userService);
 
         getPage().getJavaScript().execute("document.head.innerHTML += '<meta name=\"viewport\" content=\"initial-scale = 1.0,maximum-scale = 1.0\">'");
 
@@ -103,7 +103,7 @@ public class MyUI extends UI {
     private void updateContent(boolean showError) {
         User user = (User) VaadinSession.getCurrent().getAttribute(
                 User.class.getName());
-        if (user != null && "admin".equals(user.getRole())) {
+        if (user != null && user.getAdmin()) {
             // Authenticated user
             setContent(new MainView());
 

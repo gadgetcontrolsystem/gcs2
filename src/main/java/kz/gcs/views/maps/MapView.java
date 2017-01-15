@@ -5,12 +5,11 @@ import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.shared.ui.datefield.Resolution;
-import com.vaadin.shared.ui.window.WindowMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import kz.gcs.MyUI;
-import kz.gcs.domain.Location;
+import kz.gcs.domain.Position;
 import kz.gcs.event.DashboardEvent;
 import kz.gcs.event.DashboardEvent.TransactionReportEvent;
 import kz.gcs.event.DashboardEventBus;
@@ -56,8 +55,12 @@ public class MapView extends VerticalLayout implements View {
         tabs.addTab(mapContent, "Карты Google");
         tabs.addTab(new Label("Страница находится в разработке"), "Карты Yandex");
 
-        Location location = MyUI.getDataProvider().getLastLocation();
-        googleMap = new GoogleMap(new LatLon(location.getLat(), location.getLon()), 15, this.apiKey);
+        Position position = MyUI.getDataProvider().getLastLocation();
+        if(position!=null){
+            googleMap = new GoogleMap(new LatLon(position.getLatitude(), position.getLongitude()), 15, this.apiKey);
+        } else {
+            googleMap = new GoogleMap(new LatLon(51.1279879, 71.4317533), 15, this.apiKey);
+        }
         googleMap.setDraggable(true);
 
         googleMap.setZoom(15);
@@ -84,37 +87,37 @@ public class MapView extends VerticalLayout implements View {
     @Subscribe
     public void createTransactionReport(final TransactionReportEvent event) {
         googleMap.clearAll();
-        List<Location> locations = new ArrayList<>(event.getLocations());
-        if (locations.size() == 0)
+        List<Position> positions = new ArrayList<>(event.getLocations());
+        if (positions.size() == 0)
             return;
-        Collections.sort(locations);
-        placeMarkersOnMap(locations);
+        Collections.sort(positions);
+        placeMarkersOnMap(positions);
         googleMap.setZoom(15);
         DashboardEventBus.post(new DashboardEvent.ReportsCountUpdatedEvent(
                 getComponentCount() - 1));
     }
 
-    private void placeMarkersOnMap(List<Location> locations) {
+    private void placeMarkersOnMap(List<Position> locations) {
         List<LatLon> latLons = new ArrayList<>();
         String url = "http://mt.google.com/vt/icon/name=icons/spotlight/measle_green_8px.png&scale=2";
         int counter = 1;
         LatLon maxLatLon = new LatLon(0, 0);
         LatLon minLatLon = new LatLon(90, 90);
-        for (Location temp : locations) {
-            LatLon latLon = new LatLon(temp.getLat(), temp.getLon());
+        for (Position temp : locations) {
+            LatLon latLon = new LatLon(temp.getLatitude(), temp.getLongitude());
             latLons.add(latLon);
 
-            if (maxLatLon.getLat() < temp.getLat()) {
-                maxLatLon.setLat(temp.getLat());
+            if (maxLatLon.getLat() < temp.getLatitude()) {
+                maxLatLon.setLat(temp.getLatitude());
             }
-            if (maxLatLon.getLon() < temp.getLon()) {
-                maxLatLon.setLon(temp.getLon());
+            if (maxLatLon.getLon() < temp.getLongitude()) {
+                maxLatLon.setLon(temp.getLongitude());
             }
-            if (minLatLon.getLat() > temp.getLat()) {
-                minLatLon.setLat(temp.getLat());
+            if (minLatLon.getLat() > temp.getLatitude()) {
+                minLatLon.setLat(temp.getLatitude());
             }
-            if (minLatLon.getLon() > temp.getLon()) {
-                minLatLon.setLon(temp.getLon());
+            if (minLatLon.getLon() > temp.getLongitude()) {
+                minLatLon.setLon(temp.getLongitude());
             }
 
             if (counter == 1) {
@@ -123,9 +126,9 @@ public class MapView extends VerticalLayout implements View {
                 url = "http://mt.google.com/vt/icon?color=ff004C13&name=icons/spotlight/spotlight-waypoint-b.png";
             }
 
-            GoogleMapMarker marker = new GoogleMapMarker(temp.displayStr(), new LatLon(temp.getLat(), temp.getLon()), false, url);
+            GoogleMapMarker marker = new GoogleMapMarker(temp.displayStr(), new LatLon(temp.getLatitude(), temp.getLongitude()), false, url);
             googleMap.addMarker(marker);
-            GoogleMapInfoWindow window = new GoogleMapInfoWindow(AllUtils.dateToStrDateTimeP(temp.getTime(), "Время не доступно") + ", " + temp.getCity() + ", " + temp.getCountry() + " Lat: " + temp.getLat() + " Lon: " + temp.getLon(), marker);
+            GoogleMapInfoWindow window = new GoogleMapInfoWindow(AllUtils.dateToStrDateTimeP(temp.getDeviceTime(), "Время не доступно") + " Lat: " + temp.getLatitude() + " Lon: " + temp.getLongitude(), marker);
             OpenInfoWindowOnMarkerClickListener windowOpener = new OpenInfoWindowOnMarkerClickListener(googleMap, marker, window);
             googleMap.addMarkerClickListener(windowOpener);
 
@@ -135,23 +138,23 @@ public class MapView extends VerticalLayout implements View {
 
         GoogleMapPolyline mapPolyline = new GoogleMapPolyline(latLons, "#2e96db", 0.8, 2);
         googleMap.addPolyline(mapPolyline);
-        Location latest = locations.get(locations.size() - 1);
-        googleMap.setCenter(new LatLon(latest.getLat(), latest.getLon()));
+        Position latest = locations.get(locations.size() - 1);
+        googleMap.setCenter(new LatLon(latest.getLatitude(), latest.getLongitude()));
     }
 
     private void getLastLocation() {
 
 
-        Location lastLocation = MyUI.getDataProvider().getLastLocation();
+        Position lastLocation = MyUI.getDataProvider().getLastLocation();
         if (lastLocation != null) {
             googleMap.clearAll();
-            LatLon position = new LatLon(lastLocation.getLat(), lastLocation.getLon());
+            LatLon position = new LatLon(lastLocation.getLatitude(), lastLocation.getLongitude());
             GoogleMapMarker marker = new GoogleMapMarker(lastLocation.displayStr(), position, false, "http://mt.google.com/vt/icon?color=ff004C13&name=icons/spotlight/spotlight-waypoint-b.png");
             googleMap.addMarker(marker);
             googleMap.setCenter(position);
             GoogleMapCircle mapCircle = new GoogleMapCircle(position, lastLocation.getAccuracy());
             googleMap.addCircleOverlay(mapCircle);
-            GoogleMapInfoWindow window = new GoogleMapInfoWindow(AllUtils.dateToStrDateTimeP(lastLocation.getTime(), "Время не доступно") + ", " + lastLocation.getCity() + ", " + lastLocation.getCountry()+" Lat: "+lastLocation.getLat()+" Lon: "+lastLocation.getLon(), marker);
+            GoogleMapInfoWindow window = new GoogleMapInfoWindow(AllUtils.dateToStrDateTimeP(lastLocation.getDeviceTime(), "Время не доступно") + " Lat: "+lastLocation.getLatitude()+" Lon: "+lastLocation.getLongitude(), marker);
             OpenInfoWindowOnMarkerClickListener windowOpener = new OpenInfoWindowOnMarkerClickListener(googleMap, marker, window);
             googleMap.addMarkerClickListener(windowOpener);
         }
@@ -184,7 +187,7 @@ public class MapView extends VerticalLayout implements View {
                 googleMap.clearAll();
                 Date beforeDate = beforeDateField.getValue();
                 Date afterDate = afterDateField.getValue();
-                List<Location> locations = new ArrayList(MyUI.getDataProvider().getLocationsBetween(beforeDate, afterDate));
+                List<Position> locations = new ArrayList(MyUI.getDataProvider().getLocationsBetween(beforeDate, afterDate));
                 if (locations.size() == 0) {
                     Notification.show("По этому отрезку времени местоположений не найдено");
                 } else {

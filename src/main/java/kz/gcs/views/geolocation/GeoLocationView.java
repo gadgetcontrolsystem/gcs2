@@ -16,7 +16,7 @@ import com.vaadin.server.Responsive;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 import kz.gcs.MyUI;
-import kz.gcs.domain.Location;
+import kz.gcs.domain.Position;
 import kz.gcs.event.DashboardEvent;
 import kz.gcs.event.DashboardEventBus;
 import kz.gcs.util.AllUtils;
@@ -170,21 +170,20 @@ public class GeoLocationView extends VerticalLayout implements View {
         table.setSelectable(true);
 
         table.setColumnCollapsingAllowed(true);
-        table.setColumnCollapsible("time", false);
-        table.setColumnCollapsible("city", false);
-        table.setColumnCollapsible("lat", false);
-        table.setColumnCollapsible("lon", false);
+        table.setColumnCollapsible("deviceTime", false);
+        table.setColumnCollapsible("latitude", false);
+        table.setColumnCollapsible("longitude", false);
 
         table.setColumnReorderingAllowed(true);
         table.setContainerDataSource(new TempLocationsContainer(MyUI
                 .getDataProvider().getRecentLocations(200)));
-        table.setSortContainerPropertyId("time");
+        table.setSortContainerPropertyId("deviceTime");
         table.setSortAscending(false);
 
 
-        table.setVisibleColumns("time", "country", "city", "lat",
-                "lon");
-        table.setColumnHeaders("Время", "Страна", "Город", "Широта",
+        table.setVisibleColumns("deviceTime", "latitude",
+                "longitude");
+        table.setColumnHeaders("Время", "Широта",
                 "Долгота");
 
 
@@ -250,7 +249,7 @@ public class GeoLocationView extends VerticalLayout implements View {
         UI.getCurrent().getNavigator()
                 .navigateTo(MenuViewType.MAP.getViewName());
         DashboardEventBus.post(new DashboardEvent.TransactionReportEvent(
-                (Collection<Location>) table.getValue()));
+                (Collection<Position>) table.getValue()));
     }
 
     @Override
@@ -280,10 +279,10 @@ public class GeoLocationView extends VerticalLayout implements View {
     }
 
     private class TempLocationsContainer extends
-            FilterableListContainer<Location> {
+            FilterableListContainer<Position> {
 
         public TempLocationsContainer(
-                final Collection<Location> collection) {
+                final Collection<Position> collection) {
             super(collection);
         }
 
@@ -293,20 +292,16 @@ public class GeoLocationView extends VerticalLayout implements View {
         public void sort(final Object[] propertyId, final boolean[] ascending) {
             final boolean sortAscending = ascending[0];
             final Object sortContainerPropertyId = propertyId[0];
-            Collections.sort(getBackingList(), new Comparator<Location>() {
+            Collections.sort(getBackingList(), new Comparator<Position>() {
                 @Override
-                public int compare(final Location o1, final Location o2) {
+                public int compare(final Position o1, final Position o2) {
                     int result = 0;
-                    if ("time".equals(sortContainerPropertyId)) {
-                        result = o1.getTime().compareTo(o2.getTime());
-                    } else if ("country".equals(sortContainerPropertyId)) {
-                        result = o1.getCountry().compareTo(o2.getCountry());
-                    } else if ("city".equals(sortContainerPropertyId)) {
-                        result = o1.getCity().compareTo(o2.getCity());
-                    } else if ("lat".equals(sortContainerPropertyId)) {
-                        result = o1.getLat().compareTo(o2.getLat());
-                    } else if ("lon".equals(sortContainerPropertyId)) {
-                        result = o1.getLon().compareTo(o2.getLon());
+                    if ("deviceTime".equals(sortContainerPropertyId)) {
+                        result = o1.getDeviceTime().compareTo(o2.getDeviceTime());
+                    } else if ("latitude".equals(sortContainerPropertyId)) {
+                        result = o1.getLatitude().compareTo(o2.getLatitude());
+                    } else if ("longitude".equals(sortContainerPropertyId)) {
+                        result = o1.getLongitude().compareTo(o2.getLongitude());
                     }
 
                     if (!sortAscending) {

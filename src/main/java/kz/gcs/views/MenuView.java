@@ -210,7 +210,7 @@ public final class MenuView extends CustomComponent {
     @Subscribe
     public void updateUserName(final ProfileUpdatedEvent event) {
         User user = getCurrentUser();
-        settingsItem.setText(user.getName() + " " + user.getSurname());
+        settingsItem.setText(user.getName());
     }
 
     public final class ValoMenuItemButton extends Button {

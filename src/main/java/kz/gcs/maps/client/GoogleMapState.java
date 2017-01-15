@@ -26,7 +26,7 @@ public class GoogleMapState extends AbstractComponentState {
     public String language = null;
     public String mapTypeId = "Roadmap";
     public List<String> mapTypeIds = Arrays.asList("Roadmap", "Terrain", "Satellite");
-    public LatLon center = new LatLon(51.477811, -0.001475);
+    public LatLon center = new LatLon(51.1279879, 71.4317533);
     public LatLon boundNE = null;
     public LatLon boundSW = null;
     public int zoom = 8;

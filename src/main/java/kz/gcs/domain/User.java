@@ -1,35 +1,27 @@
+/*
+ * Copyright 2013 - 2016 Anton Tananaev (anton@traccar.org)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package kz.gcs.domain;
 
-import java.io.Serializable;
+import kz.gcs.helper.Hashing;
 
-public final class User implements Serializable {
-    private static final long serialVersionUID = -5193998028932591313L;
-    private String role;
+import java.util.Date;
+
+public class User extends Extensible {
+
     private String name;
-    private String surname;
-    private String title;
-    private boolean male;
-    private String email;
-    private String phone;
-    private String address;
-    private Long gadgetId;
-
-
-    public Long getGadgetId() {
-        return gadgetId;
-    }
-
-    public void setGadgetId(Long gadgetId) {
-        this.gadgetId = gadgetId;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
 
     public String getName() {
         return name;
@@ -39,29 +31,7 @@ public final class User implements Serializable {
         this.name = name;
     }
 
-    public String getSurname() {
-        return surname;
-    }
-
-    public void setSurname(String surname) {
-        this.surname = surname;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public boolean isMale() {
-        return male;
-    }
-
-    public void setMale(boolean male) {
-        this.male = male;
-    }
+    private String email;
 
     public String getEmail() {
         return email;
@@ -71,19 +41,205 @@ public final class User implements Serializable {
         this.email = email;
     }
 
-    public String getPhone() {
-        return phone;
+    private boolean readonly;
+
+    public boolean getReadonly() {
+        return readonly;
     }
 
-    public void setPhone(String phone) {
-        this.phone = phone;
+    public void setReadonly(boolean readonly) {
+        this.readonly = readonly;
     }
 
-    public String getAddress() {
-        return address;
+    private boolean admin;
+
+    public boolean getAdmin() {
+        return admin;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public void setAdmin(boolean admin) {
+        this.admin = admin;
     }
+
+    private String map;
+
+    public String getMap() {
+        return map;
+    }
+
+    public void setMap(String map) {
+        this.map = map;
+    }
+
+    private String distanceUnit;
+
+    public String getDistanceUnit() {
+        return distanceUnit;
+    }
+
+    public void setDistanceUnit(String distanceUnit) {
+        this.distanceUnit = distanceUnit;
+    }
+
+    private String speedUnit;
+
+    public String getSpeedUnit() {
+        return speedUnit;
+    }
+
+    public void setSpeedUnit(String speedUnit) {
+        this.speedUnit = speedUnit;
+    }
+
+    private double latitude;
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    private double longitude;
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
+    private int zoom;
+
+    public int getZoom() {
+        return zoom;
+    }
+
+    public void setZoom(int zoom) {
+        this.zoom = zoom;
+    }
+
+    private boolean twelveHourFormat;
+
+    public boolean getTwelveHourFormat() {
+        return twelveHourFormat;
+    }
+
+    public void setTwelveHourFormat(boolean twelveHourFormat) {
+        this.twelveHourFormat = twelveHourFormat;
+    }
+
+    private String coordinateFormat;
+
+    public String getCoordinateFormat() {
+        return coordinateFormat;
+    }
+
+    public void setCoordinateFormat(String coordinateFormat) {
+        this.coordinateFormat = coordinateFormat;
+    }
+
+    private boolean disabled;
+
+    public boolean getDisabled() {
+        return disabled;
+    }
+
+    public void setDisabled(boolean disabled) {
+        this.disabled = disabled;
+    }
+
+    private Date expirationTime;
+
+    public Date getExpirationTime() {
+        if (expirationTime != null) {
+            return new Date(expirationTime.getTime());
+        } else {
+            return null;
+        }
+    }
+
+    public void setExpirationTime(Date expirationTime) {
+        if (expirationTime != null) {
+            this.expirationTime = new Date(expirationTime.getTime());
+        } else {
+            this.expirationTime = null;
+        }
+    }
+
+    private int deviceLimit;
+
+    public int getDeviceLimit() {
+        return deviceLimit;
+    }
+
+    public void setDeviceLimit(int deviceLimit) {
+        this.deviceLimit = deviceLimit;
+    }
+
+    private String token;
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        if (token != null && !token.isEmpty()) {
+            if (!token.matches("^[a-zA-Z0-9]{16,}$")) {
+                throw new IllegalArgumentException("Illegal token");
+            }
+            this.token = token;
+        } else {
+            this.token = null;
+        }
+    }
+
+    public String getPassword() {
+        return null;
+    }
+
+    public void setPassword(String password) {
+        if (password != null && !password.isEmpty()) {
+            Hashing.HashingResult hashingResult = Hashing.createHash(password);
+            hashedPassword = hashingResult.getHash();
+            salt = hashingResult.getSalt();
+        }
+    }
+
+    private String hashedPassword;
+
+    public String getHashedPassword() {
+        return hashedPassword;
+    }
+
+    public void setHashedPassword(String hashedPassword) {
+        this.hashedPassword = hashedPassword;
+    }
+
+    private String salt;
+
+    public String getSalt() {
+        return salt;
+    }
+
+    public void setSalt(String salt) {
+        this.salt = salt;
+    }
+
+    private int deviceId;
+
+    public int getDeviceId() {
+        return deviceId;
+    }
+
+    public void setDeviceId(int deviceId) {
+        this.deviceId = deviceId;
+    }
+
+    public boolean isPasswordValid(String password) {
+        return Hashing.validatePassword(password, hashedPassword, salt);
+    }
+
 }

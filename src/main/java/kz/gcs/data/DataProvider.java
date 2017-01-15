@@ -1,6 +1,5 @@
 package kz.gcs.data;
 
-import kz.gcs.data.service.LocationService;
 import kz.gcs.domain.*;
 
 import java.util.Collection;
@@ -14,10 +13,10 @@ public interface DataProvider {
      * @param count Number of transactions to fetch.
      * @return A Collection of most recent transactions.
      */
-    Collection<Location> getRecentLocations(int count);
+    Collection<Position> getRecentLocations(int count);
 
 
-    Location getLastLocation();
+    Position getLastLocation();
 
 
     /**
@@ -39,6 +38,6 @@ public interface DataProvider {
      * @return A Collection of Transactions between the given start and end
      * dates.
      */
-    Collection<Location> getLocationsBetween(Date startDate, Date endDate);
+    Collection<Position> getLocationsBetween(Date startDate, Date endDate);
 
 }
