@@ -9,6 +9,7 @@ import com.vaadin.ui.*;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import kz.gcs.MyUI;
+import kz.gcs.domain.Command;
 import kz.gcs.domain.Position;
 import kz.gcs.event.DashboardEvent;
 import kz.gcs.event.DashboardEvent.TransactionReportEvent;
@@ -19,13 +20,11 @@ import kz.gcs.maps.client.overlays.GoogleMapCircle;
 import kz.gcs.maps.client.overlays.GoogleMapInfoWindow;
 import kz.gcs.maps.client.overlays.GoogleMapMarker;
 import kz.gcs.maps.client.overlays.GoogleMapPolyline;
+import kz.gcs.rest.CommandRestService;
 import kz.gcs.util.AllUtils;
 import kz.gcs.views.maps.events.OpenInfoWindowOnMarkerClickListener;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 
 public class MapView extends VerticalLayout implements View {
@@ -168,6 +167,7 @@ public class MapView extends VerticalLayout implements View {
             @Override
             public void buttonClick(ClickEvent clickEvent) {
                 googleMap.clearAll();
+                CommandRestService.sendCommand(Command.TYPE_POSITION_SINGLE.getCommandString());
                 getLastLocation();
             }
         });
@@ -215,6 +215,19 @@ public class MapView extends VerticalLayout implements View {
         windowButton.setIcon(FontAwesome.CALENDAR, "Ввод даты");
 
         buttonLayoutRow.addComponent(windowButton);
+
+        final ComboBox commandBox = new ComboBox(null, Arrays.asList(Command.values()));
+
+        buttonLayoutRow.addComponent(commandBox);
+
+        Button submitCommand = new Button("Отправить", new ClickListener() {
+            @Override
+            public void buttonClick(ClickEvent clickEvent) {
+                CommandRestService.sendCommand(commandBox.getInputPrompt());
+            }
+        });
+
+        buttonLayoutRow.addComponent(submitCommand);
 
     }
 

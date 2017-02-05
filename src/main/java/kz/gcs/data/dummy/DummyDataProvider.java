@@ -10,6 +10,7 @@ import kz.gcs.data.DataProvider;
 import kz.gcs.data.service.PositionService;
 import kz.gcs.data.service.UserService;
 import kz.gcs.domain.*;
+import kz.gcs.rest.CommandRestService;
 import org.apache.log4j.Logger;
 
 import java.io.*;
@@ -123,6 +124,7 @@ public class DummyDataProvider implements DataProvider, Serializable {
     @Override
     public User authenticate(String userName, String password) {
         User user = userService.getUserByLogin(userName);
+        System.out.println("Logged in: "+CommandRestService.login(userName, password));
         if(user!=null && user.isPasswordValid(password)) {
             return user;
         }
