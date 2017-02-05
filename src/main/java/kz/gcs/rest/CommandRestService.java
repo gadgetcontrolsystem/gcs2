@@ -25,6 +25,7 @@ import java.util.List;
 public class CommandRestService {
 
     private static HttpContext httpContext;
+    private static String BASE_URL = "http://104.199.242.112:8082/";
 
     public static boolean login(String userName, String password) {
         try {
@@ -33,7 +34,7 @@ public class CommandRestService {
             httpContext.setAttribute(HttpClientContext.COOKIE_STORE, cookieStore);
 
             CloseableHttpClient httpClient = HttpClients.createDefault();
-            HttpPost postRequest = new HttpPost("http://localhost:8082/api/session?_dc=1486290580119");
+            HttpPost postRequest = new HttpPost(BASE_URL+"api/session");
 
             // Request parameters and other properties.
             List<NameValuePair> params = new ArrayList<>(3);
@@ -69,7 +70,7 @@ public class CommandRestService {
         try {
 
             CloseableHttpClient httpClient = HttpClients.createDefault();
-            HttpPost postRequest = new HttpPost("http://localhost:8082/api/commands");
+            HttpPost postRequest = new HttpPost(BASE_URL+"api/commands");
 
             User user = VaadinSession.getCurrent().getAttribute(User.class);
 
