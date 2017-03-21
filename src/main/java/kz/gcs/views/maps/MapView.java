@@ -240,7 +240,7 @@ public class MapView extends VerticalLayout implements View {
         Button submitCommand = new Button("Отправить", new ClickListener() {
             @Override
             public void buttonClick(ClickEvent clickEvent) {
-                CommandRestService.sendCommand(commandBox.getInputPrompt());
+                CommandRestService.sendCommand(((Command) (commandBox.getValue())).getCommandString(), new HashMap<String, Object>());
             }
         });
 
