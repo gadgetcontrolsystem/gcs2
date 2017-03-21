@@ -30,6 +30,7 @@ public class Extensible {
         this.id = id;
     }
 
+
     private Map<String, Object> attributes = new LinkedHashMap<>();
 
     public Map<String, Object> getAttributes() {

@@ -27,7 +27,7 @@ import java.util.Map;
 public class CommandRestService {
 
     private static HttpContext httpContext;
-    private static String BASE_URL = "http://104.199.242.112:8082/";
+    private static String BASE_URL = "http://localhost:8082/";
 
     public static boolean login(String userName, String password) {
         try {
@@ -52,7 +52,7 @@ public class CommandRestService {
             if (entity != null) {
                 InputStream instream = entity.getContent();
                 try {
-                    System.out.println(IOUtils.toString(instream));
+                    //System.out.println(IOUtils.toString(instream));
                 } finally {
                     instream.close();
                 }
@@ -70,6 +70,7 @@ public class CommandRestService {
 
     public static boolean sendCommand(String type, Map<String, Object> attrs) {
         try {
+
             CloseableHttpClient httpClient = HttpClients.createDefault();
             HttpPost postRequest = new HttpPost(BASE_URL + "api/commands");
 
