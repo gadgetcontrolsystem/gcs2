@@ -1,8 +1,10 @@
 package kz.gcs.views.maps;
 
 import com.google.common.eventbus.Subscribe;
+import com.google.gwt.util.tools.shared.StringUtils;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.sass.internal.util.StringUtil;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.shared.ui.datefield.Resolution;
 import com.vaadin.ui.*;
@@ -24,6 +26,8 @@ import kz.gcs.rest.CommandRestService;
 import kz.gcs.util.AllUtils;
 import kz.gcs.views.maps.events.OpenInfoWindowOnMarkerClickListener;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.*;
 
 
@@ -55,7 +59,7 @@ public class MapView extends VerticalLayout implements View {
         tabs.addTab(new Label("Страница находится в разработке"), "Карты Yandex");
 
         Position position = MyUI.getDataProvider().getLastLocation();
-        if(position!=null){
+        if (position != null) {
             googleMap = new GoogleMap(new LatLon(position.getLatitude(), position.getLongitude()), 15, this.apiKey);
         } else {
             googleMap = new GoogleMap(new LatLon(51.1279879, 71.4317533), 15, this.apiKey);
@@ -125,8 +129,11 @@ public class MapView extends VerticalLayout implements View {
                 url = "http://mt.google.com/vt/icon?color=ff004C13&name=icons/spotlight/spotlight-waypoint-b.png";
             }
 
-            GoogleMapMarker marker = new GoogleMapMarker(temp.displayStr(), new LatLon(temp.getLatitude(), temp.getLongitude()), false, url);
+            GoogleMapMarker marker = new GoogleMapMarker(temp.displayStr(), latLon, false, url);
             googleMap.addMarker(marker);
+
+            GoogleMapCircle mapCircle = new GoogleMapCircle(latLon, temp.getAccuracy());
+            googleMap.addCircleOverlay(mapCircle);
             GoogleMapInfoWindow window = new GoogleMapInfoWindow(AllUtils.dateToStrDateTimeP(temp.getDeviceTime(), "Время не доступно") + " Lat: " + temp.getLatitude() + " Lon: " + temp.getLongitude(), marker);
             OpenInfoWindowOnMarkerClickListener windowOpener = new OpenInfoWindowOnMarkerClickListener(googleMap, marker, window);
             googleMap.addMarkerClickListener(windowOpener);
@@ -153,9 +160,18 @@ public class MapView extends VerticalLayout implements View {
             googleMap.setCenter(position);
             GoogleMapCircle mapCircle = new GoogleMapCircle(position, lastLocation.getAccuracy());
             googleMap.addCircleOverlay(mapCircle);
-            GoogleMapInfoWindow window = new GoogleMapInfoWindow(AllUtils.dateToStrDateTimeP(lastLocation.getDeviceTime(), "Время не доступно") + " Lat: "+lastLocation.getLatitude()+" Lon: "+lastLocation.getLongitude(), marker);
+            String date = "<b>Дата</b>: " + AllUtils.dateToStrDateTimeP(lastLocation.getDeviceTime(), "Время не доступно");
+            String coords = " <b>Широта</b>: " + lastLocation.getLatitude() + " <b>Долгота</b>: " + lastLocation.getLongitude();
+            String accuracy = " <b>Точность</b>: " + lastLocation.getAccuracy() + " м.";
+            String address = " <b>Адрес</b>: " + (lastLocation.getAddress() == null ? "" : lastLocation.getAddress());
+            String battery = " <img src=\"https://cdn1.iconfinder.com/data/icons/electronics-glyphs-2/128/88-512.png\" alt=\"Smiley face\" height=\"42\" width=\"42\"  align=\"middle\"> " + lastLocation.getString("battery") + "%";
+            NumberFormat formatter = new DecimalFormat("#0.00");
+            String speed = " <b>Скорость</b>: " + formatter.format(lastLocation.getSpeed());
+            String content = date + "</br>" + coords + "</br>" + accuracy + "</br>" + address + "</br>" + battery + "</br>" + speed + "</br>";
+            GoogleMapInfoWindow window = new GoogleMapInfoWindow(content, marker);
             OpenInfoWindowOnMarkerClickListener windowOpener = new OpenInfoWindowOnMarkerClickListener(googleMap, marker, window);
             googleMap.addMarkerClickListener(windowOpener);
+            googleMap.openInfoWindow(window);
         }
         googleMap.setZoom(15);
     }

@@ -15,9 +15,15 @@
  */
 package kz.gcs.domain;
 
-import java.util.Date;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import kz.gcs.util.AllUtils;
 
-public class Position extends Message implements Comparable<Position>{
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+public class Position extends Message implements Comparable<Position> {
 
     public static final String KEY_ORIGINAL = "raw";
     public static final String KEY_INDEX = "index";
@@ -121,6 +127,7 @@ public class Position extends Message implements Comparable<Position>{
             this.serverTime = null;
         }
     }
+
 
     private Date deviceTime;
 
@@ -273,12 +280,29 @@ public class Position extends Message implements Comparable<Position>{
         this.read = read;
     }
 
+    private String allAttributes;
+
+    public String getAllAttributes() {
+        return allAttributes;
+    }
+
+    public void setAllAttributes(String allAttributes) {
+        this.allAttributes = allAttributes;
+    }
+
     @Override
     public int compareTo(Position position) {
         return this.getDeviceTime().compareTo(position.getDeviceTime());
     }
 
+    public void convertJsonAttrs() {
+        Gson gson = new Gson();
+        Map<String, Object> attrs = gson.fromJson(getAllAttributes(), new TypeToken<Map<String, Object>>() {
+        }.getType());
+        setAttributes(attrs);
+    }
+
     public String displayStr() {
-        return getAddress() + " " + getDeviceTime();
+        return AllUtils.dateToStrDateTimeP(getDeviceTime(), "");
     }
 }
