@@ -160,15 +160,8 @@ public class MapView extends VerticalLayout implements View {
             googleMap.setCenter(position);
             GoogleMapCircle mapCircle = new GoogleMapCircle(position, lastLocation.getAccuracy());
             googleMap.addCircleOverlay(mapCircle);
-            String date = "<b>Дата</b>: " + AllUtils.dateToStrDateTimeP(lastLocation.getDeviceTime(), "Время не доступно");
-            String coords = " <b>Широта</b>: " + lastLocation.getLatitude() + " <b>Долгота</b>: " + lastLocation.getLongitude();
-            String accuracy = " <b>Точность</b>: " + lastLocation.getAccuracy() + " м.";
-            String address = " <b>Адрес</b>: " + (lastLocation.getAddress() == null ? "" : lastLocation.getAddress());
-            String battery = " <img src=\"https://cdn1.iconfinder.com/data/icons/electronics-glyphs-2/128/88-512.png\" alt=\"Smiley face\" height=\"42\" width=\"42\"  align=\"middle\"> " + lastLocation.getString("battery") + "%";
-            NumberFormat formatter = new DecimalFormat("#0.00");
-            String speed = " <b>Скорость</b>: " + formatter.format(lastLocation.getSpeed());
-            String content = date + "</br>" + coords + "</br>" + accuracy + "</br>" + address + "</br>" + battery + "</br>" + speed + "</br>";
-            GoogleMapInfoWindow window = new GoogleMapInfoWindow(content, marker);
+
+            GoogleMapInfoWindow window = new GoogleMapInfoWindow(lastLocation.getContent(), marker);
             OpenInfoWindowOnMarkerClickListener windowOpener = new OpenInfoWindowOnMarkerClickListener(googleMap, marker, window);
             googleMap.addMarkerClickListener(windowOpener);
             googleMap.openInfoWindow(window);
