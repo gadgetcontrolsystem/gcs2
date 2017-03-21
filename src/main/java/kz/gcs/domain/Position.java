@@ -19,6 +19,8 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import kz.gcs.util.AllUtils;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -300,6 +302,18 @@ public class Position extends Message implements Comparable<Position> {
         Map<String, Object> attrs = gson.fromJson(getAllAttributes(), new TypeToken<Map<String, Object>>() {
         }.getType());
         setAttributes(attrs);
+    }
+
+    public String getContent() {
+        String date = "<b>Дата</b>: " + AllUtils.dateToStrDateTimeP(getDeviceTime(), "Время не доступно");
+        String coords = " <b>Широта</b>: " + getLatitude() + " <b>Долгота</b>: " + getLongitude();
+        String accuracy = " <b>Точность</b>: " + getAccuracy() + " м.";
+        String address = " <b>Адрес</b>: " + (getAddress() == null ? "" : getAddress());
+        String battery = " <img src=\"https://cdn1.iconfinder.com/data/icons/electronics-glyphs-2/128/88-512.png\" alt=\"Smiley face\" height=\"42\" width=\"42\"  align=\"middle\"> " + getString("battery") + "%";
+        NumberFormat formatter = new DecimalFormat("#0.00");
+        String speed = " <b>Скорость</b>: " + formatter.format(getSpeed());
+        String content = date + "</br>" + coords + "</br>" + accuracy + "</br>" + address + "</br>" + battery + "</br>" + speed + "</br>";
+        return content;
     }
 
     public String displayStr() {
