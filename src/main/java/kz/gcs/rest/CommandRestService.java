@@ -17,10 +17,12 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
+import org.apache.tools.ant.UnsupportedAttributeException;
 
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class CommandRestService {
 
@@ -34,7 +36,7 @@ public class CommandRestService {
             httpContext.setAttribute(HttpClientContext.COOKIE_STORE, cookieStore);
 
             CloseableHttpClient httpClient = HttpClients.createDefault();
-            HttpPost postRequest = new HttpPost(BASE_URL+"api/session");
+            HttpPost postRequest = new HttpPost(BASE_URL + "api/session");
 
             // Request parameters and other properties.
             List<NameValuePair> params = new ArrayList<>(3);
@@ -50,7 +52,7 @@ public class CommandRestService {
             if (entity != null) {
                 InputStream instream = entity.getContent();
                 try {
-                    //System.out.println(IOUtils.toString(instream));
+                    System.out.println(IOUtils.toString(instream));
                 } finally {
                     instream.close();
                 }
@@ -66,15 +68,40 @@ public class CommandRestService {
         return true;
     }
 
-    public static boolean sendCommand(String type) {
+    public static boolean sendCommand(String type, Map<String, Object> attrs) {
         try {
-
             CloseableHttpClient httpClient = HttpClients.createDefault();
-            HttpPost postRequest = new HttpPost(BASE_URL+"api/commands");
+            HttpPost postRequest = new HttpPost(BASE_URL + "api/commands");
 
             User user = VaadinSession.getCurrent().getAttribute(User.class);
 
-            StringEntity params = new StringEntity("{\"deviceId\": "+user.getDeviceId()+",\"type\": \""+type+"\"}");
+
+            String paramString = "{\"deviceId\": " + user.getDeviceId() + ",\"type\": \"" + type + "\"";
+            if (attrs.size() != 0) {
+                paramString += ",\n\"attributes\": {";
+                int counter = 0;
+                for (String key : attrs.keySet()) {
+                    Object object = attrs.get(key);
+                    if (counter != 0) {
+                        paramString += ",";
+                    }
+                    if(object instanceof String) {
+                        paramString += "\"" + key + "\": \"" + object + "\"";
+                    }
+                    else if(object instanceof Long || object instanceof Boolean) {
+                        paramString += "\"" + key + "\": " + (object).toString();
+                    }
+                    else {
+                        throw new UnsupportedAttributeException("Такой вид параметров не поддерживается", object.toString());
+                    }
+                    counter++;
+                }
+                paramString += "}";
+            }
+            paramString += "}";
+            System.out.println("PARAMS: ");
+            System.out.println(paramString);
+            StringEntity params = new StringEntity(paramString);
             postRequest.setHeader("Content-Type", "application/json");
             postRequest.setEntity(params);
 
@@ -82,11 +109,13 @@ public class CommandRestService {
             HttpResponse response = httpClient.execute(postRequest, httpContext);
             HttpEntity entity = response.getEntity();
 
+            System.out.println("Sent command: " + type);
+
             if (entity != null) {
                 InputStream instream = entity.getContent();
                 try {
-                    /*System.out.println(entity.getContent());
-                    System.out.println(IOUtils.toString(instream));*/
+                    System.out.println(entity.getContent());
+                    System.out.println(IOUtils.toString(instream));
 
                 } finally {
                     instream.close();
@@ -104,7 +133,6 @@ public class CommandRestService {
 
         return true;
     }
-
 
 
 }

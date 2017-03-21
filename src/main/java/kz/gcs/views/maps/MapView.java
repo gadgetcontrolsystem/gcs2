@@ -55,7 +55,7 @@ public class MapView extends VerticalLayout implements View {
         tabs.addTab(new Label("Страница находится в разработке"), "Карты Yandex");
 
         Position position = MyUI.getDataProvider().getLastLocation();
-        if(position!=null){
+        if (position != null) {
             googleMap = new GoogleMap(new LatLon(position.getLatitude(), position.getLongitude()), 15, this.apiKey);
         } else {
             googleMap = new GoogleMap(new LatLon(51.1279879, 71.4317533), 15, this.apiKey);
@@ -153,7 +153,7 @@ public class MapView extends VerticalLayout implements View {
             googleMap.setCenter(position);
             GoogleMapCircle mapCircle = new GoogleMapCircle(position, lastLocation.getAccuracy());
             googleMap.addCircleOverlay(mapCircle);
-            GoogleMapInfoWindow window = new GoogleMapInfoWindow(AllUtils.dateToStrDateTimeP(lastLocation.getDeviceTime(), "Время не доступно") + " Lat: "+lastLocation.getLatitude()+" Lon: "+lastLocation.getLongitude(), marker);
+            GoogleMapInfoWindow window = new GoogleMapInfoWindow(AllUtils.dateToStrDateTimeP(lastLocation.getDeviceTime(), "Время не доступно") + " Lat: " + lastLocation.getLatitude() + " Lon: " + lastLocation.getLongitude(), marker);
             OpenInfoWindowOnMarkerClickListener windowOpener = new OpenInfoWindowOnMarkerClickListener(googleMap, marker, window);
             googleMap.addMarkerClickListener(windowOpener);
         }
@@ -167,7 +167,8 @@ public class MapView extends VerticalLayout implements View {
             @Override
             public void buttonClick(ClickEvent clickEvent) {
                 googleMap.clearAll();
-                CommandRestService.sendCommand(Command.TYPE_POSITION_SINGLE.getCommandString());
+                Map attrs = new HashMap<String, Object>();
+                CommandRestService.sendCommand(Command.TYPE_POSITION_SINGLE.getCommandString(), attrs);
                 getLastLocation();
             }
         });
@@ -223,7 +224,8 @@ public class MapView extends VerticalLayout implements View {
         Button submitCommand = new Button("Отправить", new ClickListener() {
             @Override
             public void buttonClick(ClickEvent clickEvent) {
-                CommandRestService.sendCommand(commandBox.getInputPrompt());
+
+                CommandRestService.sendCommand(((Command) (commandBox.getValue())).getCommandString(), new HashMap<String, Object>());
             }
         });
 
