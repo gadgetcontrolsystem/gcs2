@@ -1,10 +1,8 @@
 package kz.gcs.views.maps;
 
 import com.google.common.eventbus.Subscribe;
-import com.google.gwt.util.tools.shared.StringUtils;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
-import com.vaadin.sass.internal.util.StringUtil;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.shared.ui.datefield.Resolution;
 import com.vaadin.ui.*;
@@ -25,9 +23,8 @@ import kz.gcs.maps.client.overlays.GoogleMapPolyline;
 import kz.gcs.rest.CommandRestService;
 import kz.gcs.util.AllUtils;
 import kz.gcs.views.maps.events.OpenInfoWindowOnMarkerClickListener;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.*;
 
 
@@ -39,6 +36,9 @@ public class MapView extends VerticalLayout implements View {
     private Window datesWindow;
 
     private GoogleMap googleMap;
+
+    @Autowired
+    CommandRestService commandRestService;
 
     private final String apiKey = "AIzaSyCJccmv1mCCRdsG8ubD2wcMA7zKEoty5pc";
 
@@ -177,7 +177,7 @@ public class MapView extends VerticalLayout implements View {
             public void buttonClick(ClickEvent clickEvent) {
                 googleMap.clearAll();
                 Map attrs = new HashMap<String, Object>();
-                CommandRestService.sendCommand(Command.TYPE_POSITION_SINGLE.getCommandString(), attrs);
+                commandRestService.sendCommand(Command.TYPE_POSITION_SINGLE.getCommandString(), attrs);
                 getLastLocation();
             }
         });
@@ -233,7 +233,7 @@ public class MapView extends VerticalLayout implements View {
         Button submitCommand = new Button("Отправить", new ClickListener() {
             @Override
             public void buttonClick(ClickEvent clickEvent) {
-                CommandRestService.sendCommand(((Command) (commandBox.getValue())).getCommandString(), new HashMap<String, Object>());
+                commandRestService.sendCommand(((Command) (commandBox.getValue())).getCommandString(), new HashMap<String, Object>());
             }
         });
 

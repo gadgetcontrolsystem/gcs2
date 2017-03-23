@@ -18,18 +18,20 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.tools.ant.UnsupportedAttributeException;
+import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class CommandRestService {
+@Component
+public class CommandRestService{
 
     private static HttpContext httpContext;
     private static String BASE_URL = "http://localhost:8082/";
 
-    public static boolean login(String userName, String password) {
+    public boolean login(String userName, String password) {
         try {
             CookieStore cookieStore = new BasicCookieStore();
             httpContext = new BasicHttpContext();
@@ -68,7 +70,7 @@ public class CommandRestService {
         return true;
     }
 
-    public static boolean sendCommand(String type, Map<String, Object> attrs) {
+    public boolean sendCommand(String type, Map<String, Object> attrs) {
         try {
 
             CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -134,6 +136,8 @@ public class CommandRestService {
 
         return true;
     }
+
+
 
 
 }
