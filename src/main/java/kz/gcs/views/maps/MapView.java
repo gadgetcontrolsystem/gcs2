@@ -1,9 +1,11 @@
 package kz.gcs.views.maps;
 
 import com.google.common.eventbus.Subscribe;
+import com.vaadin.data.Property;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.FontAwesome;
+import com.vaadin.shared.ui.combobox.FilteringMode;
 import com.vaadin.shared.ui.datefield.Resolution;
 import com.vaadin.ui.*;
 import com.vaadin.ui.Button.ClickEvent;
@@ -20,10 +22,8 @@ import kz.gcs.maps.client.overlays.GoogleMapCircle;
 import kz.gcs.maps.client.overlays.GoogleMapInfoWindow;
 import kz.gcs.maps.client.overlays.GoogleMapMarker;
 import kz.gcs.maps.client.overlays.GoogleMapPolyline;
-import kz.gcs.rest.CommandRestService;
 import kz.gcs.util.AllUtils;
 import kz.gcs.views.maps.events.OpenInfoWindowOnMarkerClickListener;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
 
@@ -33,7 +33,9 @@ public class MapView extends VerticalLayout implements View {
     public static final String VIEW_NAME = "map";
     public static final String VIEW_TITLE = "карта";
     private static final long serialVersionUID = -379716808231511716L;
+
     private Window datesWindow;
+    private Window commandsWindow;
 
     private GoogleMap googleMap;
 
@@ -57,7 +59,7 @@ public class MapView extends VerticalLayout implements View {
         tabs.addTab(new Label("Страница находится в разработке"), "Карты Yandex");
 
         Position position = MyUI.getDataProvider().getLastLocation();
-        if(position!=null){
+        if (position != null) {
             googleMap = new GoogleMap(new LatLon(position.getLatitude(), position.getLongitude()), 15, this.apiKey);
         } else {
             googleMap = new GoogleMap(new LatLon(51.1279879, 71.4317533), 15, this.apiKey);
@@ -182,6 +184,32 @@ public class MapView extends VerticalLayout implements View {
         refreshButton.setIcon(FontAwesome.REFRESH, "Обновить карту");
         buttonLayoutRow.addComponent(refreshButton);
 
+
+        initCalendarWindow();
+        Button windowButton = new Button(null, new ClickListener() {
+            @Override
+            public void buttonClick(ClickEvent clickEvent) {
+                getUI().addWindow(datesWindow);
+            }
+        });
+        windowButton.setIcon(FontAwesome.CALENDAR, "Ввод даты");
+        buttonLayoutRow.addComponent(windowButton);
+
+
+        initCommandWindow();
+        Button sendCommandButton = new Button(null, new ClickListener() {
+            @Override
+            public void buttonClick(ClickEvent clickEvent) {
+                getUI().addWindow(commandsWindow);
+            }
+        });
+        sendCommandButton.setIcon(FontAwesome.UPLOAD, "Отправить команду");
+        buttonLayoutRow.addComponent(sendCommandButton);
+
+
+    }
+
+    private void initCalendarWindow() {
         final DateField beforeDateField = new DateField("С", new Date());
         beforeDateField.setResolution(Resolution.MINUTE);
         beforeDateField.setDateFormat("dd.MM.yyyy HH:mm:ss");
@@ -209,34 +237,76 @@ public class MapView extends VerticalLayout implements View {
         dates.setComponentAlignment(submitButton, Alignment.MIDDLE_CENTER);
         dates.setComponentAlignment(beforeDateField, Alignment.MIDDLE_CENTER);
         dates.setComponentAlignment(afterDateField, Alignment.MIDDLE_CENTER);
+        dates.setMargin(true);
         dates.setSpacing(true);
 
         datesWindow = new Window("Введите даты");
         datesWindow.setContent(dates);
+        datesWindow.setModal(true);
         datesWindow.center();
-        Button windowButton = new Button(null, new ClickListener() {
+    }
+
+    private void initCommandWindow() {
+
+
+        final TextField textField = new TextField("Данные");
+        textField.setVisible(false);
+        textField.setSizeFull();
+
+        final ComboBox commandBox = new ComboBox("Тип", Arrays.asList(Command.values()));
+        commandBox.setFilteringMode(FilteringMode.CONTAINS);
+        commandBox.setSizeFull();
+        commandBox.setRequired(true);
+
+        commandBox.addValueChangeListener(new Property.ValueChangeListener() {
             @Override
-            public void buttonClick(ClickEvent clickEvent) {
-                getUI().addWindow(datesWindow);
+            public void valueChange(Property.ValueChangeEvent event) {
+                if (commandBox.getValue() != null) {
+                    Command selected = (Command) commandBox.getValue();
+                    if (Command.TYPE_SET_INDICATOR.equals(selected)) {
+                        textField.setVisible(true);
+                    } else
+                        textField.setVisible(false);
+                }
             }
         });
-        windowButton.setIcon(FontAwesome.CALENDAR, "Ввод даты");
 
-        buttonLayoutRow.addComponent(windowButton);
 
-        final ComboBox commandBox = new ComboBox(null, Arrays.asList(Command.values()));
-
-        buttonLayoutRow.addComponent(commandBox);
-
-        Button submitCommand = new Button("Отправить", new ClickListener() {
+        Button submitButton = new Button("Отправить", new ClickListener() {
             @Override
             public void buttonClick(ClickEvent clickEvent) {
+                if (!commandBox.isValid()) {
+                    Notification.show("Выберите команду", Notification.Type.WARNING_MESSAGE);
+                    return;
+                }
                 MyUI.getDataProvider().sendCommand(((Command) (commandBox.getValue())).getCommandString(), new HashMap<String, Object>());
+                commandsWindow.close();
             }
         });
 
-        buttonLayoutRow.addComponent(submitCommand);
 
+        Button cancelButton = new Button("Отмена", new ClickListener() {
+            @Override
+            public void buttonClick(ClickEvent clickEvent) {
+                commandsWindow.close();
+            }
+        });
+
+        HorizontalLayout btnsHL = new HorizontalLayout(submitButton, cancelButton);
+        btnsHL.setMargin(true);
+        btnsHL.setSpacing(true);
+        VerticalLayout dates = new VerticalLayout(commandBox, textField, btnsHL);
+        dates.setComponentAlignment(btnsHL, Alignment.MIDDLE_CENTER);
+        dates.setComponentAlignment(commandBox, Alignment.MIDDLE_CENTER);
+        dates.setComponentAlignment(textField, Alignment.MIDDLE_CENTER);
+        dates.setMargin(true);
+        dates.setSpacing(true);
+
+        commandsWindow = new Window("Отправить команду");
+        commandsWindow.setContent(dates);
+        commandsWindow.setModal(true);
+        commandsWindow.setWidthUndefined();
+        commandsWindow.center();
     }
 
     @Override
