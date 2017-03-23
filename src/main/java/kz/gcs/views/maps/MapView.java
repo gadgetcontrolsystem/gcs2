@@ -57,7 +57,7 @@ public class MapView extends VerticalLayout implements View {
         tabs.addTab(new Label("Страница находится в разработке"), "Карты Yandex");
 
         Position position = MyUI.getDataProvider().getLastLocation();
-        if(position!=null){
+        if (position != null) {
             googleMap = new GoogleMap(new LatLon(position.getLatitude(), position.getLongitude()), 15, this.apiKey);
         } else {
             googleMap = new GoogleMap(new LatLon(51.1279879, 71.4317533), 15, this.apiKey);
@@ -209,6 +209,7 @@ public class MapView extends VerticalLayout implements View {
         dates.setComponentAlignment(submitButton, Alignment.MIDDLE_CENTER);
         dates.setComponentAlignment(beforeDateField, Alignment.MIDDLE_CENTER);
         dates.setComponentAlignment(afterDateField, Alignment.MIDDLE_CENTER);
+        dates.setMargin(true);
         dates.setSpacing(true);
 
         datesWindow = new Window("Введите даты");
