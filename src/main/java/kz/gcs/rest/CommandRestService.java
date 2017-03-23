@@ -95,7 +95,7 @@ public class CommandRestService{
                         paramString += "\"" + key + "\": " + (object).toString();
                     }
                     else {
-                        throw new UnsupportedAttributeException("Такой вид параметров не поддерживается", object.toString());
+                        throw new Exception("Такой вид параметров не поддерживается"+ object.toString());
                     }
                     counter++;
                 }
