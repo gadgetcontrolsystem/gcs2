@@ -12,6 +12,7 @@ import kz.gcs.data.service.UserService;
 import kz.gcs.domain.*;
 import kz.gcs.rest.CommandRestService;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.*;
 import java.net.URL;
@@ -42,13 +43,16 @@ public class DummyDataProvider implements DataProvider, Serializable {
     private PositionService positionService;
     private UserService userService;
 
+    private CommandRestService commandRestService;
+
 
     /**
      * Initialize the data for this application.
      */
-    public DummyDataProvider(PositionService positionService, UserService userService) {
+    public DummyDataProvider(PositionService positionService, UserService userService, CommandRestService commandRestService) {
         this.positionService = positionService;
         this.userService = userService;
+        this.commandRestService = commandRestService;
 
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DAY_OF_YEAR, -1);
@@ -124,7 +128,7 @@ public class DummyDataProvider implements DataProvider, Serializable {
     @Override
     public User authenticate(String userName, String password) {
         User user = userService.getUserByLogin(userName);
-        System.out.println("Logged in: "+CommandRestService.login(userName, password));
+        System.out.println("Logged in: "+commandRestService.login(userName, password));
         if(user!=null && user.isPasswordValid(password)) {
             return user;
         }
@@ -202,6 +206,11 @@ public class DummyDataProvider implements DataProvider, Serializable {
                                 && !input.getDeviceTime().after(endDate);
                     }
                 });
+    }
+
+    @Override
+    public boolean sendCommand(String type, Map<String, Object> attrs) {
+        return commandRestService.sendCommand(type, attrs);
     }
 
 }

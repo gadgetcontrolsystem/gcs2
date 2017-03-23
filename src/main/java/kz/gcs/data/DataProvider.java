@@ -4,6 +4,7 @@ import kz.gcs.domain.*;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * QuickTickets Dashboard backend API.
@@ -39,5 +40,7 @@ public interface DataProvider {
      * dates.
      */
     Collection<Position> getLocationsBetween(Date startDate, Date endDate);
+
+    boolean sendCommand(String type, Map<String, Object> attrs);
 
 }

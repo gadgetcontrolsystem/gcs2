@@ -20,6 +20,7 @@ import kz.gcs.event.DashboardEvent.CloseOpenWindowsEvent;
 import kz.gcs.event.DashboardEvent.UserLoggedOutEvent;
 import kz.gcs.event.DashboardEvent.UserLoginRequestedEvent;
 import kz.gcs.event.DashboardEventBus;
+import kz.gcs.rest.CommandRestService;
 import kz.gcs.views.LoginView;
 import kz.gcs.views.MainView;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,9 +61,12 @@ public class MyUI extends UI {
     @Autowired
     UserService userService;
 
+    @Autowired
+    CommandRestService commandRestService;
+
     @Override
     protected void init(final VaadinRequest request) {
-        dataProvider = new DummyDataProvider(positionService, userService);
+        dataProvider = new DummyDataProvider(positionService, userService, commandRestService);
 
         getPage().getJavaScript().execute("document.head.innerHTML += '<meta name=\"viewport\" content=\"initial-scale = 1.0,maximum-scale = 1.0\">'");
 

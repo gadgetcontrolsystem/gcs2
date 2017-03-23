@@ -37,8 +37,6 @@ public class MapView extends VerticalLayout implements View {
 
     private GoogleMap googleMap;
 
-    @Autowired
-    CommandRestService commandRestService;
 
     private final String apiKey = "AIzaSyCJccmv1mCCRdsG8ubD2wcMA7zKEoty5pc";
 
@@ -177,7 +175,7 @@ public class MapView extends VerticalLayout implements View {
             public void buttonClick(ClickEvent clickEvent) {
                 googleMap.clearAll();
                 Map attrs = new HashMap<String, Object>();
-                commandRestService.sendCommand(Command.TYPE_POSITION_SINGLE.getCommandString(), attrs);
+                MyUI.getDataProvider().sendCommand(Command.TYPE_POSITION_SINGLE.getCommandString(), attrs);
                 getLastLocation();
             }
         });
@@ -233,7 +231,7 @@ public class MapView extends VerticalLayout implements View {
         Button submitCommand = new Button("Отправить", new ClickListener() {
             @Override
             public void buttonClick(ClickEvent clickEvent) {
-                commandRestService.sendCommand(((Command) (commandBox.getValue())).getCommandString(), new HashMap<String, Object>());
+                MyUI.getDataProvider().sendCommand(((Command) (commandBox.getValue())).getCommandString(), new HashMap<String, Object>());
             }
         });
 
