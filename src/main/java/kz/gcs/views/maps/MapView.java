@@ -12,6 +12,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import kz.gcs.MyUI;
 import kz.gcs.domain.Command;
+import kz.gcs.domain.CommandParameter;
 import kz.gcs.domain.Position;
 import kz.gcs.event.DashboardEvent;
 import kz.gcs.event.DashboardEvent.TransactionReportEvent;
@@ -253,8 +254,7 @@ public class MapView extends VerticalLayout implements View {
         textField.setVisible(false);
         textField.setSizeFull();
 
-        final ComboBox commandBox = new ComboBox("Тип", Arrays.asList(Command.values()));
-        commandBox.setFilteringMode(FilteringMode.CONTAINS);
+        final NativeSelect commandBox = new NativeSelect("Тип", Command.getValues(false));
         commandBox.setSizeFull();
         commandBox.setRequired(true);
 
@@ -263,10 +263,9 @@ public class MapView extends VerticalLayout implements View {
             public void valueChange(Property.ValueChangeEvent event) {
                 if (commandBox.getValue() != null) {
                     Command selected = (Command) commandBox.getValue();
-                    if (Command.TYPE_SET_INDICATOR.equals(selected)) {
+                    if(selected.equals(Command.TYPE_CUSTOM) || selected.equals(Command.TYPE_SET_INDICATOR) || selected.equals(Command.TYPE_SHOW_MESSAGE)) {
                         textField.setVisible(true);
-                    } else
-                        textField.setVisible(false);
+                    }
                 }
             }
         });
@@ -279,7 +278,24 @@ public class MapView extends VerticalLayout implements View {
                     Notification.show("Выберите команду", Notification.Type.WARNING_MESSAGE);
                     return;
                 }
-                MyUI.getDataProvider().sendCommand(((Command) (commandBox.getValue())).getCommandString(), new HashMap<String, Object>());
+                Map<String, Object> attributes = new HashMap<String, Object>();
+                Command selected = (Command) commandBox.getValue();
+                switch (selected) {
+                    case TYPE_CUSTOM:
+                        attributes.put(CommandParameter.KEY_DATA.getParameterString(), textField.getValue());
+                        break;
+                    case TYPE_SET_INDICATOR:
+                        attributes.put(CommandParameter.KEY_DATA.getParameterString(), textField.getValue());
+                        break;
+                    case TYPE_SHOW_MESSAGE:
+                        attributes.put(CommandParameter.KEY_MESSAGE.getParameterString(), textField.getValue());
+                        break;
+                }
+                System.out.println();
+                System.out.println("Attributes");
+                System.out.println(attributes);
+                System.out.println();
+                MyUI.getDataProvider().sendCommand(((Command) (commandBox.getValue())).getCommandString(), attributes);
                 commandsWindow.close();
             }
         });
