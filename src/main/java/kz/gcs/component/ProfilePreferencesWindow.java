@@ -3,6 +3,8 @@ package kz.gcs.component;
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
 import com.vaadin.data.fieldgroup.FieldGroup.CommitException;
 import com.vaadin.data.fieldgroup.PropertyId;
+import com.vaadin.shared.ui.datefield.Resolution;
+import kz.gcs.MyUI;
 import kz.gcs.domain.User;
 import kz.gcs.event.DashboardEvent.CloseOpenWindowsEvent;
 import kz.gcs.event.DashboardEvent.ProfileUpdatedEvent;
@@ -18,6 +20,9 @@ import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.themes.ValoTheme;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 
 public class ProfilePreferencesWindow extends Window implements Serializable {
@@ -53,6 +58,8 @@ public class ProfilePreferencesWindow extends Window implements Serializable {
 //    private TextField websiteField;
 //    @PropertyId("bio")
 //    private TextArea bioField;
+
+    private Window warningWindow;
 
     private ProfilePreferencesWindow(final User user,
                                      final boolean preferencesTabOpen) {
@@ -218,6 +225,18 @@ public class ProfilePreferencesWindow extends Window implements Serializable {
         footer.addStyleName(ValoTheme.WINDOW_BOTTOM_TOOLBAR);
         footer.setWidth(100.0f, Unit.PERCENTAGE);
 
+        Button cancel = new Button("Закрыть");
+        initWarningWindow();
+        //cancel.addStyleName(ValoTheme.BUTTON);
+        cancel.addClickListener(new ClickListener() {
+            @Override
+            public void buttonClick(ClickEvent event) {
+                getUI().addWindow(warningWindow);
+            }
+        });
+        footer.addComponent(cancel);
+        footer.setComponentAlignment(cancel, Alignment.MIDDLE_CENTER);
+
         Button ok = new Button("Применить");
         ok.addStyleName(ValoTheme.BUTTON_PRIMARY);
         ok.addClickListener(new ClickListener() {
@@ -246,8 +265,47 @@ public class ProfilePreferencesWindow extends Window implements Serializable {
         });
         ok.focus();
         footer.addComponent(ok);
-        footer.setComponentAlignment(ok, Alignment.TOP_RIGHT);
+        footer.setComponentAlignment(ok, Alignment.MIDDLE_CENTER);
         return footer;
+    }
+
+    private void initWarningWindow() {
+        Label warningLabel = new Label("Вы действительно хотите закрыть окно настроек?");
+        Label warningLabel2 = new Label("Все не сохраненные изменения будут потеряны!");
+        //warningLabel.addStyleName();
+
+        Button yesButton = new Button("Да", new ClickListener() {
+            @Override
+            public void buttonClick(ClickEvent clickEvent) {
+                warningWindow.close();
+                close();
+            }
+        });
+        Button noButton = new Button("Нет", new ClickListener() {
+            @Override
+            public void buttonClick(ClickEvent clickEvent) {
+                warningWindow.close();
+            }
+        });
+
+        HorizontalLayout buttonLayout = new HorizontalLayout(yesButton, noButton);
+        VerticalLayout warningLayout = new VerticalLayout(warningLabel, warningLabel2, buttonLayout);
+        warningLayout.setComponentAlignment(warningLabel, Alignment.MIDDLE_CENTER);
+        warningLayout.setComponentAlignment(warningLabel2, Alignment.MIDDLE_CENTER);
+        warningLayout.setComponentAlignment(buttonLayout, Alignment.MIDDLE_CENTER);
+
+        buttonLayout.setComponentAlignment(yesButton, Alignment.MIDDLE_LEFT);
+        buttonLayout.setComponentAlignment(noButton, Alignment.MIDDLE_RIGHT);
+
+        buttonLayout.setMargin(true);
+        buttonLayout.setSpacing(true);
+        warningLayout.setMargin(true);
+        warningLayout.setSpacing(true);
+
+        warningWindow = new Window("Выберите действие:");
+        warningWindow.setContent(warningLayout);
+        warningWindow.setModal(true);
+        warningWindow.center();
     }
 
     public static void open(final User user, final boolean preferencesTabActive) {

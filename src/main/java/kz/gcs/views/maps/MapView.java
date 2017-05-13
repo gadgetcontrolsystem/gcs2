@@ -263,8 +263,12 @@ public class MapView extends VerticalLayout implements View {
             public void valueChange(Property.ValueChangeEvent event) {
                 if (commandBox.getValue() != null) {
                     Command selected = (Command) commandBox.getValue();
+                    textField.clear();
                     if(selected.equals(Command.TYPE_CUSTOM) || selected.equals(Command.TYPE_SET_INDICATOR) || selected.equals(Command.TYPE_SHOW_MESSAGE)) {
                         textField.setVisible(true);
+                    }
+                    else {
+                        textField.setVisible(false);
                     }
                 }
             }
