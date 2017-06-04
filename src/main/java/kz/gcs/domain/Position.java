@@ -309,7 +309,7 @@ public class Position extends Message implements Comparable<Position> {
         String coords = " <b>Широта</b>: " + getLatitude() + " <b>Долгота</b>: " + getLongitude();
         String accuracy = " <b>Точность</b>: " + getAccuracy() + " м.";
         String address = " <b>Адрес</b>: " + (getAddress() == null ? "" : getAddress());
-        String battery = " <img src=\"https://cdn1.iconfinder.com/data/icons/electronics-glyphs-2/128/88-512.png\" alt=\"Smiley face\" height=\"42\" width=\"42\"  align=\"middle\"> " + getString("battery") + "%";
+        String battery = " <img src=\"https://cdn1.iconfinder.com/data/icons/electronics-glyphs-2/128/88-512.png\" alt=\"Smiley face\" height=\"42\" width=\"42\"  align=\"middle\"> " + getDouble("battery") + "%";
         NumberFormat formatter = new DecimalFormat("#0.00");
         String speed = " <b>Скорость</b>: " + formatter.format(getSpeed());
         String content = date + "</br>" + coords + "</br>" + accuracy + "</br>" + address + "</br>" + battery + "</br>" + speed + "</br>";

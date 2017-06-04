@@ -242,4 +242,13 @@ public class User extends Extensible {
         return Hashing.validatePassword(password, hashedPassword, salt);
     }
 
+    private String phone;
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
 }

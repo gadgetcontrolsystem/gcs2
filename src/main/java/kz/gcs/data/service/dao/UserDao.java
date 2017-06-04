@@ -13,7 +13,7 @@ public interface UserDao {
     @Select("SELECT id, name, admin, hashedpassword, salt, (select deviceid from user_device where userid=id) as deviceid from users where upper(name)=upper(#{name}) and hashedpassword=#{hashedPassword}")
     User getUser(@Param("name") String name, @Param("hashedPassword") String hashedPassword);
 
-    @Select("SELECT id, name, admin, hashedpassword, salt, (select deviceid from user_device where userid=id) as deviceid from users where upper(name)=upper(#{name})")
+    @Select("SELECT id, name, email, phone, admin, hashedpassword, salt, (select deviceid from user_device where userid=id) as deviceid from users where upper(name)=upper(#{name})")
     User getUserByLogin(@Param("name") String name);
 
 
